@@ -13,7 +13,7 @@ testuser = User.create(
   position: "Dev", 
   role: 0, 
   department: 0, 
-  email: "test12@mail.com", 
+  email: "test15@mail.com", 
   password: "password", 
 )
 
@@ -22,8 +22,13 @@ testmanager = User.create(
   position: "ManagerDev", 
   role: 1, 
   department: 0, 
-  email: "test16@mail.com", 
+  email: "test19@mail.com", 
   password: "password", 
+)
+
+testassignedmanager = AssignedManager.create(
+  user_id: testuser.id, 
+  manager_id: testmanager.id
 )
 
 testrequest = Request.create(
@@ -44,8 +49,7 @@ testrequest = Request.create(
   purchase_description: "test description", 
   purchase_amount: 1000, 
 )
-
-begin 
+ 
 testreqstat =  RequestStat.create(
   request_id: testrequest.id,
   approval_stage: 0,
@@ -53,7 +57,3 @@ testreqstat =  RequestStat.create(
   status: 0,
   approval_date: nil,
 )
-
-rescue ActiveRecord::ActiveRecordError => e
-  puts e.message
-end
