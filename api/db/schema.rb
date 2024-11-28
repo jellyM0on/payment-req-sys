@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_28_151358) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_28_160739) do
+  create_table "request_stats", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "request_id", null: false
+    t.integer "approval_stage", null: false
+    t.integer "user_id"
+    t.integer "status", null: false
+    t.timestamp "approval_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "overall_status", null: false
