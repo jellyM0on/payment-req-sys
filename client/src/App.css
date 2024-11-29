@@ -1,4 +1,64 @@
-#root {
+
+* {
+  box-sizing: border-box; 
+}
+
+.input{
+  width: 100%;
+}
+
+.login-page{
+  display: grid;
+  grid-template-rows: 0.5fr 1fr 0.5fr;
+  height: 100vh;
+}
+
+.login-form{
+  justify-self: center; 
+  align-self: center;
+  width: 40%;
+}
+
+p {
+  margin: 0 
+}
+
+.left-content{
+  display: flex; 
+  flex-direction: column;
+  gap: 2em;
+  padding: 2em;
+  border-bottom: 1px solid #E9E7E7;
+  width: 100%;
+}
+
+.auth-btn{
+  padding: 2em; 
+  gap: 1em;
+
+}
+
+.center-content-fit{
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+}
+
+.center-content{
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.half-width{
+  width: 50vw; 
+}
+
+
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +99,4 @@
 
 .read-the-docs {
   color: #888;
-}
+} */
