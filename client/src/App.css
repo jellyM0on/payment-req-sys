@@ -57,6 +57,16 @@ p {
   width: 50vw; 
 }
 
+/* nav */
+
+.nav-header{
+  display: flex; 
+  gap: 1em;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+}
 
 /* #root {
   max-width: 1280px;
