@@ -2,12 +2,16 @@
 import NavHeader from "./navHeader"
 import NavTabs from "./navTabs"
 
+interface NavBarProps{
+    name: string, 
+    role: string
+}
 
-function NavBar(){
+function NavBar({ name, role }: NavBarProps){
     return(
         <>
-            <NavHeader name="test"/>
-            <NavTabs role="Admin"/>
+            <NavHeader name={name}/>
+            <NavTabs role={role}/>
         </>
     )
 }

@@ -40,7 +40,7 @@ const adminNavLinks = employeeNavLinks.concat([
 
 function NavTabs({ role }: NavTabsProps){
 
-  const navLinks = role === "Employee" ? employeeNavLinks : adminNavLinks;
+  const navLinks = role === "employee" ? employeeNavLinks : adminNavLinks;
     return(
        <GlobalNavi hideHelpForm links = { navLinks }/>
     )

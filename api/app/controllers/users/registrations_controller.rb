@@ -11,9 +11,23 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # end
 
   # POST /resource
-  # def create
-  #   super
-  # end
+  def create
+    user = User.create!(
+      email: params[:email], 
+      password: params[:password], 
+      password_confirmation: params[:password_confirmation], 
+      name: params[:name], 
+      position: params[:position],
+      role: params[:role]
+    )
+
+    if user 
+      session[:user_id] = user.id
+      render json: { user: user, logged_in: true }, status: :created
+    else 
+      render json: { error: 'Invalid' }, status: :bad_request
+    end
+  end
 
   # GET /resource/edit
   # def edit
