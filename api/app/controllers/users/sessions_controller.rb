@@ -2,6 +2,8 @@
 
 class Users::SessionsController < Devise::SessionsController
   # before_action :configure_sign_in_params, only: [:create]
+  # 
+  respond_to :json
 
   # GET /resource/sign_in
   # def new
@@ -9,9 +11,16 @@ class Users::SessionsController < Devise::SessionsController
   # end
 
   # POST /resource/sign_in
-  # def create
-  #   super
-  # end
+  def create
+    user = User.find_by(email: params[:email])
+
+    if user&.valid_password?(params[:password])
+      sign_in user
+      render json: { user: user }, status: :ok
+    else 
+      render json: { error: 'Invalid' }, status: :unauthorized
+    end
+  end
 
   # DELETE /resource/sign_out
   # def destroy
@@ -25,19 +34,18 @@ class Users::SessionsController < Devise::SessionsController
   #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
   # end
   # 
-  respond_to :json
 
-  private
+  # private
 
-  def respond_with(resource, _opts = {})
-    if resource.persisted?
-      render json: { message: 'Logged in successfully.' }, status: :ok
-    else
-      render json: { error: 'Invalid email or password.' }, status: :unauthorized
-    end
-  end
+  # def respond_with(resource, _opts = {})
+  #   if resource.persisted?
+  #     render json: { message: 'Logged in successfully.' }, status: :ok
+  #   else
+  #     render json: { error: 'Invalid email or password.' }, status: :unauthorized
+  #   end
+  # end
 
-  def respond_to_on_destroy
-    render json: { message: 'Logged out successfully.' }, status: :ok
-  end
+  # def respond_to_on_destroy
+  #   render json: { message: 'Logged out successfully.' }, status: :ok
+  # end
 end
