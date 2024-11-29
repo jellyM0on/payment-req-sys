@@ -5,10 +5,7 @@ import Dashboard from './pages/dashboard.tsx';
 import Home from './pages/home.tsx';
 import Request from './pages/request.tsx';
 
-import ProtectedRoute from './components/auth/protectedRoute.tsx'
-
 import { Routes, Route, BrowserRouter } from "react-router";
-import { useState } from 'react';
 
 
 function App() {

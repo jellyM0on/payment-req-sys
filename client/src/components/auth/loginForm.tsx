@@ -6,7 +6,7 @@ import { useAuthContext } from "../../providers/authProvider";
 
 
 function LoginForm(){
-    const { user, login } = useAuthContext(); 
+    const { login } = useAuthContext(); 
 
     const handleSubmit = () => {
       const emailInput = document.getElementById('email') as HTMLInputElement; 
