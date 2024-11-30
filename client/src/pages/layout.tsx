@@ -9,15 +9,14 @@ export default function Layout() {
     // // // const [checkStatus, setCheckStatus] = useState(false); 
     const [checkStatus, setCheckStatus] = useState(false); 
 
-    const { user } = useAuthContext();
+    const { user, processDone } = useAuthContext();
 
     useEffect(() => {
-        console.log(user);
         setCheckStatus(true); 
         console.log(checkStatus);
-    }, [user])
+    }, [processDone])
 
-    if(checkStatus && user ){
+    if(checkStatus && user){
         console.log('yes user')
         return(
             <>
@@ -33,5 +32,4 @@ export default function Layout() {
             <Navigate to="/login"/>
         )
     }
-
 }

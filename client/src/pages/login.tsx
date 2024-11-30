@@ -6,14 +6,14 @@ import { Navigate } from "react-router";
 
 function Login() {
 
-  const { user } = useAuthContext();
+  const { user, processDone } = useAuthContext();
   const [checkStatus, setCheckStatus] = useState(false); 
 
   useEffect(() => {
-    console.log(user);
+
     setCheckStatus(true); 
-    console.log(checkStatus);
-  }, [user])
+
+}, [processDone])
 
   if(checkStatus && user == null){
     console.log('no user')

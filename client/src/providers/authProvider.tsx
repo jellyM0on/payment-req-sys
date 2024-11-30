@@ -13,11 +13,11 @@ interface UserLogin{
 }
 
 interface AuthContextType{
-    user: User | null, 
+    user: User | null | undefined, 
     loading: boolean,
     login: (userData: UserLogin) => void;
     logout: () => void; 
-    checkStatus: boolean;
+    processDone: boolean;
 }
 
 const AuthContext = createContext<AuthContextType| undefined>(undefined); 
@@ -27,9 +27,9 @@ interface AuthProviderProps{
 }
 
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null) 
+    const [user, setUser] = useState<User | null >(null) 
     const [loading, setLoading] = useState(false)
-    const [checkStatus, setCheckStatus] = useState(false)
+    const [processDone, setProcessDone] = useState(false)
 
     useEffect(() => {
         checkSessionStorage(); 
@@ -42,12 +42,14 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         } else {
             const newUserData = await getSession()
             if(newUserData){
-                sessionStorage.setItem("user", JSON.stringify(newUserData))
                 setUser(newUserData); 
+                sessionStorage.setItem("user", JSON.stringify(newUserData))
+            } else {
+                setUser(null)
             }
         }
 
-        setCheckStatus(true);
+        setProcessDone(true);
     }
 
     const getSession = async () => {
@@ -89,7 +91,9 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
                 setLoading(false)
                 sessionStorage.setItem("user", JSON.stringify(result.user))
                 setUser(result.user)
-            } 
+            } else {
+                setUser(null)
+            }
           
         } catch (error){
             console.log(error);
@@ -119,7 +123,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
 
     return(
-        <AuthContext.Provider value={{ user, login, logout, loading, checkStatus}}>
+        <AuthContext.Provider value={{ user, login, logout, loading, processDone}}>
             {children}
         </AuthContext.Provider>
     )
