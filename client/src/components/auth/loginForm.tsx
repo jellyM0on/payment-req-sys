@@ -1,12 +1,13 @@
 import { CardBase, DescriptionList, TextField, PageTitle, 
   Button, InlineLink, FormControlLabel} from "@freee_jp/vibes"
-import { Navigate } from "react-router";
+import { useNavigate } from "react-router";
+import { useEffect } from "react";
 
 import { useAuthContext } from "../../providers/authProvider";
 
 
 function LoginForm(){
-    const { user, loading, login } = useAuthContext(); 
+    const { login } = useAuthContext(); 
 
     const handleSubmit = () => {
       const emailInput = document.getElementById('email') as HTMLInputElement; 
@@ -17,13 +18,6 @@ function LoginForm(){
       }
   
       login(loginData)
-
-      //test only 
-
-      if(loading == false && user){
-        window.location.href = '/'
-      }
-
     }
 
     return(

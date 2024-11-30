@@ -1,7 +1,7 @@
 import './App.css'
+import Layout from './pages/layout.tsx';
 import Login from './pages/login.tsx'
 import Signup from './pages/signup.tsx';
-import Dashboard from './pages/dashboard.tsx';
 import Home from './pages/home.tsx';
 import Request from './pages/request.tsx';
 
@@ -16,7 +16,7 @@ function App() {
             <Route path="/login" element={<Login/>}></Route>
             <Route path="/signup" element={<Signup/>}></Route>
            
-            <Route element={<Dashboard/>}>
+            <Route element={<Layout/>}>
               <Route index element={<Home/>}></Route>
               <Route path="/request" element={<Request/>}></Route>
             </Route>
