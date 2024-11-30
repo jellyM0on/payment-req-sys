@@ -12,7 +12,9 @@ export default function Layout() {
     const { user, processDone } = useAuthContext();
 
     useEffect(() => {
-        setCheckStatus(true); 
+        if(processDone){
+            setCheckStatus(true); 
+        }
         console.log(checkStatus);
     }, [processDone])
 

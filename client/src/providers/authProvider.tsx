@@ -53,6 +53,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
 
     const getSession = async () => {
+        console.log("get")
         try {
             const response = await fetch("http://localhost:3000/users/sign_in", {
                 method: 'GET',
