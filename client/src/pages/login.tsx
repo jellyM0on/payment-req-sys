@@ -11,7 +11,9 @@ function Login() {
 
   useEffect(() => {
 
-    setCheckStatus(true); 
+    if(processDone){
+      setCheckStatus(true); 
+    }
 
 }, [processDone])
 

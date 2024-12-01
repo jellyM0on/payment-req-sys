@@ -1,21 +1,31 @@
 import { createContext, ReactNode, FC, useState, useContext, useEffect } from "react";
 
 interface User {
-    // id: number; 
+    id: number; 
     name: string; 
     email: string; 
     role: string;
+    position: string
+    department: string
+    created_at: string
+    updated_at: string
 }
 
 interface UserLogin{
-    email: string, 
-    password: string
+    email: string | null, 
+    password: string | null
+}
+
+interface LoginResponse{
+    user: User | null
+    signed_in: boolean
+    error? : string
 }
 
 interface AuthContextType{
     user: User | null | undefined, 
     loading: boolean,
-    login: (userData: UserLogin) => void;
+    login: (userData: UserLogin) => Promise<LoginResponse>;
     logout: () => void; 
     processDone: boolean;
 }
@@ -75,7 +85,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         } 
     }
 
-    const login = async (userData: UserLogin) => {
+    const login = async (userData: UserLogin): Promise<LoginResponse> => {
         setLoading(true)
         try{
             const response = await fetch("http://localhost:3000/users/sign_in", {
@@ -87,7 +97,8 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
                 credentials: 'include'
             }); 
         
-            const result = await response.json()
+            const result: LoginResponse = await response.json()
+
             if (response.status === 201){
                 setLoading(false)
                 sessionStorage.setItem("user", JSON.stringify(result.user))
@@ -95,10 +106,14 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
             } else {
                 setUser(null)
             }
+
+            return(result);
+
           
         } catch (error){
             console.log(error);
             setLoading(false)
+            return { error: "Error occured", user: null, signed_in: false}
         }
     }
     const logout = async () => {
