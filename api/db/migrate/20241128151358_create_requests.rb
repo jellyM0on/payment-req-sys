@@ -1,7 +1,7 @@
 class CreateRequests < ActiveRecord::Migration[7.2]
   def change
     create_table :requests do |t|
-      t.integer :user_id, null: false 
+      t.references :user, null: false, foreign_key: { to_table: :users, column: :user_id }
       t.integer :overall_status, null: false 
       t.integer :current_stage, null: false
 

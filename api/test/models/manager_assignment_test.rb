@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RequestStatTest < ActiveSupport::TestCase
+class ManagerAssignmentTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

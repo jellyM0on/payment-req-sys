@@ -21,7 +21,7 @@ class Users::SessionsController < Devise::SessionsController
 
     if user&.valid_password?(params[:password])
       session[:user_id] = user.id
-      # sign_in user
+      sign_in user
       render json: { user: user, signed_in: true }, status: :created
     else 
       render json: { error: 'Invalid' }, status: :unauthorized

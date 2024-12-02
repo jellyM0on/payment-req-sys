@@ -1,10 +1,10 @@
 class User < ApplicationRecord
   has_many :requests
-  has_many :request_stats
+  has_many :approvals
 
   # currently users only have 1 manager
-  has_one :assigned_manager, foreign_key: :user_id
-  has_one :manager, through: :assigned_manager, source: :manager
+  has_one :manager_assignment, foreign_key: :user_id, class_name: 'ManagerAssignment'
+  has_one :manager, through: :manager_assignment, source: :manager
 
 
   # Include default devise modules. Others available are:
