@@ -30,6 +30,11 @@ class UsersController < ApplicationController
     end
   end
 
+  def index_managers
+    managers = User.where(role: "manager")
+    render json: { managers: managers }
+  end
+
   private
 
   def check_auth

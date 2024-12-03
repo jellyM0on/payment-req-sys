@@ -22,6 +22,8 @@ class RequestsController < ApplicationController
   render json: requests.to_json(:include => [ {:user => { :only => [:name, :department]}}, { :approvals => { :include => { :reviewer => {:only => :name}}} }])
   end
 
+  
+
   private
 
   def check_role
