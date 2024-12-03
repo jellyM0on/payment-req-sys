@@ -5,7 +5,8 @@ class ApplicationController < ActionController::API
     protected
 
     def configure_permitted_parameters
-        devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :position, :role, :department])
+        devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :position, :role, :department, :manager_id])
+        # devise_parameter_sanitizer.permit(:sign_in, keys: [:email, :password])
     end
     # before_action :set_csrf_cookie
 

@@ -12,8 +12,19 @@ class UsersController < ApplicationController
 
   def update
     user = User.find(params[:id])
-    if user.update(@validated_params)
-      render json: user, status: :ok
+
+    def update_manager
+      if (params[:manager_id])
+        manager = ManagerAssignment.find_by(
+          user_id: params[:id]
+        )
+  
+        manager.update(manager_id: params[:manager_id])
+      end
+    end
+      
+    if user.update(@validated_params) && update_manager
+      render json: user.to_json(include: :manager), status: :ok
     else 
       render json: { error: user.errors }, status: :bad_request
     end
