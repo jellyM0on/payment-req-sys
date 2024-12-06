@@ -1,13 +1,16 @@
 import AuthHeader from "../components/auth/authHeader"
 import SignupForm from "../components/auth/signupForm"
+import { Container, Stack } from "@freee_jp/vibes";
 
 function Signup() {
 
     return(
-        <main className="login-page">
+      <Container>
+        <Stack direction="vertical" justifyContent="center" alignItems="center">
           <AuthHeader/>
           <SignupForm/>
-        </main>
+        </Stack>
+  </Container>
     ); 
 }
 

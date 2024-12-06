@@ -1,13 +1,17 @@
 import { CardBase, DescriptionList, TextField, PageTitle, 
-    Button, FormControlLabel,
-    RequiredIcon,
-    RadioButton,
-    FormControlGroup, 
-    DropdownButton, 
-    ApiComboBox,
-    SingleComboBoxOption,
-    useApiComboBox
-    } from "@freee_jp/vibes"
+  Button, FormControlLabel,
+  RequiredIcon,
+  RadioButton,
+  FormControlGroup, 
+  DropdownButton, 
+  ApiComboBox,
+  SingleComboBoxOption,
+  useApiComboBox, 
+  Stack, 
+  Container, 
+  MarginBase, 
+  Text
+} from "@freee_jp/vibes"
   
 import { useEffect, useState } from "react"
 
@@ -68,56 +72,51 @@ import { useEffect, useState } from "react"
     }
 
       return(
-        <div className='login-form'>
-            <CardBase paddingSize="zero">
-              <div className='center-content'>
-                <div className='left-content'>
-                  <PageTitle>Sign up</PageTitle>
+            <CardBase paddingSize="zero" overflowHidden={false}>
+                <MarginBase mt={2} mb={2}>
+                  <PageTitle mb={2} ml={1.5}>Sign up</PageTitle>
                   <DescriptionList 
                     listContents={[ 
                       {
                         title: <FormControlLabel htmlFor="name" mr={3}>Name <RequiredIcon/> </FormControlLabel>,
-                        value: <TextField id="name" width="full" required />
+                        value: <TextField id="name" width="large" required />
                       }, 
                       {
-                        title: <FormControlLabel htmlFor="email">Email <RequiredIcon/></FormControlLabel>,
-                        value: <TextField id="email" width="full" required/>
+                        title: <FormControlLabel htmlFor="email" mr={3}>Email <RequiredIcon/></FormControlLabel>,
+                        value: <TextField id="email" width="large" required/>
                       }, 
                       {
-                        title: <FormControlLabel htmlFor="password">Password <RequiredIcon/></FormControlLabel>,
+                        title: <FormControlLabel htmlFor="password" mr={3}>Password <RequiredIcon/></FormControlLabel>,
                         value: 
-                          <div> 
-                            <TextField id="password" width="full" required/>
-                            <p className="mt-1">Password must be at least 8 characters long.</p>
-                          </div>
-             
+                          <Stack gap={0.5}>
+                                 <TextField id="password" width="large" required/>
+                                 <Text>Password must be at least 8 characters long</Text>
+                          </Stack>
                       }, 
                       {
-                        title: <FormControlLabel htmlFor="password">Confirm Password <RequiredIcon/></FormControlLabel>,
-                        value: <TextField id="password" width="full" required/>
+                        title: <FormControlLabel htmlFor="password" mr={3}>Confirm Password <RequiredIcon/></FormControlLabel>,
+                        value: <TextField id="password" width="large" required/>
                       }, 
                       {
-                        title: <FormControlLabel htmlFor="position">Position <RequiredIcon/></FormControlLabel>,
-                        value: <TextField id="position" width="full" required/>
+                        title: <FormControlLabel htmlFor="position" mr={3}>Position <RequiredIcon/></FormControlLabel>,
+                        value: <TextField id="position" width="large" required/>
                       }, 
                       {
-                        title: <FormControlLabel htmlFor="department">Department <RequiredIcon/></FormControlLabel>,
+                        title: <FormControlLabel htmlFor="department" mr={3}>Department <RequiredIcon/></FormControlLabel>,
                         value: 
                     
                         <FormControlGroup>
-                          <div className="flex flex-col">
-                          <RadioButton name="department" value="technical">Technical</RadioButton>
-                          <RadioButton name="department" value="hr_admin">HR and Admin</RadioButton>
-                          <RadioButton name="department" value="accounting">Accounting</RadioButton>
-                          </div>
+                          <Stack gap={0.5}>
+                            <RadioButton name="department" value="technical">Technical</RadioButton>
+                            <RadioButton name="department" value="hr_admin">HR and Admin</RadioButton>
+                            <RadioButton name="department" value="accounting">Accounting</RadioButton>
+                          </Stack>
+                        
                        
                       </FormControlGroup>
                       }, 
                       {
-                        title: <FormControlLabel htmlFor="login-password">Manager <RequiredIcon/></FormControlLabel>,
-                        // value: <div>test</div>
-                        // add options 
-                        // value: <ApiComboBox fetchItems={getManagers} isLoading={false} meta={testMeta}/>
+                        title: <FormControlLabel htmlFor="login-password" mr={3}>Manager <RequiredIcon/></FormControlLabel>,
                       }, 
                       {
                         title: <FormControlLabel htmlFor="login-password">Role <RequiredIcon/></FormControlLabel>,
@@ -146,16 +145,14 @@ import { useEffect, useState } from "react"
                         ]}/>
                       },
                     ]}
-                    spacing="normal" />
-                </div>
-              <div className="center-content-fit auth-btn">
-                <Button appearance="primary" width="full">Create account</Button>
-              </div>
-  
-              </div>
-             
+                    spacing="normal" 
+                  />
+               
+              <Stack direction="vertical" alignItems="center" mt={1.5} mr={3} ml={3}>
+                <Button appearance="primary" width="default" >Create account</Button>
+               </Stack>
+               </MarginBase>
             </CardBase>
-        </div>
     
       )
   }
