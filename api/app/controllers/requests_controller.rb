@@ -2,11 +2,11 @@ class RequestsController < ApplicationController
 
   before_action :authenticate_user!
   before_action :check_role 
-  before_action :validate_params, only: [ :create ]
+  before_action :validate_params, only: [ :create, :update ]
 
   def index
     case @user_role
-    when "admin" || "accountant"
+    when "admin" || "accounting_employee" || "accounting_manager"
       requests = Request.all
 
     when "employee"
@@ -27,10 +27,10 @@ class RequestsController < ApplicationController
     request.overall_status = "pending"
 
     case @user_role
-    when "employee" || "accountant"
+    when "employee" || "accounting_employee"
       request.current_stage = "manager"
 
-    when "manager"
+    when "manager" || "accounting_manager"
       request.current_stage = "accountant"
 
     when "admin"
@@ -44,11 +44,39 @@ class RequestsController < ApplicationController
     end
   end
 
+  def update 
+    request = Request.find(params[:id])
+    hasDecidedApproval = false
+
+    request.approvals.each do |approval|
+      if(approval.status == "accepted" || approval.status == "rejected")
+        hasDecidedApproval = true
+      end
+    end
+
+    if (request.user_id != current_user.id || hasDecidedApproval)
+      render json: "Unauthorized", status: :unauthorized
+      return
+    end
+
+    if request.update(@validated_params)
+      render json: request, status: :ok
+    else 
+      render json: { errors: request.errors },  status: :bad_request
+    end
+
+  end
+
   private
 
   def check_role
-    @user_role = current_user.role
-
+    if(current_user.department == "accounting" && current_user.role == "employee")
+      @user_role = "accounting_employee"
+    elsif (current_user.department == "accounting" && current_user.role == "manager")
+      @user_role = "accounting_manager"
+    else 
+      @user_role = current_user.role
+    end
   end
 
   def validate_params
@@ -68,7 +96,6 @@ class RequestsController < ApplicationController
         :purchase_description, 
         :purchase_amount
       )
-    
   end
 
 end
