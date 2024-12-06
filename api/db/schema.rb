@@ -41,7 +41,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_28_163844) do
     t.string "vendor_address", null: false
     t.string "vendor_email", null: false
     t.string "vendor_contact_num", null: false
-    t.string "vendor_certificate_of_reg", null: false
+    t.integer "vendor_certificate_of_reg", null: false
     t.integer "vendor_attachment", null: false
     t.timestamp "payment_due_date"
     t.string "payment_payable_to", null: false
