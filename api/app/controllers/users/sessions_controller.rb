@@ -24,7 +24,7 @@ class Users::SessionsController < Devise::SessionsController
       sign_in user
       render json: { user: user, signed_in: true }, status: :created
     else 
-      render json: { error: 'Invalid' }, status: :unauthorized
+      render json: { error: 'Invalid credentials' }, status: :unauthorized
     end
   end
 

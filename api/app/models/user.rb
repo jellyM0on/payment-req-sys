@@ -15,5 +15,9 @@ class User < ApplicationRecord
   # enums 
   enum :role, { employee: 0, manager: 1, accountant: 2, admin: 3 }
   enum :department, { technical: 0, accounting: 1, hr_admin: 2 }
-  
+
+  # validations 
+  validates :name, presence: true, length: { in: 1..100 }
+  validates :email, presence: true, length: { in: 1..100 }
+  validates :position, presence: true, length: { in: 1..250 }
 end

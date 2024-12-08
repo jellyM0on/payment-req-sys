@@ -10,6 +10,7 @@ import { CardBase, DescriptionList, TextField, PageTitle,
   Stack, 
   MarginBase, 
   Text,
+  Message
 } from "@freee_jp/vibes"
   
 import { useState } from "react"
@@ -24,7 +25,17 @@ interface UserSignup{
   department: string | null, 
   manager_id: number | null | string,
   role: string | null
+}
 
+interface UserErrors{
+  name?: Array<string> 
+  email?:  Array<string>
+  password?:  Array<string>
+  password_confirmation?:  Array<string>
+  position?:  Array<string> 
+  department?:  Array<string> 
+  manager_id?: Array<string> 
+  role?:  Array<string> 
 }
 
 function SignupForm(){
@@ -41,6 +52,8 @@ function SignupForm(){
       manager_id: null, 
       role: null
     }); 
+
+    const [errors, setErrors] = useState<UserErrors>()
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormInput((prevInputs) => ({
@@ -98,13 +111,17 @@ function SignupForm(){
       }))
     }) 
 
-    const handleSubmit = () => {
-      setFormInput((prevInputs) => ({
-        ...prevInputs, manager_id: manager!.id
-      }))
-      console.log(manager!.id)
-      console.log(formInput)
-      registerAccount(formInput)
+    const handleSubmit = async() => {
+      if(manager?.id){
+        setFormInput((prevInputs) => ({
+          ...prevInputs, manager_id: manager!.id
+        }))
+      }
+      const result = await registerAccount(formInput)
+
+      if(result.error){
+        setErrors(result.error)
+      }
     }
 
     const registerAccount = async(userData:UserSignup) => {
@@ -120,7 +137,7 @@ function SignupForm(){
     
         const result = await response.json()
 
-        return(result);
+        return result; 
 
       
     } catch (error){
@@ -138,44 +155,67 @@ function SignupForm(){
                     listContents={[ 
                       {
                         title: <FormControlLabel htmlFor="name" mr={3}>Name <RequiredIcon/> </FormControlLabel>,
-                        value: <TextField name="name" width="large" required onChange={handleInput}/>
+                        value: 
+                        <Stack gap={0}>
+                          <TextField name="name" width="large" required onChange={handleInput} error={ errors?.name ? true : false }/>
+                          {errors?.name ? errors.name.map((msg) =><Message error><Text color="alert" size={0.75}>{msg}</Text></Message>): <></>}
+                        </Stack>
+
+                      
                       }, 
                       {
                         title: <FormControlLabel htmlFor="email" mr={3}>Email <RequiredIcon/></FormControlLabel>,
-                        value: <TextField name="email" width="large" required onChange={handleInput}/>
+                        value: 
+                        <Stack gap={0}>
+                          <TextField name="email" type="email" width="large" required onChange={handleInput} error={ errors?.email ? true : false }/>
+                          {errors?.email ? errors.email.map((msg) =><Message error><Text color="alert" size={0.75}>{msg}</Text></Message>): <></>}
+                        </Stack>
+
+                      
                       }, 
                       {
                         title: <FormControlLabel htmlFor="password" mr={3}>Password <RequiredIcon/></FormControlLabel>,
                         value: 
-                          <Stack gap={0.5}>
-                                 <TextField name="password" width="large" required onChange={handleInput}/>
-                                 <Text>Password must be at least 8 characters long</Text>
+                          <Stack gap={0}>
+                                 <TextField name="password" type="password" width="large" required onChange={handleInput} error={ errors?.password ? true : false }/>
+                                 <Text>Password must be at least 8 characters long.</Text>
+                                 {errors?.password ? errors.password.map((msg) =><Message error><Text color="alert" size={0.75}>{msg}</Text></Message>): <></>}
                           </Stack>
                       }, 
                       {
                         title: <FormControlLabel htmlFor="password_confirmation" mr={3}>Confirm Password <RequiredIcon/></FormControlLabel>,
-                        value: <TextField name="password_confirmation" width="large" required onChange={handleInput}/>
+                        value:
+                        <Stack gap={0}>
+                          <TextField name="password_confirmation" type="password" width="large" required onChange={handleInput} error={ errors?.password_confirmation ? true : false }/>
+                          {errors?.password_confirmation ? errors.password_confirmation.map((msg) =><Message error><Text color="alert" size={0.75}>{msg}</Text></Message>): <></>}
+                        </Stack>
+                       
                       }, 
                       {
                         title: <FormControlLabel htmlFor="position" mr={3}>Position <RequiredIcon/></FormControlLabel>,
-                        value: <TextField name="position" width="large" required onChange={handleInput}/>
+                        value: 
+                        <Stack gap={0}>
+                           <TextField name="position" width="large" required onChange={handleInput} error={ errors?.position ? true : false }/>
+                           {errors?.position ? errors.position.map((msg) =><Message error><Text color="alert" size={0.75}>{msg}</Text></Message>): <></>}
+                        </Stack>
+                     
                       }, 
                       {
                         title: <FormControlLabel htmlFor="department" id="department" mr={3}>Department <RequiredIcon/></FormControlLabel>,
                         value: 
                         <FormControlGroup >
-                          <Stack gap={0.5}>
-                            <RadioButton name="department" value="technical" onChange={handleInput}>Technical</RadioButton>
+                          <Stack gap={0}>
+                            <RadioButton name="department" value="technical" onChange={handleInput} >Technical</RadioButton>
                             <RadioButton name="department" value="hr_admin" onChange={handleInput}>HR and Admin</RadioButton>
                             <RadioButton name="department" value="accounting" onChange={handleInput}>Accounting</RadioButton>
                           </Stack>
-                        
+
                        
                       </FormControlGroup>
                       }, 
                       {
                         title: <FormControlLabel htmlFor="manager" mr={3}>Manager <RequiredIcon/></FormControlLabel>,
-                        value: <ApiComboBox value={manager} onChange={opt => { setManager(opt)}} {...managers}/>
+                        value: <ApiComboBox width="full" listWidth="large" value={manager} placeholder="Select a Manager" onChange={opt => { setManager(opt)}} {...managers}/>
                       }, 
                       {
                         title: <FormControlLabel htmlFor="role">Role <RequiredIcon/></FormControlLabel>,

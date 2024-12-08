@@ -33,7 +33,7 @@ const adminNavLinks = employeeNavLinks.concat([
     IconComponent: IoIosStats,
    },
    {title: "Settings",
-    url: "#", 
+    url: "/settings", 
     IconComponent: IoMdSettings,
    },
 ])
