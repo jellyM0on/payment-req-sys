@@ -18,11 +18,36 @@ class RequestsController < ApplicationController
       requests = Request.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id)).distinct
     end
 
+    if(!requests) 
+      render json: { requests: nil, pagination_meta: nil }, status: :ok
+      return 
+    end
+    
     requests = requests.page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
  
     render json: { requests: requests.as_json(:only =>  [:id, :overall_status, :purchase_category, :current_stage],:include => [{:user => { :only => [:name, :department]}}, { :approvals => { :only => [], :include => { :reviewer => {:only => [:name]}}} }]),
                     pagination_meta: pagination_meta(requests)
-                }
+                },  status: :ok
+  end
+
+  def show
+    request = Request.find(params[:id])
+
+
+    isReviewer = false 
+    request.approvals.each do |approval|
+      if(approval.reviewer_id == current_user.id)
+        return true 
+      end
+    end
+  
+
+    if( request.user_id != current_user.id || (request.user_id != current_user.id && !isReviewer ))
+      render json: "Unauthorized", status: :unauthorized
+      return
+    end
+
+    render json: { request: request.as_json( :include => { :approvals => { :only => [:stage, :status]}}) }
   end
 
   def create 
