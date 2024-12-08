@@ -3,7 +3,6 @@ import SignupForm from "../components/auth/signupForm"
 import { Container, Stack } from "@freee_jp/vibes";
 
 function Signup() {
-
     return(
       <Container>
         <Stack direction="vertical" justifyContent="center" alignItems="center">
@@ -12,6 +11,10 @@ function Signup() {
         </Stack>
   </Container>
     ); 
+}
+
+function SignupContainer(){
+  return <Signup/>
 }
 
 export default Signup

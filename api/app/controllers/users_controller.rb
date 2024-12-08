@@ -34,7 +34,7 @@ class UsersController < ApplicationController
   def index_managers
     managers = User.where(role: "manager")
               .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
-    render json: { managers: managers, pagination_meta: pagination_meta(managers) }
+    render json: { managers: managers.as_json(:only => [:id, :name]), pagination_meta: pagination_meta(managers) }
   end
 
   private
