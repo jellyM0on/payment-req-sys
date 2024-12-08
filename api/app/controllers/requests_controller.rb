@@ -17,8 +17,12 @@ class RequestsController < ApplicationController
     when "manager"
       requests = Request.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id))
     end
+
+    requests = requests.page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
  
-    render json: requests.to_json(:include => [ {:user => { :only => [:name, :department]}}, { :approvals => { :include => { :reviewer => {:only => :name}}} }])
+    render json: { requests: requests.as_json(:include => [ {:user => { :only => [:name, :department]}}, { :approvals => { :only => [:id, :request_id, :status, :decided_at] ,:include => { :reviewer => {:only => [:id, :name]}}} }]),
+                    pagination_meta: pagination_meta(requests)
+                }
   end
 
   def create 
@@ -123,5 +127,12 @@ class RequestsController < ApplicationController
     request.approvals.build(stage: "admin", reviewer_id: nil, status: "pending")
   end
 
+  def pagination_meta(requests) {
+    current_page: requests.current_page, 
+    next_page: requests.next_page, 
+    total_pages: requests.total_pages, 
+    total_count: requests.total_count
+  } 
+  end
 
 end
