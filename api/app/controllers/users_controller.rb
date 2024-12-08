@@ -8,7 +8,7 @@ class UsersController < ApplicationController
   def index 
     users = User.all
             .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
-    render json: { users: users, pagination_meta: pagination_meta(managers) }
+    render json: { users: users, pagination_meta: pagination_meta(users) }
   end
 
   def update
@@ -21,7 +21,10 @@ class UsersController < ApplicationController
         )
   
         manager.update(manager_id: params[:manager_id])
+      else 
+        return true
       end
+      
     end
       
     if user.update(@validated_params) && update_manager
@@ -47,7 +50,7 @@ class UsersController < ApplicationController
   end
 
   def validate_params
-    @validated_params = params.require(:user).permit(:name, :position, :role, :department, :email, :manager_id)
+    @validated_params = params.require(:user).permit(:role, :manager_id)
   end
 
   def pagination_meta(users) {

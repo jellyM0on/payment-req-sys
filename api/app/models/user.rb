@@ -13,7 +13,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   # enums 
-  enum :role, { employee: 0, manager: 1, accountant: 2, admin: 3 }
+  enum :role, { employee: 0, manager: 1, admin: 2 }
   enum :department, { technical: 0, accounting: 1, hr_admin: 2 }
 
   # validations 

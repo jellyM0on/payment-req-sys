@@ -5,8 +5,9 @@ class RequestsController < ApplicationController
   before_action :validate_params, only: [ :create, :update ]
 
   def index
+
     case @user_role
-    when "admin" || "accounting_employee" || "accounting_manager"
+    when "admin", "accounting_employee", "accounting_manager"
       requests = Request.all
 
     when "employee"
@@ -33,21 +34,20 @@ class RequestsController < ApplicationController
   def show
     request = Request.find(params[:id])
 
-
     isReviewer = false 
     request.approvals.each do |approval|
       if(approval.reviewer_id == current_user.id)
-        return true 
+        isReviewer = true 
       end
     end
   
 
-    if( request.user_id != current_user.id || (request.user_id != current_user.id && !isReviewer ))
+    if( request.user_id == current_user.id || (request.user_id != current_user.id && isReviewer))
+      render json: { request: request.as_json( :include => { :approvals => { :only => [:stage, :status]}}) }
+    else 
       render json: "Unauthorized", status: :unauthorized
-      return
     end
 
-    render json: { request: request.as_json( :include => { :approvals => { :only => [:stage, :status]}}) }
   end
 
   def create 
@@ -55,11 +55,13 @@ class RequestsController < ApplicationController
     request.user_id = current_user.id
     request.overall_status = "pending"
 
+    puts @user_role
+
     case @user_role
-    when "employee" || "accounting_employee"
+    when "employee", "accounting_employee"
       request.current_stage = "manager"
 
-    when "manager" || "accounting_manager"
+    when "manager", "accounting_manager"
       request.current_stage = "accountant"
 
     when "admin"
@@ -137,8 +139,10 @@ class RequestsController < ApplicationController
   end
   
   def buildManagerApproval(request, user_role)
-    if(user_role == "manager")
+    if(user_role == "manager" || user_role == "accounting_manager")
       request.approvals.build(stage: "manager", reviewer_id: current_user.id, status: "accepted")
+    elsif(user_role == "admin")
+      request.approvals.build(stage: "manager", reviewer_id: nil, status: "accepted")
     else 
       request.approvals.build(stage: "manager", reviewer_id: current_user.manager.id, status: "pending")
     end
@@ -149,7 +153,7 @@ class RequestsController < ApplicationController
   end
 
   def buildAdminApproval(request)
-    request.approvals.build(stage: "admin", reviewer_id: nil, status: "pending")
+    request.approvals.build(stage: "admin", reviewer_id: User.find_by(role: "admin").id, status: "pending")
   end
 
   def pagination_meta(requests) {
