@@ -1,6 +1,6 @@
 class Approval < ApplicationRecord
   belongs_to :request
-  belongs_to :reviewer, class_name: 'User', foreign_key: :reviewer_id
+  belongs_to :reviewer, class_name: 'User', foreign_key: :reviewer_id, optional: true
 
   # enums 
   enum :stage, { manager: 0, accountant: 1, admin: 2 }

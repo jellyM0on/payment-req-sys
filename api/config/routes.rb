@@ -14,7 +14,9 @@ Rails.application.routes.draw do
   }
 
   resources :users, only: [ :index, :update ] 
-  resources :requests, only: [ :index, :show, :create, :update ]
+  resources :requests, only: [ :index, :show, :create, :update ] do
+    resources :approvals, only: [ :update ]
+  end
 
   get "/users/managers", to: "users#index_managers"
   

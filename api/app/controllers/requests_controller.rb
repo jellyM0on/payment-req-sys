@@ -10,7 +10,7 @@ class RequestsController < ApplicationController
       requests = Request.all
 
     when "employee"
-      requests = Request.find_by(
+      requests = Request.where(
         user_id: current_user.id
       )
 
@@ -36,11 +36,13 @@ class RequestsController < ApplicationController
     when "admin"
       request.current_stage = "accountant"
     end
+
+    buildApprovals(request, @user_role)
   
     if request.save
       render json: request, status: :ok
     else 
-      render json: { errors: request.errors }, status: :bad_request
+      render json: { errors: request.errors.full_messages }, status: :bad_request
     end
   end
 
@@ -51,6 +53,7 @@ class RequestsController < ApplicationController
     request.approvals.each do |approval|
       if(approval.status == "accepted" || approval.status == "rejected")
         hasDecidedApproval = true
+        break; 
       end
     end
 
@@ -97,5 +100,28 @@ class RequestsController < ApplicationController
         :purchase_amount
       )
   end
+
+  def buildApprovals(request, user_role)
+    buildManagerApproval(request, user_role)
+    buildAccountantApproval(request)
+    buildAdminApproval(request)
+  end
+  
+  def buildManagerApproval(request, user_role)
+    if(user_role == "manager")
+      request.approvals.build(stage: "manager", reviewer_id: current_user.id, status: "accepted")
+    else 
+      request.approvals.build(stage: "manager", reviewer_id: current_user.manager.id, status: "pending")
+    end
+  end
+
+  def buildAccountantApproval(request)
+    request.approvals.build(stage: "accountant", reviewer_id: nil, status: "pending")
+  end
+
+  def buildAdminApproval(request)
+    request.approvals.build(stage: "admin", reviewer_id: nil, status: "pending")
+  end
+
 
 end
