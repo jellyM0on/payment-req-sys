@@ -6,20 +6,25 @@ import { IoMdSettings } from "react-icons/io";
 
 
 import { GlobalNavi } from "@freee_jp/vibes"
+import { useState } from "react";
 
 interface NavTabsProps {
   role: string; 
 }
 
-const employeeNavLinks = [
+function NavTabs({ role }: NavTabsProps){
+  // const [currentPage, setCurrentPage] = useState(window.location.href)
+
+  const employeeNavLinks = [
   {title: "Home",
     url: "/", 
     IconComponent: IoMdHome,
-    current: true,
+    current: window.location.pathname == "/" ? true : false 
   }, 
   {title: "Create Request",
     url: "/request", 
     IconComponent: MdPostAdd,
+    current: window.location.pathname == "/request" ? true : false 
    },
 ]
 
@@ -27,18 +32,19 @@ const adminNavLinks = employeeNavLinks.concat([
   {title: "Summary",
     url: "#", 
     IconComponent: MdOutlinePieChart,
+    current: window.location.pathname == "/summary" ? true : false 
    },
    {title: "Reports",
     url: "#", 
     IconComponent: IoIosStats,
+    current: window.location.pathname == "/reports" ? true : false 
    },
    {title: "Settings",
     url: "/settings", 
     IconComponent: IoMdSettings,
+    current: (window.location.pathname).match(/^\/settings\.*/) ?  true : false
    },
 ])
-
-function NavTabs({ role }: NavTabsProps){
 
   const navLinks = role === "employee" ? employeeNavLinks : adminNavLinks;
     return(
