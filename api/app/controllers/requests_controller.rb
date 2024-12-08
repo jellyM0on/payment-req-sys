@@ -15,12 +15,12 @@ class RequestsController < ApplicationController
       )
 
     when "manager"
-      requests = Request.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id))
+      requests = Request.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id)).distinct
     end
 
     requests = requests.page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
  
-    render json: { requests: requests.as_json(:include => [ {:user => { :only => [:name, :department]}}, { :approvals => { :only => [:id, :request_id, :status, :decided_at] ,:include => { :reviewer => {:only => [:id, :name]}}} }]),
+    render json: { requests: requests.as_json(:only =>  [:id, :overall_status, :purchase_category, :current_stage],:include => [{:user => { :only => [:name, :department]}}, { :approvals => { :only => [], :include => { :reviewer => {:only => [:name]}}} }]),
                     pagination_meta: pagination_meta(requests)
                 }
   end
