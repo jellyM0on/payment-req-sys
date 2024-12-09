@@ -14,19 +14,22 @@ class ApprovalsController < ApplicationController
 
     if( (@user_role == "manager" && approval.reviewer_id != current_user.id) || 
       approval.stage != @user_role ||
-      approval.request.user == current_user ||
+      (approval.request.user == current_user && current_user.role != "admin")||
       approval.status != "pending" || 
       (previous_approval && previous_approval.status == "pending"))
-
+   
       render json: "Unauthorized", status: :unauthorized
       return
     end
 
     if approval.update(@validated_params.merge({ decided_at: Time.current.to_s, reviewer_id: current_user.id})) &&
-    updatePendingApprovals(approval) 
-    updateOverallStatus(approval)
+    updateCurrentStage(approval) &&
+    updatePendingApprovals(approval) && 
+    updateOverallStatus(approval) 
 
-      render json: approval, status: :ok
+      approval.request.reload
+
+      render json: approval.request.as_json( :include => { :approvals => { :only => [:id, :stage, :status]}}), status: :ok
     else 
       render json: { errors: approval.errors.full_messages },  status: :bad_request
     end
@@ -64,13 +67,32 @@ class ApprovalsController < ApplicationController
   def updateOverallStatus(current_approval)
     if(current_approval.stage == "admin")
       request = Request.find(current_approval.request_id)
-      request.update(overall_status: current_approval.status)
+      if(request.update(overall_status: current_approval.status))
+        return true
+      end
+
     elsif (current_approval.status == "rejected")
       request = Request.find(current_approval.request_id)
-      request.update(overall_status: "rejected")
+      if(request.update(overall_status: "rejected"))
+        return true
+      end
+
     else 
       return true
     end
+  end
+
+  def updateCurrentStage(current_approval)
+    if(current_approval.stage == "admin")
+      return true 
+    end
+
+    request = Request.find(current_approval.request_id)
+
+    if(request.update(current_stage: current_approval.stage_before_type_cast + 1))
+      return true 
+    end
+    
   end
 
 end

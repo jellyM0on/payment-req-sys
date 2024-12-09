@@ -3,7 +3,8 @@ import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 
 interface ViewRequestProps{
-  request: Request | null
+  request: Request | null,
+  handleRequestUpdate: (request: Request) => void
 }
 
 interface Request{
@@ -25,24 +26,26 @@ interface Request{
   purchase_amount: number, 
   created_at: string, 
   approvals: Approval[],
-  overall_status: string
+  overall_status: string,
 }
 
 interface Approval{
+  id: number
   stage: string, 
-  status: string
+  status: string,
+  updated_at: string
 }
 
-function ViewRequest({request} : ViewRequestProps) {
+function ViewRequest({request, handleRequestUpdate} : ViewRequestProps) {
   // edit null, redirect to an error page
     return (
-      request ? <RequestInfoContainer request={request}/> : null
+      request ? <RequestInfoContainer request={request} handleRequestUpdate={handleRequestUpdate}/> : null
     );
   }
 
 function ViewRequestContainer(){
   let { id } = useParams()
-  let [request, setRequest] = useState(null)
+  let [request, setRequest] = useState<Request | null>(null)
 
   useEffect(() => {
     getRequest()
@@ -71,8 +74,12 @@ function ViewRequestContainer(){
       }
     }
 
+    const handleRequestUpdate = (request: Request) => {
+      setRequest(request)
+    }
+
     return (
-        <ViewRequest request={request}/>
+        <ViewRequest request={request} handleRequestUpdate={handleRequestUpdate}/>
     )
 }
 

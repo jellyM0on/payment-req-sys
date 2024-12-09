@@ -16,13 +16,18 @@ import { MdEdit } from "react-icons/md";
 import { useAuthContext } from "../../providers/authProvider";
 import { useState, useEffect } from "react";
 
+import RequestApprovalModalContainer from "./requestApprovalModal";
+
 interface RequestInfoProps{
     request: Request, 
-    isEditable: false | string
+    isEditable: false | string, 
+    handleApproval: () => void
+    status: string | null
   }
 
 interface RequestInfoContainerProps{
     request: Request, 
+     handleRequestUpdate: (request: Request) => void
   }
   
 interface Request{
@@ -44,15 +49,18 @@ interface Request{
     purchase_amount: number, 
     created_at: string, 
     approvals: Approval[], 
-    overall_status: string
+    overall_status: string,
   }
 
   interface Approval{
+    id: number,
     stage: string, 
-    status: string
+    status: string,
+    updated_at: string,
   }
 
-function RequestInfo({request, isEditable} : RequestInfoProps){
+function RequestInfo({request, isEditable, handleApproval, status} : RequestInfoProps){
+    console.log(request); 
 
     const setListItem = (label: string, value: string | number | null) => {
         return{
@@ -61,10 +69,14 @@ function RequestInfo({request, isEditable} : RequestInfoProps){
         }
     }
 
-    const setStatusItem = (label: string, value: string) => {
+    const setStatusItem = (label: string, value: string, updated_at: string) => {
         return{
             title: <Text size={0.75}>{label}</Text>,
-            value: setStatus(value)
+            value: 
+            <HStack>
+                {setStatus(value)}
+                <Text>{updated_at}</Text>
+            </HStack>
         }
     }
 
@@ -85,12 +97,22 @@ function RequestInfo({request, isEditable} : RequestInfoProps){
         }
       }
 
-    const setButton = (isEditable: string | false) => {
+    const setButton = (isEditable: string | false, status: string | null) => {
         console.log(isEditable); 
         if(!isEditable){
             return(
                 <ButtonGroup  mt={1} mb={1} mr={1.5}>
                     <BackwardButton url="/">Back to Home</BackwardButton>
+                </ButtonGroup>
+            )
+        }
+
+        if(isEditable == "false-with-status"){
+            console.log(status)
+            return(
+                <ButtonGroup  mt={1} mb={1} mr={1.5}>
+                    <BackwardButton url="/">Back to Home</BackwardButton>
+                    {status? setStatus(status) : <></>}
                 </ButtonGroup>
             )
         }
@@ -108,7 +130,7 @@ function RequestInfo({request, isEditable} : RequestInfoProps){
             return(
                 <ButtonGroup  mt={1} mb={1} mr={1.5}>
                     <BackwardButton url="/">Back to Home</BackwardButton>
-                    <Button appearance="primary">Approve</Button>
+                    <Button appearance="primary" onClick={handleApproval}>Approve</Button>
                     <Button danger >Reject</Button>
                 </ButtonGroup>
             )
@@ -118,11 +140,12 @@ function RequestInfo({request, isEditable} : RequestInfoProps){
 
     return(
         <CardBase overflowHidden={false} paddingSize="zero">
-        
             <MarginBase ml={-0.25} mr={-0.25} >
                 <HStack justifyContent="space-between" alignItems="center">
                     <SectionTitle mt={2} mb={2} ml={1.5}>Vendor Information</SectionTitle>
-                     {setButton(isEditable)}
+                    {setButton(isEditable, status)}
+                        
+                 
                 </HStack>
 
                 <GridWrapper ma={0.25}>
@@ -184,15 +207,15 @@ function RequestInfo({request, isEditable} : RequestInfoProps){
                         <DescriptionList listContents={[
                             setListItem("Request No.", request.id), 
                             setListItem("Date Submitted", request.created_at), 
-                            setStatusItem("Status", request.overall_status),
+                            setStatusItem("Status", request.overall_status, request.approvals[2].updated_at),
                         ]}
                     />
                     </GridBlock>
                     <GridBlock size="half">
                         <DescriptionList listContents={[
-                            setStatusItem("JM Approval Status", request.approvals[0].status),
-                            setStatusItem("Accounting Approval Status", request.approvals[1].status),
-                            setStatusItem("Admin Approval Status", request.approvals[2].status),
+                            setStatusItem("JM Approval Status", request.approvals[0].status, request.approvals[0].updated_at),
+                            setStatusItem("Accounting Approval Status", request.approvals[1].status, request.approvals[1].updated_at),
+                            setStatusItem("Admin Approval Status", request.approvals[2].status, request.approvals[2].updated_at),
                         ]}
                     />
                     </GridBlock>
@@ -205,9 +228,11 @@ function RequestInfo({request, isEditable} : RequestInfoProps){
     )
 }
 
-function RequestInfoContainer({request}: RequestInfoContainerProps){
+function RequestInfoContainer({request, handleRequestUpdate}: RequestInfoContainerProps){
     const { user } = useAuthContext(); 
     const [isEditable, setIsEditable] = useState<false | string>(false); 
+    const [isAModalOpen, setIsAModalOpen] = useState<boolean>(false)
+    const [approval, setApproval] = useState<Approval | null>(null)
 
     useEffect(() => {
         //user's own request
@@ -215,13 +240,24 @@ function RequestInfoContainer({request}: RequestInfoContainerProps){
             setIsEditable("plain-mode")
         }
 
-        //user is reviewer of request
-        if(user && request.current_stage == getUserRole(user.role, user.department) && request.overall_status == "pending"){
-                   console.log(isEditable); 
+        //user is reviewer of request and needs to approve
+        if(user && (request.current_stage == getUserRole(user.role, user.department)) && !isApprovalDecided()){
             setIsEditable("approval-mode")
         }
 
+         //user is reviewer of request and has already decided 
+        if ( isApprovalDecided()){
+            setIsEditable("false-with-status")
+        }
+
     }, [user])
+
+    useEffect(() => {
+        if(request){
+            const approval = request.approvals.find( approval => user && approval.stage == getUserRole(user.role, user.department ))
+            setApproval(approval ? approval : null)
+        }
+    }, [request])
 
     const getUserRole = (role :string, department: string) => {
         if(department == "accounting"){
@@ -241,10 +277,46 @@ function RequestInfoContainer({request}: RequestInfoContainerProps){
         return state;
     }
 
-   
+    const isApprovalDecided = () => {
+        const approval = request.approvals.find( approval => user && approval.stage == getUserRole(user.role, user.department ))
+        if(approval && approval.status != "pending"){
+            return true
+        } else {
+            return false 
+        }
+    }
+
+    const handleApproval = () => {
+        setIsAModalOpen(true)
+    }   
+
+    const handleApprovalCancel = () => {
+        setIsAModalOpen(false)
+    }
+
+    const handleChangeEditable = () => {
+        setIsEditable("false-with-status")
+    }
 
     return(
-        <RequestInfo request = {request} isEditable = {isEditable}/>
+        <>
+          <RequestInfo 
+          request = {request} 
+          isEditable = {isEditable} 
+          handleApproval={handleApproval}
+          status={approval ? approval.status : null}
+            />
+
+          <RequestApprovalModalContainer 
+          isOpen={isAModalOpen} 
+          handleClose={handleApprovalCancel} 
+          handleChangeEditable = {handleChangeEditable}
+          approvalId={approval ? approval.id: null} 
+          handleRequestUpdate={handleRequestUpdate}
+          id={request.id} 
+          vendorName={request.vendor_name} />
+        </>
+      
     )
 }
   
