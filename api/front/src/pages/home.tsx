@@ -21,7 +21,8 @@ interface User{
 }
 
 interface Approval{
-  reviewer : { name: string }
+  reviewer : { name: string },
+  stage: string
 }
 
 function Home({requests} : HomePropsInterface){
@@ -54,8 +55,11 @@ export default function HomeContainer() {
 
     const result = await response.json()
 
-    setRequests(result.requests)
-    setPageMeta(result.pagination_meta)
+    if (response.ok){
+      setRequests(result.requests)
+      setPageMeta(result.pagination_meta)
+    } 
+
     // return result
     } catch(error) {
       console.log(error);

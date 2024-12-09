@@ -26,7 +26,7 @@ class RequestsController < ApplicationController
     
     requests = requests.page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
  
-    render json: { requests: requests.as_json(:only =>  [:id, :overall_status, :purchase_category, :current_stage],:include => [{:user => { :only => [:name, :department]}}, { :approvals => { :only => [], :include => { :reviewer => {:only => [:name]}}} }]),
+    render json: { requests: requests.as_json(:only =>  [:id, :overall_status, :purchase_category, :current_stage],:include => [{:user => { :only => [:name, :department]}}, { :approvals => { :only => [:stage], :include => { :reviewer => {:only => [:name]}}} }]),
                     pagination_meta: pagination_meta(requests)
                 },  status: :ok
   end
@@ -36,13 +36,13 @@ class RequestsController < ApplicationController
 
     isReviewer = false 
     request.approvals.each do |approval|
-      if(approval.reviewer_id == current_user.id)
+      if(approval.reviewer_id == current_user.id || approval.stage == "accountant" && current_user.department == "accounting")
         isReviewer = true 
       end
     end
   
 
-    if( request.user_id == current_user.id || (request.user_id != current_user.id && isReviewer))
+    if( request.user_id == current_user.id || isReviewer)
       render json: { request: request.as_json( :include => { :approvals => { :only => [:stage, :status]}}) }
     else 
       render json: "Unauthorized", status: :unauthorized

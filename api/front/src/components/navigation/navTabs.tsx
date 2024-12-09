@@ -16,15 +16,15 @@ function NavTabs({ role }: NavTabsProps){
   // const [currentPage, setCurrentPage] = useState(window.location.href)
 
   const employeeNavLinks = [
-  {title: "Home",
+  {title: role == "employee" ? "My Requests" : "Home",
     url: "/", 
     IconComponent: IoMdHome,
-    current: window.location.pathname == "/" ? true : false 
+    current: window.location.pathname == "/" ||  (window.location.pathname).match(/^\/requests\.*/) ? true : false 
   }, 
   {title: "Create Request",
-    url: "/request", 
+    url: "/request/new", 
     IconComponent: MdPostAdd,
-    current: window.location.pathname == "/request" ? true : false 
+    current: window.location.pathname == "/request/new" ? true : false 
    },
 ]
 

@@ -27,7 +27,8 @@ interface User{
 }
 
 interface Approval{
-  reviewer : { name: string }
+  reviewer : { name: string }, 
+  stage : string,
 }
 
 interface RequestTablePropsInterface{
@@ -72,12 +73,26 @@ function RequestTableContainer({requests} : RequestTableContainerPropsInterface 
     }
   }
 
+  const setParticipants = (approval: Approval, key: number) => {
+    if (approval.stage == "accountant" && !approval.reviewer){
+      return( 
+        <Text key={key}>TBA</Text>
+      )
+    } else if (!approval.reviewer){
+      return null
+    } else {
+      return(
+        <Text key={key}>{approval.reviewer.name}</Text>
+      )
+    }
+  }
+
   useEffect(() => {
     if(requests){
       let rows = []; 
       for(let i = 0; i < requests.length; i++){
         const cRequest = requests[i]
-          rows.push({cells: [
+          rows.push( {url: `/requests/${cRequest.id}`, cells: [
             { value: <Text>{cRequest.id}</Text>}, 
             { value: setStatus(cRequest.overall_status) }, 
             { value: <Text>{cRequest.user.name}</Text >}, 
@@ -86,7 +101,7 @@ function RequestTableContainer({requests} : RequestTableContainerPropsInterface 
             { value: <Text>{cRequest.current_stage}</Text> }, 
             { value: 
               <Stack>
-                {cRequest.approvals.map((approval, key) => <Text key={key}>{approval.reviewer ? approval.reviewer.name : "TBA"}</Text>) }
+                {cRequest.approvals.map((approval, key) => setParticipants(approval, key))}
               </Stack>
             }
           ]
