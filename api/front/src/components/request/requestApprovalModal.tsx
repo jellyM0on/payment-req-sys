@@ -51,7 +51,7 @@ interface Request{
     id: number,
     stage: string, 
     status: string,
-    updated_at: string
+    decided_at: string
   }
 
   interface RequestMsgProps{

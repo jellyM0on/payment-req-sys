@@ -9,7 +9,7 @@
 #   end
 
 testuser = User.create(
-  name: "test", 
+  name: "employee", 
   position: "Dev", 
   role: 0, 
   department: 0, 
@@ -18,7 +18,7 @@ testuser = User.create(
 )
 
 testmanager = User.create(
-  name: "test", 
+  name: "managerdev", 
   position: "ManagerDev", 
   role: 1, 
   department: 0, 
@@ -28,7 +28,7 @@ testmanager = User.create(
 
 
 testaaccount = User.create(
-  name: "test", 
+  name: "accountant", 
   position: "AccountantManager", 
   role: 1, 
   department: 1, 
@@ -37,7 +37,7 @@ testaaccount = User.create(
 )
 
 testadmin = User.create(
-  name: "test", 
+  name: "admin", 
   position: "Admin", 
   role: 2, 
   department: 2, 

@@ -43,7 +43,7 @@ class RequestsController < ApplicationController
   
 
     if( request.user_id == current_user.id || isReviewer)
-      render json: { request: request.as_json( :include => { :approvals => { :only => [:id, :stage, :status, :updated_at]}}) }
+      render json: { request: request.as_json( :include => { :approvals => { :only => [:id, :stage, :status, :decided_at]}}) }
     else 
       render json: "Unauthorized", status: :unauthorized
     end
@@ -140,9 +140,9 @@ class RequestsController < ApplicationController
   
   def buildManagerApproval(request, user_role)
     if(user_role == "manager" || user_role == "accounting_manager")
-      request.approvals.build(stage: "manager", reviewer_id: current_user.id, status: "accepted")
+      request.approvals.build(stage: "manager", reviewer_id: current_user.id, status: "accepted", decided_at:Time.current.to_s)
     elsif(user_role == "admin")
-      request.approvals.build(stage: "manager", reviewer_id: nil, status: "accepted")
+      request.approvals.build(stage: "manager", reviewer_id: nil, status: "accepted", decided_at:Time.current.to_s)
     else 
       request.approvals.build(stage: "manager", reviewer_id: current_user.manager.id, status: "pending")
     end

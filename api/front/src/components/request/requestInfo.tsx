@@ -56,7 +56,7 @@ interface Request{
     id: number,
     stage: string, 
     status: string,
-    updated_at: string,
+    decided_at: string,
   }
 
 function RequestInfo({request, isEditable, handleApproval, status} : RequestInfoProps){
@@ -69,13 +69,13 @@ function RequestInfo({request, isEditable, handleApproval, status} : RequestInfo
         }
     }
 
-    const setStatusItem = (label: string, value: string, updated_at: string) => {
+    const setStatusItem = (label: string, value: string, decided_at: string) => {
         return{
             title: <Text size={0.75}>{label}</Text>,
             value: 
             <HStack>
                 {setStatus(value)}
-                <Text>{updated_at}</Text>
+                <Text>{decided_at}</Text>
             </HStack>
         }
     }
@@ -207,15 +207,15 @@ function RequestInfo({request, isEditable, handleApproval, status} : RequestInfo
                         <DescriptionList listContents={[
                             setListItem("Request No.", request.id), 
                             setListItem("Date Submitted", request.created_at), 
-                            setStatusItem("Status", request.overall_status, request.approvals[2].updated_at),
+                            setStatusItem("Status", request.overall_status, request.approvals[2].decided_at),
                         ]}
                     />
                     </GridBlock>
                     <GridBlock size="half">
                         <DescriptionList listContents={[
-                            setStatusItem("JM Approval Status", request.approvals[0].status, request.approvals[0].updated_at),
-                            setStatusItem("Accounting Approval Status", request.approvals[1].status, request.approvals[1].updated_at),
-                            setStatusItem("Admin Approval Status", request.approvals[2].status, request.approvals[2].updated_at),
+                            setStatusItem("JM Approval Status", request.approvals[0].status, request.approvals[0].decided_at),
+                            setStatusItem("Accounting Approval Status", request.approvals[1].status, request.approvals[1].decided_at),
+                            setStatusItem("Admin Approval Status", request.approvals[2].status, request.approvals[2].decided_at),
                         ]}
                     />
                     </GridBlock>

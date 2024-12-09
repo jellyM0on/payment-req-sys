@@ -33,7 +33,7 @@ interface Approval{
   id: number
   stage: string, 
   status: string,
-  updated_at: string
+  decided_at: string
 }
 
 function ViewRequest({request, handleRequestUpdate} : ViewRequestProps) {
