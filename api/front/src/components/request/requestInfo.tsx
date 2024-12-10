@@ -306,6 +306,8 @@ function RequestInfoContainer({request, handleRequestUpdate}: RequestInfoContain
         setIsEditable("false-with-status")
     }
 
+    console.log(isModalOpen)
+
     return(
         <>
           <RequestInfo 

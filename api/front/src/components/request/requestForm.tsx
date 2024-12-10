@@ -61,6 +61,7 @@ interface RequestFormProps{
   handleInputDate: (date: string) => void, 
   handleDropdown: (label: string, category: string) => void, 
   handleSubmit: () => void, 
+  handleCancel: () => void, 
   date: string,
   category: string | null
   errors: RequestErrors | null
@@ -75,6 +76,7 @@ function RequestForm({
   handleInputDate, 
   handleDropdown, 
   handleSubmit,
+  handleCancel,
   date, 
   category, 
   errors
@@ -253,7 +255,7 @@ function RequestForm({
           <CardBase paddingSize="large">
             <ButtonGroup align="left" ml={3}>
                 <Button appearance="primary" ml={3} onClick={handleSubmit}>Submit</Button>
-                <Button appearance="secondary">Cancel</Button>
+                <Button appearance="secondary" onClick={handleCancel}>Cancel</Button>
             </ButtonGroup>
           </CardBase>
         </div>
@@ -316,8 +318,13 @@ function RequestFormContainer() {
     setErrors(errors); 
   }
 
-
   const navigate = useNavigate(); 
+
+  const handleCancel = () => {
+    navigate('/')
+  }
+
+
   const redirectSuccess = () => {
     navigate('/', {
       state: {
@@ -366,6 +373,7 @@ function RequestFormContainer() {
         category={category}
         handleDropdown={handleDropdown}
         handleSubmit={handleSubmit}
+        handleCancel={handleCancel}
         errors={errors}
         />
    

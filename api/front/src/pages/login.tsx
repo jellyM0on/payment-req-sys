@@ -3,7 +3,7 @@ import LoginForm from "../components/auth/loginForm"
 import { useAuthContext } from "../providers/authProvider";
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router";
-import { Stack, Container, ContentsBase } from "@freee_jp/vibes";
+import { Stack, Container } from "@freee_jp/vibes";
 
 function Login() {
 

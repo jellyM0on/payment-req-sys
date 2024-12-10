@@ -37,7 +37,9 @@ function Home({requests} : HomePropsInterface){
 
 function NewRequestMsg(){
   return(
-    <FloatingMessageBlock success>
+    <FloatingMessageBlock success onClose={() => {
+
+    }}>
       <Text>Your Payment Request has been submitted successfully.</Text>
     </FloatingMessageBlock>
   )
@@ -77,15 +79,11 @@ export default function HomeContainer() {
   }
 
   const location = useLocation(); 
-  let hasNewRequest = null; 
-  if(location.state){
-    hasNewRequest = location.state.hasNewRequest
-  }
 
   return (
     <>
        <Home requests = {requests}/>
-       {hasNewRequest == null ? <></> : <NewRequestMsg/>}
+       {location.state && location.state.hasNewRequest == true ? <NewRequestMsg/>: <></>}
     </>
   );
 }

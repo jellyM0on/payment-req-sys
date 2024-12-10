@@ -13,7 +13,7 @@ interface RequestModalProps{
     isOpen: boolean, 
     vendorName: string, 
     id: number, 
-    // status: string | null
+    status: string | null
 }
 
 interface RequestApprovalModalContainerProps{
@@ -61,25 +61,25 @@ interface Request{
     status: string | null,
   }
 
-
-function RequestApprovalModal({handleClose, handleConfirm, isOpen, id, vendorName} : RequestModalProps){
-
-    return(
-       <MessageDialogConfirm id={"test"} title="Confirm Approval" closeButtonLabel="Cancel" confirmButtonLabel="Approve" 
-       isOpen={isOpen} onRequestClose={handleClose} onConfirm={handleConfirm}>
-            <Text>You are about to approve Request No. {id} for {vendorName}.</Text>
-       </MessageDialogConfirm>
-    )
-}
-
-function RequestRejectModal({handleClose, handleConfirm, isOpen, id, vendorName} : RequestModalProps){
-
+function RequestModal({handleClose, handleConfirm, isOpen, id, vendorName, status} : RequestModalProps){
   return(
-    <MessageDialogConfirm danger id={"test"} title="Confirm Rejection" closeButtonLabel="Cancel" confirmButtonLabel="Reject" 
-    isOpen={isOpen} onRequestClose={handleClose} onConfirm={handleConfirm}>
-         <Text>You are about to reject Request No. {id} for {vendorName}.</Text>
-    </MessageDialogConfirm>
- )
+  <MessageDialogConfirm 
+  id={"test"} 
+  title="Confirm Approval" 
+  closeButtonLabel="Cancel" 
+  confirmButtonLabel={status == "accepted" ? "Approve" : "Reject"} 
+  danger={status == "accepted" ? false : true}
+  isOpen={isOpen} 
+  onRequestClose={handleClose} 
+  onConfirm={handleConfirm}>
+      {status == "accepted" ?
+       <Text>You are about to approve Request No. {id} for {vendorName}.</Text>
+       :
+       <Text>You are about to reject Request No. {id} for {vendorName}.</Text>
+      }
+      
+  </MessageDialogConfirm>
+  )
 }
 
 function RequestMsg({id, status}: RequestMsgProps ){
@@ -109,6 +109,7 @@ function RequestModalContainer({
       updateStatus("rejected"); 
     }
 
+    console.log(status)
     const updateStatus = async(status: string) => {
         try{
             const response = await fetch(`http://localhost:3000/requests/${id}/approvals/${approvalId}`, {
@@ -140,19 +141,16 @@ function RequestModalContainer({
         <>
           { isUpdated ? <RequestMsg id={id} status={status} /> : <> </>}
 
-          {status == "accepted" ? 
-            <RequestApprovalModal  
-            handleClose={handleClose} 
-            handleConfirm={handleApprovalConfirm}
-            isOpen={isOpen}
-            vendorName={vendorName}
-            id={id}/> 
-            : 
-            <RequestRejectModal  handleClose={handleClose} 
-            handleConfirm={handleRejectConfirm}
-            isOpen={isOpen}
-            vendorName={vendorName}
-            id={id}/>}
+          <RequestModal
+           handleClose={handleClose} 
+           handleConfirm={status == "accepted" ? handleApprovalConfirm : handleRejectConfirm}
+           isOpen={isOpen}
+           vendorName={vendorName}
+           id={id}
+           status={status}
+          />
+          
+
         </>
        
     )

@@ -4,9 +4,10 @@ import { MdOutlinePieChart } from "react-icons/md";
 import { IoIosStats } from "react-icons/io";
 import { IoMdSettings } from "react-icons/io";
 
-
 import { GlobalNavi } from "@freee_jp/vibes"
-import { useState } from "react";
+
+
+import { useLocation } from "react-router";
 
 interface NavTabsProps {
   role: string; 
@@ -15,16 +16,18 @@ interface NavTabsProps {
 function NavTabs({ role }: NavTabsProps){
   // const [currentPage, setCurrentPage] = useState(window.location.href)
 
+  const location = useLocation(); 
+
   const employeeNavLinks = [
   {title: role == "employee" ? "My Requests" : "Home",
     url: "/", 
     IconComponent: IoMdHome,
-    current: window.location.pathname == "/" ||  (window.location.pathname).match(/^\/requests\.*/) ? true : false 
+    current: location.pathname == "/" ||  (location.pathname).match(/^\/requests\.*/) ? true : false 
   }, 
   {title: "Create Request",
     url: "/request/new", 
     IconComponent: MdPostAdd,
-    current: window.location.pathname == "/request/new" ? true : false 
+    current: location.pathname == "/request/new" ? true : false 
    },
 ]
 
@@ -32,17 +35,17 @@ const adminNavLinks = employeeNavLinks.concat([
   {title: "Summary",
     url: "#", 
     IconComponent: MdOutlinePieChart,
-    current: window.location.pathname == "/summary" ? true : false 
+    current: location.pathname == "/summary" ? true : false 
    },
    {title: "Reports",
     url: "#", 
     IconComponent: IoIosStats,
-    current: window.location.pathname == "/reports" ? true : false 
+    current: location.pathname == "/reports" ? true : false 
    },
    {title: "Settings",
     url: "/settings", 
     IconComponent: IoMdSettings,
-    current: (window.location.pathname).match(/^\/settings\.*/) ?  true : false
+    current: (location.pathname).match(/^\/settings\.*/) ?  true : false
    },
 ])
 
