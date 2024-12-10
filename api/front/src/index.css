@@ -25,3 +25,11 @@
 .vb-gridBlock--half{
   flex-basis: calc((100%) / 2);
 }
+
+#cardbase-btm{
+  position: fixed; 
+  bottom: -1%;
+  width: 100%;
+  left: 0;
+  margin: 0
+}

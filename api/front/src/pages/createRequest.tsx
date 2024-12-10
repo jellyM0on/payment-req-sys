@@ -1,10 +1,16 @@
-import RequestForm from "../components/request/requestInfo";
+import RequestFormContainer from "../components/request/requestForm";
 
-export default function Request() {
+function CreateRequest() {
     return (
-      <>
-         <h1>request</h1>
-\
-      </>
+     <RequestFormContainer/>
     );
   }
+
+function CreateRequestContainer() {
+    return (
+      <CreateRequest/>
+    );
+  }
+
+
+export default CreateRequestContainer
