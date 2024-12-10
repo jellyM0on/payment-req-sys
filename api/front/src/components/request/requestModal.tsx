@@ -7,12 +7,13 @@ from "@freee_jp/vibes"
 
 import { useState } from "react"
 
-interface RequestApprovalModalProps{
+interface RequestModalProps{
     handleClose: () => void, 
     handleConfirm: () => void, 
     isOpen: boolean, 
     vendorName: string, 
-    id: number
+    id: number, 
+    // status: string | null
 }
 
 interface RequestApprovalModalContainerProps{
@@ -23,6 +24,7 @@ interface RequestApprovalModalContainerProps{
     vendorName: string, 
     id: number,
     approvalId:  number | null,
+    status: string | null, 
 }
 
 interface Request{
@@ -55,12 +57,12 @@ interface Request{
   }
 
   interface RequestMsgProps{
-    // isUpdated: boolean, 
     id: number
+    status: string | null,
   }
 
 
-function RequestApprovalModal({handleClose, handleConfirm, isOpen, id, vendorName} : RequestApprovalModalProps){
+function RequestApprovalModal({handleClose, handleConfirm, isOpen, id, vendorName} : RequestModalProps){
 
     return(
        <MessageDialogConfirm id={"test"} title="Confirm Approval" closeButtonLabel="Cancel" confirmButtonLabel="Approve" 
@@ -70,20 +72,41 @@ function RequestApprovalModal({handleClose, handleConfirm, isOpen, id, vendorNam
     )
 }
 
-function RequestMsg({id}: RequestMsgProps ){
+function RequestRejectModal({handleClose, handleConfirm, isOpen, id, vendorName} : RequestModalProps){
+
+  return(
+    <MessageDialogConfirm danger id={"test"} title="Confirm Rejection" closeButtonLabel="Cancel" confirmButtonLabel="Reject" 
+    isOpen={isOpen} onRequestClose={handleClose} onConfirm={handleConfirm}>
+         <Text>You are about to reject Request No. {id} for {vendorName}.</Text>
+    </MessageDialogConfirm>
+ )
+}
+
+function RequestMsg({id, status}: RequestMsgProps ){
     return(
         <FloatingMessageBlock success>
-            <Text>Payment Request No. {id} has been approved</Text>
+            <Text>Payment Request No. {id} has been {status == "accepted" ? "approved" : "rejected"}</Text>
         </FloatingMessageBlock>
     )
 }
 
-function RequestApprovalModalContainer({isOpen, vendorName, id, approvalId, handleClose, handleRequestUpdate, handleChangeEditable} : RequestApprovalModalContainerProps){
+function RequestModalContainer({
+  isOpen,
+  vendorName, 
+  id,
+  approvalId, 
+  handleClose, 
+  handleRequestUpdate, 
+  handleChangeEditable, status} : RequestApprovalModalContainerProps){
 
     const [isUpdated, setIsUpdated] = useState(false); 
 
-    const handleConfirm = () => {
+    const handleApprovalConfirm = () => {
         updateStatus("accepted"); 
+    }
+
+    const handleRejectConfirm = () => {
+      updateStatus("rejected"); 
     }
 
     const updateStatus = async(status: string) => {
@@ -115,17 +138,24 @@ function RequestApprovalModalContainer({isOpen, vendorName, id, approvalId, hand
 
     return(
         <>
-          { isUpdated ? <RequestMsg id={id} /> : <> </>}
-          <RequestApprovalModal
+          { isUpdated ? <RequestMsg id={id} status={status} /> : <> </>}
+
+          {status == "accepted" ? 
+            <RequestApprovalModal  
             handleClose={handleClose} 
-            handleConfirm={handleConfirm}
+            handleConfirm={handleApprovalConfirm}
             isOpen={isOpen}
             vendorName={vendorName}
-            id={id}
-        />  
+            id={id}/> 
+            : 
+            <RequestRejectModal  handleClose={handleClose} 
+            handleConfirm={handleRejectConfirm}
+            isOpen={isOpen}
+            vendorName={vendorName}
+            id={id}/>}
         </>
        
     )
 }
 
-export default RequestApprovalModalContainer; 
+export default RequestModalContainer; 

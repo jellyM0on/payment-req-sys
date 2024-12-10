@@ -151,6 +151,7 @@ function SignupForm(){
             <CardBase paddingSize="zero" overflowHidden={false}>
                 <MarginBase mt={2} mb={2}>
                   <PageTitle mb={2} ml={1.5}>Sign up</PageTitle>
+                  <div id="auth-form">
                   <DescriptionList 
                     listContents={[ 
                       {
@@ -241,6 +242,7 @@ function SignupForm(){
                     ]}
                     spacing="normal" 
                   />
+                  </div>
                
               <Stack direction="vertical" alignItems="center" mt={1.5} mr={3} ml={3}>
                 <Button onClick={handleSubmit} appearance="primary" width="default" >Create account</Button>

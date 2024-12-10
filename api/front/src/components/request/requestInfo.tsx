@@ -16,12 +16,13 @@ import { MdEdit } from "react-icons/md";
 import { useAuthContext } from "../../providers/authProvider";
 import { useState, useEffect } from "react";
 
-import RequestApprovalModalContainer from "./requestApprovalModal";
+import RequestModalContainer from "./requestModal";
 
 interface RequestInfoProps{
     request: Request, 
     isEditable: false | string, 
-    handleApproval: () => void
+    handleApprovalBtn: () => void, 
+    handleRejectBtn: () => void,
     status: string | null
   }
 
@@ -59,7 +60,7 @@ interface Request{
     decided_at: string,
   }
 
-function RequestInfo({request, isEditable, handleApproval, status} : RequestInfoProps){
+function RequestInfo({request, isEditable, handleApprovalBtn, handleRejectBtn, status} : RequestInfoProps){
     console.log(request); 
 
     const setListItem = (label: string, value: string | number | null) => {
@@ -130,8 +131,8 @@ function RequestInfo({request, isEditable, handleApproval, status} : RequestInfo
             return(
                 <ButtonGroup  mt={1} mb={1} mr={1.5}>
                     <BackwardButton url="/">Back to Home</BackwardButton>
-                    <Button appearance="primary" onClick={handleApproval}>Approve</Button>
-                    <Button danger >Reject</Button>
+                    <Button appearance="primary" onClick={handleApprovalBtn}>Approve</Button>
+                    <Button danger onClick={handleRejectBtn} >Reject</Button>
                 </ButtonGroup>
             )
         }
@@ -231,8 +232,9 @@ function RequestInfo({request, isEditable, handleApproval, status} : RequestInfo
 function RequestInfoContainer({request, handleRequestUpdate}: RequestInfoContainerProps){
     const { user } = useAuthContext(); 
     const [isEditable, setIsEditable] = useState<false | string>(false); 
-    const [isAModalOpen, setIsAModalOpen] = useState<boolean>(false)
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const [approval, setApproval] = useState<Approval | null>(null)
+    const [status, setStatus] = useState<string | null>(null)
 
     useEffect(() => {
         //user's own request
@@ -286,12 +288,18 @@ function RequestInfoContainer({request, handleRequestUpdate}: RequestInfoContain
         }
     }
 
-    const handleApproval = () => {
-        setIsAModalOpen(true)
-    }   
+    const handleApprovalBtn = () => {
+        setStatus("accepted")
+        setIsModalOpen(true)
+    }
 
-    const handleApprovalCancel = () => {
-        setIsAModalOpen(false)
+    const handleRejectBtn = () => {
+        setStatus("rejected")
+        setIsModalOpen(true)
+    }
+
+    const handleModalCancel = () => {
+        setIsModalOpen(false)
     }
 
     const handleChangeEditable = () => {
@@ -303,18 +311,20 @@ function RequestInfoContainer({request, handleRequestUpdate}: RequestInfoContain
           <RequestInfo 
           request = {request} 
           isEditable = {isEditable} 
-          handleApproval={handleApproval}
+          handleApprovalBtn={handleApprovalBtn}
+          handleRejectBtn={handleRejectBtn}
           status={approval ? approval.status : null}
             />
 
-          <RequestApprovalModalContainer 
-          isOpen={isAModalOpen} 
-          handleClose={handleApprovalCancel} 
+          <RequestModalContainer 
+          isOpen={isModalOpen} 
+          handleClose={handleModalCancel} 
           handleChangeEditable = {handleChangeEditable}
           approvalId={approval ? approval.id: null} 
           handleRequestUpdate={handleRequestUpdate}
           id={request.id} 
-          vendorName={request.vendor_name} />
+          vendorName={request.vendor_name}
+          status={status} />
         </>
       
     )

@@ -13,7 +13,6 @@ import { CardBase,
 import { useAuthContext } from "../../providers/authProvider";
 import { useState } from "react";
 
-
 interface UserLogin{
   email: string | null, 
   password: string | null
@@ -49,7 +48,7 @@ function LoginForm(){
             <PageTitle mb={2} ml={1.5}>Log in</PageTitle>
             {errors ? <Message error mb={2} ml={1.5}><Text color="alert">{errors}</Text></Message> :<></>}
           
-
+          <div id="auth-form">
             <DescriptionList 
               listContents={[ 
                 {
@@ -62,6 +61,7 @@ function LoginForm(){
                 }, 
               ]}
             />
+          </div>
 
 
           <Stack direction="vertical" alignItems="center" mt={1.5}>

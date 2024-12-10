@@ -18,9 +18,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* .vb-descriptionList__row:nth-child(2n+1){
+#auth-form .vb-descriptionList__row:nth-child(2n+1){
   background-color: white;
-} */
+}
 
 .vb-gridBlock--half{
   flex-basis: calc((100%) / 2);

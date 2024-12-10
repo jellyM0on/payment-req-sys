@@ -29,7 +29,7 @@ class ApprovalsController < ApplicationController
 
       approval.request.reload
 
-      render json: approval.request.as_json( :include => { :approvals => { :only => [:id, :stage, :status]}}), status: :ok
+      render json: approval.request.as_json( :include => { :approvals => { :only => [:id, :stage, :status, :decided_at]}}), status: :ok
     else 
       render json: { errors: approval.errors.full_messages },  status: :bad_request
     end
@@ -57,7 +57,8 @@ class ApprovalsController < ApplicationController
       )
 
       pending_approvals.each do |p_approval|
-        p_approval.update(status: "rejected", decided_at: Time.current.to_s)
+        # p_approval.update(status: "rejected", decided_at: Time.current.to_s)
+        p_approval.update(status: "rejected")
       end  
     else 
       return true
