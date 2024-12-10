@@ -1,5 +1,7 @@
 import RequestTable from "../components/request/requestTable";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import { FloatingMessageBlock, Text } from "@freee_jp/vibes";
 
 interface HomePropsInterface{
   requests: Request[] | null
@@ -30,6 +32,14 @@ function Home({requests} : HomePropsInterface){
     <>
       <RequestTable requests = {requests}/>
     </>
+  )
+}
+
+function NewRequestMsg(){
+  return(
+    <FloatingMessageBlock success>
+      <Text>Your Payment Request has been submitted successfully.</Text>
+    </FloatingMessageBlock>
   )
 }
 
@@ -66,9 +76,16 @@ export default function HomeContainer() {
     }
   }
 
+  const location = useLocation(); 
+  let hasNewRequest = null; 
+  if(location.state){
+    hasNewRequest = location.state.hasNewRequest
+  }
+
   return (
     <>
        <Home requests = {requests}/>
+       {hasNewRequest == null ? <></> : <NewRequestMsg/>}
     </>
   );
 }

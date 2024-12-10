@@ -11,16 +11,18 @@ import {
   DateInput, 
   DropdownButton, 
   Text, 
-  MarginBase, 
+  Message,
   CardBase, 
   ButtonGroup, 
   Button,
-  TextFieldType
+  TextFieldType, 
+  FloatingMessageBlock
  } from "@freee_jp/vibes";
 
  import { RequiredIcon } from "@freee_jp/vibes";
  import { useState } from "react";
 import { useAuthContext } from "../../providers/authProvider";
+import { useNavigate } from "react-router";
 
  interface Request{
   vendor_name: string | null
@@ -61,7 +63,9 @@ interface RequestFormProps{
   handleSubmit: () => void, 
   date: string,
   category: string | null
+  errors: RequestErrors | null
 }
+
 function handleAccordion(){
   console.log("test")
 }
@@ -73,14 +77,16 @@ function RequestForm({
   handleSubmit,
   date, 
   category, 
+  errors
 }:RequestFormProps) {
 
-   const setListItem = (label: string, name: string, type:TextFieldType = "text") => {
+   const setListItem = (label: string, name: string, type:TextFieldType = "text", errors:Array<String> = [] ) => {
     return {
-        title: <FormControlLabel  mr={3} htmlFor={name}>{label}<RequiredIcon/></FormControlLabel>,
+        title: <FormControlLabel  mr={3} htmlFor={name}>{label}<RequiredIcon ml={0.5}/></FormControlLabel>,
         value: 
            <Stack gap={0}>
-            <TextField name={name} width="large" type={type} required onChange={handleInput}/>
+            <TextField name={name} width="large" type={type} required onChange={handleInput} error={ errors.length > 0 ? true : false }/>
+            {errors ? errors.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
           </Stack>
        
       }
@@ -127,22 +133,23 @@ function RequestForm({
       open={true}>
   
         <DescriptionList  headCellMinWidth={20} listContents={[
-          setListItem("Vendor Name", "vendor_name"),
-          setListItem("Tax Identification Number (TIN)", "vendor_tin"), 
-          setListItem("Address", "vendor_address"), 
-          setListItem("Email Address", "vendor_email", "email"), 
-          setListItem("Contact No.", "vendor_contact_num"), 
+          setListItem("Vendor Name", "vendor_name", "text", errors?.vendor_name),
+          setListItem("Tax Identification Number (TIN)", "vendor_tin", "text", errors?.vendor_name), 
+          setListItem("Address", "vendor_address", "text", errors?.vendor_address), 
+          setListItem("Email Address", "vendor_email", "email", errors?.vendor_email), 
+          setListItem("Contact No.", "vendor_contact_num", "text", errors?.vendor_contact_num), 
           {
-          title: <FormControlLabel htmlFor="vendor_certificate_of_reg" id="vendor_certificate_of_reg" mr={3}>Certificate of Registration <RequiredIcon/></FormControlLabel>,
+          title: <FormControlLabel htmlFor="vendor_certificate_of_reg" id="vendor_certificate_of_reg" mr={3}>Certificate of Registration <RequiredIcon ml={0.5}/></FormControlLabel>,
           value: 
           <FormControlGroup >
             <Stack gap={0}>
               <RadioButton name="vendor_certificate_of_reg" value="applicable" onChange={handleInput}  >Applicable</RadioButton>
               <RadioButton name="vendor_certificate_of_reg" value="n_applicable" onChange={handleInput}>Not Applicable</RadioButton>
+              {errors?.vendor_certificate_of_reg ? errors.vendor_certificate_of_reg.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
             </Stack>
         </FormControlGroup>
         }, 
-        setListItem("Attachment", "vendor_attachment", "number"), 
+        setListItem("Attachment", "vendor_attachment", "number", errors?.vendor_attachment), 
           
          
         ]}/>
@@ -159,18 +166,19 @@ function RequestForm({
 
         <DescriptionList  headCellMinWidth={20} listContents={[
           {
-            title:  <FormControlLabel htmlFor="payment_date">Payment Due Date<RequiredIcon/></FormControlLabel>,
+            title:  <FormControlLabel htmlFor="payment_date">Payment Due Date<RequiredIcon ml={0.5}/></FormControlLabel>,
             value: <DateInput onChange={handleInputDate} value={date}/>
           },
-          setListItem("Make Payable To", "payment_payable_to"),
+          setListItem("Make Payable To", "payment_payable_to", "text", errors?.payment_payable_to),
           {
-            title: <FormControlLabel htmlFor="payment_mode" id="payment_mode" mr={3}>Payment Mode <RequiredIcon/></FormControlLabel>,
+            title: <FormControlLabel htmlFor="payment_mode" id="payment_mode" mr={3}>Payment Mode <RequiredIcon ml={0.5}/></FormControlLabel>,
             value: 
             <FormControlGroup >
               <Stack gap={0}>
                 <RadioButton name="payment_mode" value="bank_transfer" onChange={handleInput}>Bank Transfer</RadioButton>
                 <RadioButton name="payment_mode" value="credit_card"  onChange={handleInput}>Credit Card</RadioButton>
                 <RadioButton name="payment_mode" value="check"  onChange={handleInput}>Check</RadioButton>
+                {errors?.payment_mode ? errors.payment_mode.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
               </Stack>
           </FormControlGroup>
           }, 
@@ -196,8 +204,10 @@ function RequestForm({
 
         <DescriptionList headCellMinWidth={20} listContents={[
           {
-            title:  <FormControlLabel htmlFor="category">Category<RequiredIcon/></FormControlLabel>,
-            value: <DropdownButton buttonLabel= {category ? category: "Category"}
+            title:  <FormControlLabel htmlFor="category">Category<RequiredIcon ml={0.5}/></FormControlLabel>,
+            value: 
+            <>
+            <DropdownButton buttonLabel= {category ? category: "Category"}
             dropdownContents={[
               {
                 type: 'selectable',
@@ -221,9 +231,11 @@ function RequestForm({
               },
             ]
             }/>
+          {errors?.purchase_category ? errors.purchase_category.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
+          </>
           },
-          setListItem("Description", "purchase_description"),
-          setListItem("Amount", "purchase_amount", "number"),
+          setListItem("Description", "purchase_description", "text", errors?.purchase_description),
+          setListItem("Amount", "purchase_amount", "number", errors?.purchase_amount),
           // setListItem("Supporting Documents")
           {
             title: "", 
@@ -269,7 +281,7 @@ function RequestFormContainer() {
   })
   const [date, setDate] = useState<string>(new Date().toDateString())
   const [category, setCategory] = useState<string|null>(null)
-  const [errors, setErrors] = useState<RequestErrors>()
+  const [errors, setErrors] = useState<RequestErrors|null>(null)
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormInput((prevInputs) => ({
@@ -299,8 +311,19 @@ function RequestFormContainer() {
     if(user) createRequest(formInput); 
   }
 
-  const handleCancel = () => {
 
+  const handleErrors = (errors: RequestErrors) => {
+    setErrors(errors); 
+  }
+
+
+  const navigate = useNavigate(); 
+  const redirectSuccess = () => {
+    navigate('/', {
+      state: {
+        hasNewRequest: true
+      }
+    })
   }
 
   const createRequest = async(requestData:Request) => {
@@ -317,9 +340,10 @@ function RequestFormContainer() {
     const result = await response.json()
 
     if (response.ok){
-      // setRequest(result.request)
-      console.log(result); 
-    } 
+      redirectSuccess()
+    } else {
+      handleErrors(result.errors)
+    }
 
    } catch(error) {
       console.log(error);
@@ -328,15 +352,25 @@ function RequestFormContainer() {
 
 
     return (
-      <RequestForm  
-      handleInput={handleInput} 
-      date={date} 
-      handleInputDate={handleInputDate}
-      category={category}
-      handleDropdown={handleDropdown}
-      handleSubmit={handleSubmit}
-      />
+      <>
+        {errors == null ? <></>
+         : 
+         <FloatingMessageBlock error>
+            <Text>There was an issue with your submission. Please check the highlighted fields and try again.</Text>
+          </FloatingMessageBlock>}
+
+        <RequestForm  
+        handleInput={handleInput} 
+        date={date} 
+        handleInputDate={handleInputDate}
+        category={category}
+        handleDropdown={handleDropdown}
+        handleSubmit={handleSubmit}
+        errors={errors}
+        />
    
+      </>
+      
     );
   }
 

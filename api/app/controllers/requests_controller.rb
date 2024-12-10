@@ -73,7 +73,7 @@ class RequestsController < ApplicationController
     if request.save
       render json: request, status: :ok
     else 
-      render json: { errors: request.errors.full_messages }, status: :bad_request
+      render json: { errors: request.errors }, status: :bad_request
     end
   end
 
