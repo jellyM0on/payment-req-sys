@@ -4,6 +4,7 @@ import Login from './pages/login.tsx'
 import Signup from './pages/signup.tsx';
 import HomeContainer from './pages/home.tsx';
 import ViewRequestContainer from './pages/viewRequest.tsx';
+import CreateUserContainer from './pages/createUser.tsx';
 
 import Request from './pages/createRequest.tsx';
 import Settings from './pages/settings.tsx'
@@ -17,7 +18,7 @@ function App() {
      <BrowserRouter>
         <Routes>
             <Route path="/login" element={<Login/>}></Route>
-            <Route path="/signup" element={<Signup/>}></Route>
+            {/* <Route path="/signup" element={<Signup/>}></Route> */}
            
             <Route element={<Layout/>}>
               <Route index element={<HomeContainer/>}></Route>
@@ -25,6 +26,7 @@ function App() {
 
               <Route path="/request/new" element={<Request/>}></Route>
               <Route path="/settings" element={<Settings/>}></Route>
+              <Route path="/settings/new" element={<CreateUserContainer/>} ></Route>
             </Route>
         </Routes>
       </BrowserRouter>

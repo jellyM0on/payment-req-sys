@@ -10,10 +10,12 @@ import { CardBase, DescriptionList, TextField, PageTitle,
   Stack, 
   MarginBase, 
   Text,
-  Message
+  Message, 
+  FloatingMessageBlock
 } from "@freee_jp/vibes"
   
 import { useState } from "react"
+import { useNavigate } from "react-router"
 
 
 interface UserSignup{
@@ -111,6 +113,16 @@ function SignupForm(){
       }))
     }) 
 
+    const navigate = useNavigate()
+
+    const redirectSuccess = () => {
+      navigate('/settings', {
+        state: {
+          hasNewUser: true
+        }
+      })
+    }
+
     const handleSubmit = async() => {
       if(manager?.id){
         setFormInput((prevInputs) => ({
@@ -121,6 +133,11 @@ function SignupForm(){
 
       if(result.error){
         setErrors(result.error)
+
+      }
+
+      if(result && !result.error){
+        redirectSuccess()
       }
     }
 
@@ -149,8 +166,13 @@ function SignupForm(){
 
       return(
             <CardBase paddingSize="zero" overflowHidden={false}>
+                {errors == null ? <></> : 
+                <FloatingMessageBlock error>
+                  <Text>There was an issue with your submission. Please check the highlighted fields and try again.</Text>
+                </FloatingMessageBlock>}
+
                 <MarginBase mt={2} mb={2}>
-                  <PageTitle mb={2} ml={1.5}>Sign up</PageTitle>
+                  <PageTitle mb={2} ml={1.5}>Create User</PageTitle>
                   <div id="auth-form">
                   <DescriptionList 
                     listContents={[ 

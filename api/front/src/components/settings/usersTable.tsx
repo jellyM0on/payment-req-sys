@@ -103,7 +103,7 @@ const EditRoleContainer = ({role, id, handleUpdate}:EditRoleContainerInterface) 
     }
 
     return(
-        <HStack gap={2}>
+        <HStack justifyContent="space-between">
             {isEditable ?
              <DropdownButton buttonLabel= {selectedRole}
              dropdownContents={[
@@ -120,7 +120,7 @@ const EditRoleContainer = ({role, id, handleUpdate}:EditRoleContainerInterface) 
              ]
              }/>
             : 
-            <Text>{selectedRole}</Text >
+            <Text >{selectedRole}</Text >
              }
              {role == "admin" ? <></> :  <IconOnlyButton  onClick={handleRoleEdit} label="edit" appearance="tertiary" IconComponent={MdModeEdit}>
              </IconOnlyButton> }
@@ -222,7 +222,7 @@ const EditManagerContainer = ({manager, id, role}: EditManagerContainerProps) =>
 
 
     return(
-        <HStack gap={2}>
+        <HStack justifyContent="space-between">
         {isEditable ?
          <ApiComboBox width="full" listWidth="large" value={selectedManagerOpt} placeholder="Select a Manager" onChange={opt => handleManagerSelect(opt)} {...managers}/>
         : 

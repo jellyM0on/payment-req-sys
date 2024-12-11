@@ -1,5 +1,8 @@
 import UsersTableContainer from "../components/settings/usersTable";
+import UsersTableHeaderContainer from "../components/settings/usersTableHeader";
 import { useState, useEffect } from "react"
+import { useLocation } from "react-router";
+import { FloatingMessageBlock, Text } from "@freee_jp/vibes";
 
 interface Users{
   id: number, 
@@ -24,6 +27,7 @@ interface SettingsPropsInterface{
 function Settings({users}: SettingsPropsInterface) {
   return (
     <>
+      <UsersTableHeaderContainer/>
       <UsersTableContainer users={users} />
     </>
   );
@@ -35,17 +39,6 @@ function SettingsContainer() {
   useEffect(() => {
     getUsers()
   }, [])
-
-
-  //????
-  const handleUsersChange = () => {
-    console.log("change")
-    // if (!users) return 
-    // const oldUserIndex = users.findIndex((cUser) => cUser.id == user.id)
-    // console.log(oldUserIndex); 
-    // users[oldUserIndex] = user
-    // setUsers(users)
-  }
 
   const getUsers = async() => {
     try{
@@ -67,9 +60,21 @@ function SettingsContainer() {
       console.log(error);
     }
   }
+
+  function NewUserMsg(){
+    return(
+      <FloatingMessageBlock success>
+        <Text>New user created successfully.</Text>
+      </FloatingMessageBlock>
+    )
+  }
+
+  const location = useLocation(); 
+
   return(
     <>
         <Settings users={users} />
+        {location.state && location.state.hasNewUser == true ? <NewUserMsg/>: <></>}
     </>
   )
 }

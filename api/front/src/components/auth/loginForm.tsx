@@ -66,7 +66,7 @@ function LoginForm(){
 
           <Stack direction="vertical" alignItems="center" mt={1.5}>
               <Button onClick={handleSubmit} appearance="primary" width="default">Log in</Button>
-              <Text>Don't have an account yet? <InlineLink href="./signup">Sign up</InlineLink></Text>
+              {/* <Text>Don't have an account yet? <InlineLink href="./signup">Sign up</InlineLink></Text> */}
            </Stack>
 
                       
