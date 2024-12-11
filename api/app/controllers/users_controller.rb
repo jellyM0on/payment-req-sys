@@ -8,7 +8,7 @@ class UsersController < ApplicationController
   def index 
     users = User.all
             .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
-    render json: { users: users, pagination_meta: pagination_meta(users) }
+    render json: { users: users.as_json(:only => [:id, :name, :role, :email, :position, :department], :include =>{ :manager => {:only => [:id, :name]} } ), pagination_meta: pagination_meta(users) }
   end
 
   def update
@@ -19,16 +19,31 @@ class UsersController < ApplicationController
         manager = ManagerAssignment.find_by(
           user_id: params[:id]
         )
-  
-        manager.update(manager_id: params[:manager_id])
+
+        if(!manager)
+          new_assign = ManagerAssignment.new(user_id: params[:id],manager_id: params[:manager_id])
+          new_assign.save
+        else 
+          manager.update(manager_id: params[:manager_id])
+        end
       else 
         return true
       end
-      
+    end
+
+
+    if(user.role == "employee" && params[:role] != "employee")
+      puts(true)
+      manager = ManagerAssignment.find_by(
+        user_id: params[:id]
+      )
+      if(manager)
+        ManagerAssignment.destroy(manager.id)
+      end
     end
       
     if user.update(@validated_params) && update_manager
-      render json: user.to_json(include: :manager), status: :ok
+      render json: user.to_json(:except => [:created_at, :updated_at], :include => {:manager => {:only => [:id, :name]}}), status: :ok
     else 
       render json: { error: user.errors }, status: :bad_request
     end
