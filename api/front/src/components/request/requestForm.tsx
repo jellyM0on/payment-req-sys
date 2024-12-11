@@ -19,8 +19,8 @@ import {
   FloatingMessageBlock
  } from "@freee_jp/vibes";
 
- import { RequiredIcon } from "@freee_jp/vibes";
- import { useState } from "react";
+import { RequiredIcon } from "@freee_jp/vibes";
+import { useState, useEffect, HtmlHTMLAttributes } from "react";
 import { useAuthContext } from "../../providers/authProvider";
 import { useNavigate } from "react-router";
 
@@ -38,6 +38,27 @@ import { useNavigate } from "react-router";
   purchase_category: string  | null
   purchase_description: string  | null
   purchase_amount: number  | null
+}
+
+interface RequestObj{
+  id: number,
+  user_id: number,
+  overall_status: string,
+  current_stage: string,
+  vendor_name: string,
+  vendor_tin: string,
+  vendor_address: string,
+  vendor_email: string,
+  vendor_contact_num: string,
+  vendor_certificate_of_reg: string 
+  vendor_attachment: number 
+  payment_due_date: string 
+  payment_payable_to: string  
+  payment_mode: string 
+  purchase_category: string  
+  purchase_description: string 
+  purchase_amount: number  
+  errors: RequestErrors
 }
 
 interface RequestErrors{
@@ -64,12 +85,90 @@ interface RequestFormProps{
   handleCancel: () => void, 
   date: string,
   category: string | null
-  errors: RequestErrors | null
+  errors: RequestErrors | null, 
+  formInput : Request | null 
+  existingRequest: Request | undefined
 }
 
 function handleAccordion(){
   console.log("test")
 }
+
+// normal list item 
+interface TextFormInput {
+  label: string
+  name: string
+  type: TextFieldType
+  errors?: Array<string>
+  formValue?: string | null
+  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  disabled?: boolean
+}
+
+const setListItem = ({label, name, type, errors, formValue, disabled, handleChange}: TextFormInput) => {
+  return {
+      title: <FormControlLabel  mr={3} id={name} >{label}<RequiredIcon ml={0.5}/></FormControlLabel>,
+      value: 
+         <Stack gap={0}>
+          <TextField 
+            name={name} type={type} onChange={handleChange} disabled={disabled}
+            value={formValue ? formValue : "" }
+            error={ errors ? true : false }
+            width="large" required />
+          {errors ? errors.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
+        </Stack>
+    }
+ }
+
+ // radio buttons 
+ interface RadioContainerProps {
+  options: { name: string, value: string, label: string, checked?: boolean}[]
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  disabled?: boolean
+  formValue?:string
+ }
+
+ const RadioContainer = ({options, handleChange, disabled, formValue}: RadioContainerProps) => {
+
+  const [selectedOpt, setSelectedOpt] = useState(formValue != "null" ? formValue : options[0].value )
+
+  return(
+    <FormControlGroup >
+      <Stack gap={0}>
+        {options.map((option, i) => (
+          <RadioButton name={option.name} disabled={disabled} value={option.value} key={i}
+          checked={selectedOpt == option.value ? true : false} 
+          onChange={(e :React.ChangeEvent<HTMLInputElement>) => { 
+            if(disabled) return 
+            setSelectedOpt(option.value)
+            handleChange(e) 
+          }}>
+            {option.label}
+          </RadioButton>
+        ))}
+     </Stack>
+  </FormControlGroup>
+  )
+ }
+
+ interface RadioFormInput {
+  options: { name: string, value: string, label: string, checked?: boolean }[]
+  label: string
+  id: string
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  disabled?: boolean
+  formValue?:string
+}
+
+ const setRadioItem = ({options, label, id, disabled, formValue, handleChange}: RadioFormInput) => {
+  console.log(handleChange)
+  return {
+    title: <FormControlLabel id={id}  mr={3}>{label}<RequiredIcon/></FormControlLabel>,
+    value: <RadioContainer options={options} handleChange={handleChange} disabled={disabled} formValue={formValue}/>
+  }
+ }
+
+
 
 function RequestForm({
   handleInput, 
@@ -79,45 +178,65 @@ function RequestForm({
   handleCancel,
   date, 
   category, 
-  errors
+  errors, 
+  formInput
 }:RequestFormProps) {
 
-   const setListItem = (label: string, name: string, type:TextFieldType = "text", errors:Array<String> = [] ) => {
-    return {
-        title: <FormControlLabel  mr={3} htmlFor={name}>{label}<RequiredIcon ml={0.5}/></FormControlLabel>,
-        value: 
-           <Stack gap={0}>
-            <TextField name={name} width="large" type={type} required onChange={handleInput} error={ errors.length > 0 ? true : false }/>
-            {errors ? errors.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
-          </Stack>
-       
-      }
-   }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value); 
+  }
+
+  const { user } = useAuthContext()
 
    let contents = [
     {
-      id: "testid3434", 
+      id: "request-form-requestor", 
       label: "Requestor's Information", 
       content:  
       <AccordionPanel 
       title={<SectionTitle ml={1}>Requestor's Information</SectionTitle>} 
       onClick={handleAccordion} 
       open={true}>
-        
+
         <DescriptionList headCellMinWidth={20} listContents={[
-          setListItem("Name", "name"),
-          setListItem("Email", "email"), 
-          {
-            title: <FormControlLabel htmlFor="department" id="department" mr={3}>Department <RequiredIcon/></FormControlLabel>,
-            value: 
-            <FormControlGroup >
-              <Stack gap={0}>
-                <RadioButton name="department" value="technical">Technical</RadioButton>
-                <RadioButton name="department" value="hr_admin">HR and Admin</RadioButton>
-                <RadioButton name="department" value="accounting">Accounting</RadioButton>
-              </Stack>
-          </FormControlGroup>
-          }, 
+          setListItem({
+            label: "Name", 
+            name: "name", 
+            type: "text", 
+            formValue: `${user?.name}`,
+            disabled: true, 
+          }),
+          setListItem({
+            label: "Email", 
+            name: "email", 
+            type: "email", 
+            formValue: `${user?.email}`,
+            disabled: true
+          }),
+          setRadioItem({
+            handleChange: handleChange,
+            formValue: `${user?.department}`,
+            disabled: true,
+            label: "Department",
+            id: "department",
+            options: [
+              { 
+                name: "department",
+                label: "Technical",
+                value: "technical"
+              }, 
+              {
+                name: "department",
+                label: "HR and Admin",
+                value: "hr_admin"
+              }, 
+              {
+                name: "department",
+                label: "Accounting",
+                value: "accounting"
+              }
+            ]
+          }),
           {
             title: "", 
             value: <></>
@@ -135,117 +254,151 @@ function RequestForm({
       open={true}>
   
         <DescriptionList  headCellMinWidth={20} listContents={[
-          setListItem("Vendor Name", "vendor_name", "text", errors?.vendor_name),
-          setListItem("Tax Identification Number (TIN)", "vendor_tin", "text", errors?.vendor_name), 
-          setListItem("Address", "vendor_address", "text", errors?.vendor_address), 
-          setListItem("Email Address", "vendor_email", "email", errors?.vendor_email), 
-          setListItem("Contact No.", "vendor_contact_num", "text", errors?.vendor_contact_num), 
-          {
-          title: <FormControlLabel htmlFor="vendor_certificate_of_reg" id="vendor_certificate_of_reg" mr={3}>Certificate of Registration <RequiredIcon ml={0.5}/></FormControlLabel>,
-          value: 
-          <FormControlGroup >
-            <Stack gap={0}>
-              <RadioButton name="vendor_certificate_of_reg" value="applicable" onChange={handleInput}  >Applicable</RadioButton>
-              <RadioButton name="vendor_certificate_of_reg" value="n_applicable" onChange={handleInput}>Not Applicable</RadioButton>
-              {errors?.vendor_certificate_of_reg ? errors.vendor_certificate_of_reg.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
-            </Stack>
-        </FormControlGroup>
-        }, 
-        setListItem("Attachment", "vendor_attachment", "number", errors?.vendor_attachment), 
+            setListItem({
+              label: "Vendor Name", 
+              name: "vendor_name", 
+              type: "text", 
+              errors: errors?.vendor_name,
+              formValue: formInput?.vendor_name,
+            }),
+            setListItem({
+              label: "Tax Identification Number (TIN)", 
+              name: "vendor_tin", 
+              type: "text", 
+              errors: errors?.vendor_tin,
+              formValue: formInput?.vendor_tin,
+            }),
+            setListItem({
+              label: "Address", 
+              name: "vendor_address", 
+              type: "text", 
+              errors: errors?.vendor_address,
+              formValue: formInput?.vendor_address,
+            }),
+            setListItem({
+              label: "Email Address", 
+              name: "vendor_email", 
+              type: "email", 
+              errors: errors?.vendor_email,
+              formValue: formInput?.vendor_email
+            }),
+            setListItem({
+              label: "Contact No.", 
+              name: "vendor_contact_num", 
+              type: "text", 
+              errors: errors?.vendor_contact_num,
+              formValue: formInput?.vendor_contact_num
+            }),
+            setRadioItem({
+              handleChange: handleChange,
+              formValue: `${formInput?.vendor_certificate_of_reg}`,
+              label: "Certificate of Registration",
+              id: "vendor_certificate_of_reg",
+              options: [
+                { 
+                  name: "vendor_certificate_of_reg",
+                  label: "Applicable",
+                  value: "applicable"
+                }, 
+                {
+                  name: "vendor_certificate_of_reg",
+                  label: "Not Applicable",
+                  value: "n_applicable"
+                }
+              ]
+            }),
+        ]}/>
+      </AccordionPanel>
+    },
+    // {
+    //   id: "testid676767", 
+    //   label: "Payment Instruction", 
+    //   content: 
+    //   <AccordionPanel 
+    //   title={<SectionTitle ml={1}>Payment Instruction</SectionTitle>} 
+    //   onClick={handleAccordion} 
+    //   open={true}>
+
+    //     <DescriptionList  headCellMinWidth={20} listContents={[
+    //       {
+    //         title:  <FormControlLabel htmlFor="payment_date">Payment Due Date<RequiredIcon ml={0.5}/></FormControlLabel>,
+    //         value: <DateInput onChange={handleInputDate} value={date}/>
+    //       },
+    //       setListItem("Make Payable To", "payment_payable_to", "text", errors?.payment_payable_to, formInput?.payment_due_date),
+    //       {
+    //         title: <FormControlLabel htmlFor="payment_mode" id="payment_mode" mr={3}>Payment Mode <RequiredIcon ml={0.5}/></FormControlLabel>,
+    //         value: 
+    //         <FormControlGroup >
+    //           <Stack gap={0}>
+    //             <RadioButton name="payment_mode" value="bank_transfer" checked onChange={handleInput}>Bank Transfer</RadioButton>
+    //             <RadioButton name="payment_mode" value="credit_card"  onChange={handleInput}>Credit Card</RadioButton>
+    //             <RadioButton name="payment_mode" value="check"  onChange={handleInput}>Check</RadioButton>
+    //             {errors?.payment_mode ? errors.payment_mode.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
+    //           </Stack>
+    //       </FormControlGroup>
+    //       }, 
+    //       {
+    //         title: "", 
+    //         value: <></>
+    //       } 
+
+          
           
          
-        ]}/>
-      </AccordionPanel>
-    },
-    {
-      id: "testid676767", 
-      label: "Payment Instruction", 
-      content: 
-      <AccordionPanel 
-      title={<SectionTitle ml={1}>Payment Instruction</SectionTitle>} 
-      onClick={handleAccordion} 
-      open={true}>
+    //     ]}/>
+    //   </AccordionPanel>
+    // },
+    // {
+    //   id: "testid44", 
+    //   label: "Purchase Description", 
+    //   content: 
+    //   <AccordionPanel 
+    //   title={<SectionTitle ml={1}>Payment Description</SectionTitle>} 
+    //   onClick={handleAccordion} 
+    //   open={true}>
 
-        <DescriptionList  headCellMinWidth={20} listContents={[
-          {
-            title:  <FormControlLabel htmlFor="payment_date">Payment Due Date<RequiredIcon ml={0.5}/></FormControlLabel>,
-            value: <DateInput onChange={handleInputDate} value={date}/>
-          },
-          setListItem("Make Payable To", "payment_payable_to", "text", errors?.payment_payable_to),
-          {
-            title: <FormControlLabel htmlFor="payment_mode" id="payment_mode" mr={3}>Payment Mode <RequiredIcon ml={0.5}/></FormControlLabel>,
-            value: 
-            <FormControlGroup >
-              <Stack gap={0}>
-                <RadioButton name="payment_mode" value="bank_transfer" onChange={handleInput}>Bank Transfer</RadioButton>
-                <RadioButton name="payment_mode" value="credit_card"  onChange={handleInput}>Credit Card</RadioButton>
-                <RadioButton name="payment_mode" value="check"  onChange={handleInput}>Check</RadioButton>
-                {errors?.payment_mode ? errors.payment_mode.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
-              </Stack>
-          </FormControlGroup>
-          }, 
-          {
-            title: "", 
-            value: <></>
-          } 
-
-          
-          
-         
-        ]}/>
-      </AccordionPanel>
-    },
-    {
-      id: "testid44", 
-      label: "Purchase Description", 
-      content: 
-      <AccordionPanel 
-      title={<SectionTitle ml={1}>Payment Description</SectionTitle>} 
-      onClick={handleAccordion} 
-      open={true}>
-
-        <DescriptionList headCellMinWidth={20} listContents={[
-          {
-            title:  <FormControlLabel htmlFor="category">Category<RequiredIcon ml={0.5}/></FormControlLabel>,
-            value: 
-            <>
-            <DropdownButton buttonLabel= {category ? category: "Category"}
-            dropdownContents={[
-              {
-                type: 'selectable',
-                text: 'Company Events and Activities',
-                onClick:() => {handleDropdown("Company Events and Activities", "company_events")}
-              },
-              {
-                type: 'selectable',
-                text: 'Office Events and Activities',
-                onClick: () => {handleDropdown("Office Events and Activities", "office_events")}
-              },
-              {
-                type: 'selectable',
-                text: 'Trainings and Seminars',
-                onClick: () => {handleDropdown("Trainings and Seminars", "trainings")}
-              },
-              {
-                type: 'selectable',
-                text: 'Others',
-                onClick:  () => {handleDropdown("Others", "others")}
-              },
-            ]
-            }/>
-          {errors?.purchase_category ? errors.purchase_category.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
-          </>
-          },
-          setListItem("Description", "purchase_description", "text", errors?.purchase_description),
-          setListItem("Amount", "purchase_amount", "number", errors?.purchase_amount),
-          // setListItem("Supporting Documents")
-          {
-            title: "", 
-            value: <></>
-          } 
-        ]}/>
-      </AccordionPanel>
-    },
+    //     <DescriptionList headCellMinWidth={20} listContents={[
+    //       {
+    //         title:  <FormControlLabel htmlFor="category">Category<RequiredIcon ml={0.5}/></FormControlLabel>,
+    //         value: 
+    //         <>
+    //         <DropdownButton buttonLabel= {category ? category: "Category"}
+    //         dropdownContents={[
+    //           {
+    //             type: 'selectable',
+    //             text: 'Company Events and Activities',
+    //             onClick:() => {handleDropdown("Company Events and Activities", "company_events")}
+    //           },
+    //           {
+    //             type: 'selectable',
+    //             text: 'Office Events and Activities',
+    //             onClick: () => {handleDropdown("Office Events and Activities", "office_events")}
+    //           },
+    //           {
+    //             type: 'selectable',
+    //             text: 'Trainings and Seminars',
+    //             onClick: () => {handleDropdown("Trainings and Seminars", "trainings")}
+    //           },
+    //           {
+    //             type: 'selectable',
+    //             text: 'Others',
+    //             onClick:  () => {handleDropdown("Others", "others")}
+    //           },
+    //         ]
+    //         }/>
+    //       {errors?.purchase_category ? errors.purchase_category.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
+    //       </>
+    //       },
+    //       setListItem("Description", "purchase_description", "text", errors?.purchase_description, formInput?.purchase_description),
+    //       setListItem("Amount", "purchase_amount", "number", errors?.purchase_amount, formInput?.purchase_amount),
+    //       // setListItem("Supporting Documents")
+    //       {
+    //         title: "", 
+    //         value: <></>
+    //       } 
+    //     ]}/>
+    //   </AccordionPanel>
+    // },
 
    ]
     return (
@@ -263,7 +416,12 @@ function RequestForm({
     );
   }
 
-function RequestFormContainer() {
+interface RequestFormContainerProps{
+  handleRequest: (requestData: Request) => Promise<any>
+  existingRequest? : Request
+}
+
+function RequestFormContainer({handleRequest, existingRequest}: RequestFormContainerProps) {
   const { user } = useAuthContext()
 
   const [formInput, setFormInput] = useState<Request>({
@@ -285,7 +443,16 @@ function RequestFormContainer() {
   const [category, setCategory] = useState<string|null>(null)
   const [errors, setErrors] = useState<RequestErrors|null>(null)
 
+
+  useEffect(() => {
+    if(existingRequest) setFormInput(existingRequest)
+
+    console.log(existingRequest)
+    console.log(formInput)
+  }, [existingRequest])
+
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('test')
     setFormInput((prevInputs) => ({
       ...prevInputs, [e.target.name]: e.target.value
     }))
@@ -308,11 +475,22 @@ function RequestFormContainer() {
     console.log(formInput); 
   }
 
-  const handleSubmit = () => {
-    console.log(formInput); 
-    if(user) createRequest(formInput); 
-  }
+  const handleSubmit = async() => {
+    if(!user) return 
+    console.log(handleRequest)
+    const result = await handleRequest(formInput)
 
+    console.log(result); 
+    console.log(typeof(result)); 
+
+    if(result.errors){
+      handleErrors(result.errors)
+    }
+
+    if(result && !result.errors){
+      redirectSuccess()
+    }
+  }
 
   const handleErrors = (errors: RequestErrors) => {
     setErrors(errors); 
@@ -333,31 +511,6 @@ function RequestFormContainer() {
     })
   }
 
-  const createRequest = async(requestData:Request) => {
-    try{
-      const response = await fetch(`http://localhost:3000/requests`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      }, 
-      credentials: 'include',
-      body: JSON.stringify(requestData)
-    }); 
-
-    const result = await response.json()
-
-    if (response.ok){
-      redirectSuccess()
-    } else {
-      handleErrors(result.errors)
-    }
-
-   } catch(error) {
-      console.log(error);
-    }
-  }
-
-
     return (
       <>
         {errors == null ? <></>
@@ -366,7 +519,9 @@ function RequestFormContainer() {
             <Text>There was an issue with your submission. Please check the highlighted fields and try again.</Text>
           </FloatingMessageBlock>}
 
-        <RequestForm  
+        <RequestForm 
+        formInput = {formInput}
+        existingRequest = {existingRequest}
         handleInput={handleInput} 
         date={date} 
         handleInputDate={handleInputDate}

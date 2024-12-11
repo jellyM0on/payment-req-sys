@@ -98,7 +98,7 @@ function RequestInfo({request, isEditable, handleApprovalBtn, handleRejectBtn, s
         }
       }
 
-    const setButton = (isEditable: string | false, status: string | null) => {
+    const setButton = (isEditable: string | false, status: string | null, id: number | null) => {
         console.log(isEditable); 
         if(!isEditable){
             return(
@@ -122,7 +122,7 @@ function RequestInfo({request, isEditable, handleApprovalBtn, handleRejectBtn, s
             return(
                 <ButtonGroup  mt={1} mb={1} mr={1.5}>
                     <BackwardButton url="/">Back to Home</BackwardButton>
-                    <Button IconComponent={MdEdit}>Edit</Button>
+                    <Button IconComponent={MdEdit} href={`/requests/${id}/edit`}>Edit</Button>
                 </ButtonGroup>
             )
         }
@@ -144,7 +144,7 @@ function RequestInfo({request, isEditable, handleApprovalBtn, handleRejectBtn, s
             <MarginBase ml={-0.25} mr={-0.25} >
                 <HStack justifyContent="space-between" alignItems="center">
                     <SectionTitle mt={2} mb={2} ml={1.5}>Vendor Information</SectionTitle>
-                    {setButton(isEditable, status)}
+                    {setButton(isEditable, status, request.id)}
                         
                  
                 </HStack>
