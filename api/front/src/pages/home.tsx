@@ -45,6 +45,16 @@ function NewRequestMsg(){
   )
 }
 
+function EditedRequestMsg(){
+  return(
+    <FloatingMessageBlock success onClose={() => {
+
+    }}>
+      <Text>Your Payment Request has been edited successfully.</Text>
+    </FloatingMessageBlock>
+  )
+}
+
 export default function HomeContainer() {
   const [requests, setRequests] = useState(null)
   const [pageMeta, setPageMeta] = useState(null)
@@ -84,6 +94,7 @@ export default function HomeContainer() {
     <>
        <Home requests = {requests}/>
        {location.state && location.state.hasNewRequest == true ? <NewRequestMsg/>: <></>}
+       {location.state && location.state.hasEditedRequest == true ? <EditedRequestMsg/>: <></>}
     </>
   );
 }

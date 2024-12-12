@@ -3,6 +3,7 @@ import RequestFormContainer from "../components/request/requestForm";
 
 interface CreateRequestProps{
   handleRequest: (requestData: Request) => Promise<any>
+  mode: string
 }
 
 interface Request{
@@ -24,9 +25,9 @@ interface Request{
 
 
 
-function CreateRequest({handleRequest}: CreateRequestProps) {
+function CreateRequest({handleRequest, mode}: CreateRequestProps) {
     return (
-     <RequestFormContainer handleRequest={handleRequest}/>
+     <RequestFormContainer handleRequest={handleRequest} mode={mode}/>
     );
   }
 
@@ -53,7 +54,7 @@ function CreateRequestContainer() {
   }
 
     return (
-      <CreateRequest handleRequest={createRequest}/>
+      <CreateRequest handleRequest={createRequest} mode="new"/>
     );
   }
 

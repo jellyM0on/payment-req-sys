@@ -16,7 +16,8 @@ import {
   ButtonGroup, 
   Button,
   TextFieldType, 
-  FloatingMessageBlock
+  FloatingMessageBlock,
+  DropdownContent
  } from "@freee_jp/vibes";
 
 import { RequiredIcon } from "@freee_jp/vibes";
@@ -78,15 +79,14 @@ interface RequestErrors{
 }
 
 interface RequestFormProps{
-  handleInput: (e: React.ChangeEvent<HTMLInputElement>) => void, 
-  handleInputDate: (date: string) => void, 
-  handleDropdown: (label: string, category: string) => void, 
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void, 
+  handleChangeDate: (date: string) => void, 
+  handleChangeDropdown: (category: string) => void, 
   handleSubmit: () => void, 
   handleCancel: () => void, 
-  date: string,
   category: string | null
   errors: RequestErrors | null, 
-  formInput : Request | null 
+  formInput : Request | null | undefined
   existingRequest: Request | undefined
 }
 
@@ -112,7 +112,7 @@ const setListItem = ({label, name, type, errors, formValue, disabled, handleChan
          <Stack gap={0}>
           <TextField 
             name={name} type={type} onChange={handleChange} disabled={disabled}
-            value={formValue ? formValue : "" }
+            value={formValue ? formValue : ""} 
             error={ errors ? true : false }
             width="large" required />
           {errors ? errors.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
@@ -161,30 +161,115 @@ const setListItem = ({label, name, type, errors, formValue, disabled, handleChan
 }
 
  const setRadioItem = ({options, label, id, disabled, formValue, handleChange}: RadioFormInput) => {
-  console.log(handleChange)
   return {
     title: <FormControlLabel id={id}  mr={3}>{label}<RequiredIcon/></FormControlLabel>,
     value: <RadioContainer options={options} handleChange={handleChange} disabled={disabled} formValue={formValue}/>
   }
  }
 
+ // form date input 
+ interface DateFormInputProps{
+  handleChange: (date: string) => void
+  formValue: string | null | undefined
+ }
 
+ const DateFormInput = ({handleChange, formValue}: DateFormInputProps) => {
+  const [date, setDate] = useState(new Date().toString())
+
+  useEffect(() => {
+    if(formValue){
+      setDate(formValue)
+    }
+  }, [formValue])
+
+  return(
+    <DateInput 
+    onChange={() => {
+      setDate(date)
+      console.log(date)
+      handleChange(date)
+    }}
+    value={date}/>
+  )
+ }
+
+interface DateFormInput{
+  handleChange: (date: string) => void
+  id: string
+  label: string
+  formValue?: string | null
+}
+
+ const setDateItem = ({handleChange, id, label, formValue}: DateFormInput) => {
+ 
+  return{
+    title: <FormControlLabel id={id}>{label}<RequiredIcon ml={0.5}/></FormControlLabel>,
+    value: <DateFormInput handleChange= {handleChange} formValue={formValue}/>
+  }
+ }
+
+ // dropdown 
+
+ interface DropdownInputProps{
+  options: {text:string, value:string}[], 
+  formValue: string | null | undefined, 
+  handleChange: (category:string) => void
+ }
+
+ const DropdownInput = ({options, formValue, handleChange}:DropdownInputProps) => {
+
+  console.log(formValue)
+  console.log(typeof(formValue) == "string")
+  const [category, setCategory] = useState(options[0].text)
+
+  useEffect(() => {
+    if(formValue){
+      const option = options.find(opt => opt.value == formValue)
+      setCategory(option!.text)
+    }
+  }, [formValue])
+
+  let contents:DropdownContent[] = []; 
+  options.map(option => contents.push({
+    type: 'selectable', 
+    text: option.text, 
+    onClick: () => {
+      setCategory(option.text)
+      handleChange(option.value)
+    }
+  }))
+  return(
+    <DropdownButton buttonLabel={category}
+    dropdownContents = {contents}
+    />
+  )
+ }
+
+ interface DropdownFormInput{
+  options: {text:string, value:string}[], 
+  formValue?: string | null, 
+  label: string, 
+  id: string
+  handleChange: (category:string) => void
+ }
+ 
+
+const setDropdownItem = ({options, formValue, label, id, handleChange}: DropdownFormInput ) => {
+  return{
+    title: <FormControlLabel id={id}>{label}<RequiredIcon ml={0.5}/></FormControlLabel>,
+    value: <DropdownInput options={options} formValue={formValue} handleChange={handleChange}/>
+  }
+}
 
 function RequestForm({
-  handleInput, 
-  handleInputDate, 
-  handleDropdown, 
+  handleChange, 
+  handleChangeDate, 
+  handleChangeDropdown, 
   handleSubmit,
   handleCancel,
-  date, 
-  category, 
   errors, 
   formInput
 }:RequestFormProps) {
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value); 
-  }
 
   const { user } = useAuthContext()
 
@@ -245,7 +330,7 @@ function RequestForm({
       </AccordionPanel>
     }, 
     {
-      id: "testido99", 
+      id: "request-form-vendor-info", 
       label: "Vendor Information", 
       content:   
       <AccordionPanel 
@@ -260,6 +345,7 @@ function RequestForm({
               type: "text", 
               errors: errors?.vendor_name,
               formValue: formInput?.vendor_name,
+              handleChange: handleChange
             }),
             setListItem({
               label: "Tax Identification Number (TIN)", 
@@ -267,6 +353,7 @@ function RequestForm({
               type: "text", 
               errors: errors?.vendor_tin,
               formValue: formInput?.vendor_tin,
+              handleChange: handleChange
             }),
             setListItem({
               label: "Address", 
@@ -274,20 +361,23 @@ function RequestForm({
               type: "text", 
               errors: errors?.vendor_address,
               formValue: formInput?.vendor_address,
+              handleChange: handleChange
             }),
             setListItem({
               label: "Email Address", 
               name: "vendor_email", 
               type: "email", 
               errors: errors?.vendor_email,
-              formValue: formInput?.vendor_email
+              formValue: formInput?.vendor_email,
+              handleChange: handleChange
             }),
             setListItem({
               label: "Contact No.", 
               name: "vendor_contact_num", 
               type: "text", 
               errors: errors?.vendor_contact_num,
-              formValue: formInput?.vendor_contact_num
+              formValue: formInput?.vendor_contact_num,
+              handleChange: handleChange
             }),
             setRadioItem({
               handleChange: handleChange,
@@ -307,99 +397,121 @@ function RequestForm({
                 }
               ]
             }),
+            {
+              title: "", 
+              value: <></>
+            } 
         ]}/>
       </AccordionPanel>
     },
-    // {
-    //   id: "testid676767", 
-    //   label: "Payment Instruction", 
-    //   content: 
-    //   <AccordionPanel 
-    //   title={<SectionTitle ml={1}>Payment Instruction</SectionTitle>} 
-    //   onClick={handleAccordion} 
-    //   open={true}>
+    {
+      id: "request-form-payment-instruc", 
+      label: "Payment Instruction", 
+      content: 
+      <AccordionPanel 
+      title={<SectionTitle ml={1}>Payment Instruction</SectionTitle>} 
+      onClick={handleAccordion} 
+      open={true}>
 
-    //     <DescriptionList  headCellMinWidth={20} listContents={[
-    //       {
-    //         title:  <FormControlLabel htmlFor="payment_date">Payment Due Date<RequiredIcon ml={0.5}/></FormControlLabel>,
-    //         value: <DateInput onChange={handleInputDate} value={date}/>
-    //       },
-    //       setListItem("Make Payable To", "payment_payable_to", "text", errors?.payment_payable_to, formInput?.payment_due_date),
-    //       {
-    //         title: <FormControlLabel htmlFor="payment_mode" id="payment_mode" mr={3}>Payment Mode <RequiredIcon ml={0.5}/></FormControlLabel>,
-    //         value: 
-    //         <FormControlGroup >
-    //           <Stack gap={0}>
-    //             <RadioButton name="payment_mode" value="bank_transfer" checked onChange={handleInput}>Bank Transfer</RadioButton>
-    //             <RadioButton name="payment_mode" value="credit_card"  onChange={handleInput}>Credit Card</RadioButton>
-    //             <RadioButton name="payment_mode" value="check"  onChange={handleInput}>Check</RadioButton>
-    //             {errors?.payment_mode ? errors.payment_mode.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
-    //           </Stack>
-    //       </FormControlGroup>
-    //       }, 
-    //       {
-    //         title: "", 
-    //         value: <></>
-    //       } 
+        <DescriptionList  headCellMinWidth={20} listContents={[
+          setDateItem({
+            id: "payment_due_date", 
+            label: "Payment Due Date", 
+            handleChange: handleChangeDate, 
+            formValue: formInput?.payment_due_date
+          }),
+          setListItem({
+            label: "Make Payable To", 
+            name: "payment_payable_to", 
+            type: "text", 
+            errors: errors?.payment_payable_to,
+            formValue: formInput?.payment_payable_to, 
+            handleChange: handleChange
+          }),
+          setRadioItem({
+            handleChange: handleChange, 
+            formValue: `${formInput?.payment_mode}`,
+            label: "Payment Mode",
+            id: "payment_mode", 
+            options: [
+              {
+                name: "payment_mode", 
+                label: "Bank Transfer", 
+                value: "bank_transfer"
+              }, 
+              {
+                name: "payment_mode", 
+                label: "Credit Card", 
+                value: "credit_card"
+              }, 
+              {
+                name: "payment_mode", 
+                label: "Check", 
+                value: "check"
+              }
 
-          
-          
-         
-    //     ]}/>
-    //   </AccordionPanel>
-    // },
-    // {
-    //   id: "testid44", 
-    //   label: "Purchase Description", 
-    //   content: 
-    //   <AccordionPanel 
-    //   title={<SectionTitle ml={1}>Payment Description</SectionTitle>} 
-    //   onClick={handleAccordion} 
-    //   open={true}>
+            ]
+          }), 
+          {
+            title: "", 
+            value: <></>
+          } 
+        ]}/>
+      </AccordionPanel>
+    },
+    {
+      id: "request-form-purchase-descrip", 
+      label: "Purchase Description", 
+      content: 
+      <AccordionPanel 
+      title={<SectionTitle ml={1}>Payment Description</SectionTitle>} 
+      onClick={handleAccordion} 
+      open={true}>
 
-    //     <DescriptionList headCellMinWidth={20} listContents={[
-    //       {
-    //         title:  <FormControlLabel htmlFor="category">Category<RequiredIcon ml={0.5}/></FormControlLabel>,
-    //         value: 
-    //         <>
-    //         <DropdownButton buttonLabel= {category ? category: "Category"}
-    //         dropdownContents={[
-    //           {
-    //             type: 'selectable',
-    //             text: 'Company Events and Activities',
-    //             onClick:() => {handleDropdown("Company Events and Activities", "company_events")}
-    //           },
-    //           {
-    //             type: 'selectable',
-    //             text: 'Office Events and Activities',
-    //             onClick: () => {handleDropdown("Office Events and Activities", "office_events")}
-    //           },
-    //           {
-    //             type: 'selectable',
-    //             text: 'Trainings and Seminars',
-    //             onClick: () => {handleDropdown("Trainings and Seminars", "trainings")}
-    //           },
-    //           {
-    //             type: 'selectable',
-    //             text: 'Others',
-    //             onClick:  () => {handleDropdown("Others", "others")}
-    //           },
-    //         ]
-    //         }/>
-    //       {errors?.purchase_category ? errors.purchase_category.map((msg) =><Message error><Text size={0.75}>{msg}</Text></Message>): <></>}
-    //       </>
-    //       },
-    //       setListItem("Description", "purchase_description", "text", errors?.purchase_description, formInput?.purchase_description),
-    //       setListItem("Amount", "purchase_amount", "number", errors?.purchase_amount, formInput?.purchase_amount),
-    //       // setListItem("Supporting Documents")
-    //       {
-    //         title: "", 
-    //         value: <></>
-    //       } 
-    //     ]}/>
-    //   </AccordionPanel>
-    // },
-
+        <DescriptionList headCellMinWidth={20} listContents={[
+          setDropdownItem({
+            id: "category", 
+            label: "Category", 
+            formValue: formInput?.purchase_category, 
+            handleChange: handleChangeDropdown,
+            options: [
+              {
+                text: "Company Events and Activities", 
+                value: "company_events"
+              }, 
+              {
+                text: "Office Events and Activities", 
+                value: "office_events"
+              }, 
+              {
+                text: "Trainings and Seminars", 
+                value: "trainings"
+              }, 
+              {
+                text: "Others", 
+                value: "others"
+              }
+            ]
+          }), 
+          setListItem({
+            label: "Description", 
+            name: "purchase_description", 
+            type: "text", 
+            formValue: formInput?.purchase_description,
+          }),
+          setListItem({
+            label: "Amount", 
+            name: "purchase_amount", 
+            type: "number", 
+            formValue: (formInput?.purchase_amount)?.toString(),
+          }),
+          {
+            title: "", 
+            value: <></>
+          } 
+        ]}/>
+      </AccordionPanel>
+    },
    ]
     return (
       <>
@@ -418,10 +530,11 @@ function RequestForm({
 
 interface RequestFormContainerProps{
   handleRequest: (requestData: Request) => Promise<any>
-  existingRequest? : Request
+  existingRequest? : Request, 
+  mode: string
 }
 
-function RequestFormContainer({handleRequest, existingRequest}: RequestFormContainerProps) {
+function RequestFormContainer({handleRequest, existingRequest, mode}: RequestFormContainerProps) {
   const { user } = useAuthContext()
 
   const [formInput, setFormInput] = useState<Request>({
@@ -439,7 +552,7 @@ function RequestFormContainer({handleRequest, existingRequest}: RequestFormConta
     purchase_description: null,
     purchase_amount: null
   })
-  const [date, setDate] = useState<string>(new Date().toDateString())
+
   const [category, setCategory] = useState<string|null>(null)
   const [errors, setErrors] = useState<RequestErrors|null>(null)
 
@@ -451,24 +564,23 @@ function RequestFormContainer({handleRequest, existingRequest}: RequestFormConta
     console.log(formInput)
   }, [existingRequest])
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('test')
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("test")
     setFormInput((prevInputs) => ({
       ...prevInputs, [e.target.name]: e.target.value
     }))
     console.log(formInput); 
   }
 
-  const handleInputDate = (date: string) => {
-    setDate(date)
-
+  const handleChangeDate = (date: string|undefined) => {
+    if(date){
     setFormInput((prevInputs) => ({
       ...prevInputs, payment_due_date: date
     }))
   }
+  }
 
-  const handleDropdown = (label: string, category: string) => {
-    setCategory(label)
+  const handleChangeDropdown = (category: string) => {
     setFormInput((prevInputs) => ({
       ...prevInputs, purchase_category: category
     }))
@@ -504,11 +616,22 @@ function RequestFormContainer({handleRequest, existingRequest}: RequestFormConta
 
 
   const redirectSuccess = () => {
-    navigate('/', {
-      state: {
-        hasNewRequest: true
-      }
-    })
+    if(mode == "new"){
+      navigate('/', {
+        state: {
+          hasNewRequest: true
+        }
+      })
+    } 
+
+    if(mode == "edit"){
+      navigate('/', {
+        state: {
+          hasEditedRequest: true
+        }
+      })
+    }
+   
   }
 
     return (
@@ -522,11 +645,10 @@ function RequestFormContainer({handleRequest, existingRequest}: RequestFormConta
         <RequestForm 
         formInput = {formInput}
         existingRequest = {existingRequest}
-        handleInput={handleInput} 
-        date={date} 
-        handleInputDate={handleInputDate}
+        handleChange={handleChange} 
+        handleChangeDate={handleChangeDate}
         category={category}
-        handleDropdown={handleDropdown}
+        handleChangeDropdown={handleChangeDropdown}
         handleSubmit={handleSubmit}
         handleCancel={handleCancel}
         errors={errors}

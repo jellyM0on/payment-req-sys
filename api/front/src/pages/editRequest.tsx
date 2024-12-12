@@ -22,12 +22,13 @@ interface Request{
 interface EditRequestProps{
     handleRequest: (requestData: Request) => Promise<any>
     existingRequest: Request | undefined
+    mode: string
 }
   
   
-function EditRequest({handleRequest, existingRequest} : EditRequestProps){
+function EditRequest({handleRequest, existingRequest, mode} : EditRequestProps){
     return(
-        <RequestFormContainer handleRequest={handleRequest} existingRequest={existingRequest}/>
+        <RequestFormContainer handleRequest={handleRequest} existingRequest={existingRequest} mode={mode}/>
     )
 }
 
@@ -48,9 +49,7 @@ function EditRequestContainer(){
     
 
         const result = await response.json()
-        // console.log(result)
-        // console.log(result.request.errors)
-    
+
         return result
     
        } catch(error) {
@@ -71,21 +70,20 @@ function EditRequestContainer(){
         const result = await response.json()
     
         if (response.ok){
-        //  console.log(result)
           setRequest({
             vendor_name: result.request.vendor_name, 
-vendor_address: result.request.vendor_address, 
-vendor_tin: result.request.vendor_tin,  
-vendor_email: result.request.vendor_email,
-vendor_contact_num: result.request.vendor_contact_num,
-vendor_certificate_of_reg: result.request.vendor_certificate_of_reg, 
-payment_due_date: result.request.payment_due_date,
-payment_payable_to: result.request.payment_payable_to,
-payment_mode: result.request.payment_mode,
-purchase_category: result.request.purchase_category,
-purchase_description: result.request.purchase_description,
-purchase_amount: result.request.purchase_amount,
-vendor_attachment: result.request.vendor_attachment
+            vendor_address: result.request.vendor_address, 
+            vendor_tin: result.request.vendor_tin,  
+            vendor_email: result.request.vendor_email,
+            vendor_contact_num: result.request.vendor_contact_num,
+            vendor_certificate_of_reg: result.request.vendor_certificate_of_reg, 
+            payment_due_date: result.request.payment_due_date,
+            payment_payable_to: result.request.payment_payable_to,
+            payment_mode: result.request.payment_mode,
+            purchase_category: result.request.purchase_category,
+            purchase_description: result.request.purchase_description,
+            purchase_amount: result.request.purchase_amount,
+            vendor_attachment: result.request.vendor_attachment
           })
         } 
     
@@ -98,7 +96,7 @@ vendor_attachment: result.request.vendor_attachment
         getRequest()
     }, [])
     return (
-          <EditRequest handleRequest={editRequest} existingRequest={request ? request : undefined}/>
+          <EditRequest handleRequest={editRequest} existingRequest={request ? request : undefined} mode="edit"/>
     )
 }
 
