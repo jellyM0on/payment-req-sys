@@ -7,7 +7,7 @@ class UsersController < ApplicationController
 
   def index 
     users = User.all
-            .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 20)
+            .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 5)
     render json: { users: users.as_json(:only => [:id, :name, :role, :email, :position, :department], :include =>{ :manager => {:only => [:id, :name]} } ), pagination_meta: pagination_meta(users) }
   end
 

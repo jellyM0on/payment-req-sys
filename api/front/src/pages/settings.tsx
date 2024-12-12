@@ -2,7 +2,8 @@ import UsersTableContainer from "../components/settings/usersTable";
 import UsersTableHeaderContainer from "../components/settings/usersTableHeader";
 import { useState, useEffect } from "react"
 import { useLocation } from "react-router";
-import { FloatingMessageBlock, Text } from "@freee_jp/vibes";
+import { FloatingMessageBlock, Text, MarginBase } from "@freee_jp/vibes";
+import PageSelection from "../components/utils/pageSelection";
 
 interface Users{
   id: number, 
@@ -21,28 +22,41 @@ interface Manager{
 
 interface SettingsPropsInterface{
   users: Users[] | null
+  pageMeta: PageMeta | null
+  handlePageChange: (page:number) => void
+}
+interface PageMeta{
+  current_page: number
+  next_page: number
+  total_pages: number
+  total_count: number
 }
 
 
-function Settings({users}: SettingsPropsInterface) {
+function Settings({users,  pageMeta, handlePageChange}: SettingsPropsInterface) {
   return (
     <>
+    <MarginBase>
       <UsersTableHeaderContainer/>
       <UsersTableContainer users={users} />
+    </MarginBase>
+    <PageSelection pageMeta={pageMeta} handlePageChange={handlePageChange}/>
+    
     </>
   );
   }
 
 function SettingsContainer() {
   const [users, setUsers] = useState<Users[] | null>(null)
+  const [pageMeta, setPageMeta] = useState(null)
 
   useEffect(() => {
-    getUsers()
+    getUsers(1)
   }, [])
 
-  const getUsers = async() => {
+  const getUsers = async(page:number) => {
     try{
-      const response = await fetch("http://localhost:3000/users", {
+      const response = await fetch(`http://localhost:3000/users/?page=${page}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -54,6 +68,7 @@ function SettingsContainer() {
     
     if(response.ok){
       setUsers(result.users)
+      setPageMeta(result.pagination_meta)
     }
 
     } catch(error) {
@@ -69,11 +84,16 @@ function SettingsContainer() {
     )
   }
 
+  const handlePageChange = (page:number) => {
+    getUsers(page)
+  }
+
+
   const location = useLocation(); 
 
   return(
     <>
-        <Settings users={users} />
+        <Settings users={users} pageMeta={pageMeta} handlePageChange={handlePageChange} />
         {location.state && location.state.hasNewUser == true ? <NewUserMsg/>: <></>}
     </>
   )

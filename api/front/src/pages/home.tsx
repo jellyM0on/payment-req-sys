@@ -1,10 +1,23 @@
 import RequestTable from "../components/request/requestTable";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import { FloatingMessageBlock, Text } from "@freee_jp/vibes";
-
+import { FloatingMessageBlock, 
+  Text, 
+  MarginBase
+} from "@freee_jp/vibes";
+import RequestsTableHeaderContainer from "../components/request/requestTableHeader";
+import PageSelection from "../components/utils/pageSelection";
 interface HomePropsInterface{
   requests: Request[] | null
+  pageMeta: PageMeta | null
+  handlePageChange: (page:number) => void
+}
+
+interface PageMeta{
+  current_page: number
+  next_page: number
+  total_pages: number
+  total_count: number
 }
 
 interface Request{
@@ -27,10 +40,15 @@ interface Approval{
   stage: string
 }
 
-function Home({requests} : HomePropsInterface){
+function Home({requests, pageMeta, handlePageChange} : HomePropsInterface){
   return (
     <>
+      <MarginBase mb={3}>
+      <RequestsTableHeaderContainer/>
       <RequestTable requests = {requests}/>
+      </MarginBase>
+    
+      <PageSelection pageMeta={pageMeta} handlePageChange={handlePageChange}/>
     </>
   )
 }
@@ -60,14 +78,14 @@ export default function HomeContainer() {
   const [pageMeta, setPageMeta] = useState(null)
 
   useEffect(() => {
-    getRequests()
+    getRequests(1)
     console.log(requests); 
     console.log(pageMeta); 
   }, [])
 
-  const getRequests = async() => {
+  const getRequests = async(page:number) => {
     try{
-      const response = await fetch("http://localhost:3000/requests", {
+      const response = await fetch(`http://localhost:3000/requests/?page=${page}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -88,11 +106,15 @@ export default function HomeContainer() {
     }
   }
 
+  const handlePageChange = (page:number) => {
+    getRequests(page)
+  }
+
   const location = useLocation(); 
 
   return (
     <>
-       <Home requests = {requests}/>
+       <Home requests = {requests} pageMeta={pageMeta} handlePageChange={handlePageChange}/>
        {location.state && location.state.hasNewRequest == true ? <NewRequestMsg/>: <></>}
        {location.state && location.state.hasEditedRequest == true ? <EditedRequestMsg/>: <></>}
     </>

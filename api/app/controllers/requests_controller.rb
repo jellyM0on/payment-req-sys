@@ -24,7 +24,7 @@ class RequestsController < ApplicationController
       return 
     end
     
-    requests = requests.page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 30)
+    requests = requests.page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 5)
  
     render json: { requests: requests.as_json(:only =>  [:id, :overall_status, :purchase_category, :current_stage],:include => [{:user => { :only => [:name, :department]}}, { :approvals => { :only => [:stage], :include => { :reviewer => {:only => [:name]}}} }]),
                     pagination_meta: pagination_meta(requests)
