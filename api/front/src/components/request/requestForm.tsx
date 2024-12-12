@@ -84,15 +84,11 @@ interface RequestFormProps{
   handleChangeDropdown: (category: string) => void, 
   handleSubmit: () => void, 
   handleCancel: () => void, 
-  category: string | null
   errors: RequestErrors | null, 
   formInput : Request | null | undefined
   existingRequest: Request | undefined
 }
 
-function handleAccordion(){
-  console.log("test")
-}
 
 // normal list item 
 interface TextFormInput {
@@ -273,6 +269,14 @@ function RequestForm({
 
   const { user } = useAuthContext()
 
+  const [accordionState, setAccordionState] = useState([true, true, true, true])
+
+  function handleAccordion(index:number){
+    const newAccordionState = accordionState
+    newAccordionState[index] = newAccordionState[index] ? false : true
+    setAccordionState([...newAccordionState])
+  }
+
    let contents = [
     {
       id: "request-form-requestor", 
@@ -280,8 +284,8 @@ function RequestForm({
       content:  
       <AccordionPanel 
       title={<SectionTitle ml={1}>Requestor's Information</SectionTitle>} 
-      onClick={handleAccordion} 
-      open={true}>
+      onClick={() => handleAccordion(0)} 
+      open={accordionState[0]}>
 
         <DescriptionList headCellMinWidth={20} listContents={[
           setListItem({
@@ -335,8 +339,8 @@ function RequestForm({
       content:   
       <AccordionPanel 
       title={<SectionTitle ml={1}>Vendor Information</SectionTitle>} 
-      onClick={handleAccordion} 
-      open={true}>
+      onClick={() => handleAccordion(1)} 
+      open={accordionState[1]}>
   
         <DescriptionList  headCellMinWidth={20} listContents={[
             setListItem({
@@ -410,8 +414,8 @@ function RequestForm({
       content: 
       <AccordionPanel 
       title={<SectionTitle ml={1}>Payment Instruction</SectionTitle>} 
-      onClick={handleAccordion} 
-      open={true}>
+      onClick={() => handleAccordion(2)} 
+      open={accordionState[2]}>
 
         <DescriptionList  headCellMinWidth={20} listContents={[
           setDateItem({
@@ -463,10 +467,10 @@ function RequestForm({
       id: "request-form-purchase-descrip", 
       label: "Purchase Description", 
       content: 
-      <AccordionPanel 
+      <AccordionPanel mb={3}
       title={<SectionTitle ml={1}>Payment Description</SectionTitle>} 
-      onClick={handleAccordion} 
-      open={true}>
+      onClick={() => handleAccordion(3)} 
+      open={accordionState[3]}>
 
         <DescriptionList headCellMinWidth={20} listContents={[
           setDropdownItem({
@@ -553,7 +557,6 @@ function RequestFormContainer({handleRequest, existingRequest, mode}: RequestFor
     purchase_amount: null
   })
 
-  const [category, setCategory] = useState<string|null>(null)
   const [errors, setErrors] = useState<RequestErrors|null>(null)
 
 
@@ -647,7 +650,6 @@ function RequestFormContainer({handleRequest, existingRequest, mode}: RequestFor
         existingRequest = {existingRequest}
         handleChange={handleChange} 
         handleChangeDate={handleChangeDate}
-        category={category}
         handleChangeDropdown={handleChangeDropdown}
         handleSubmit={handleSubmit}
         handleCancel={handleCancel}
