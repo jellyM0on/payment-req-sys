@@ -128,7 +128,7 @@ class RequestsController < ApplicationController
         :payment_mode,
         :purchase_category, 
         :purchase_description, 
-        :purchase_amount
+        :purchase_amount,
       )
   end
 
