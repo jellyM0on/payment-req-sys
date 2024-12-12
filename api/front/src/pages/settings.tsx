@@ -24,6 +24,8 @@ interface SettingsPropsInterface{
   users: Users[] | null
   pageMeta: PageMeta | null
   handlePageChange: (page:number) => void
+  handlePageLimitChange: (limit:number) => void
+  pageLimit: number
 }
 interface PageMeta{
   current_page: number
@@ -33,14 +35,21 @@ interface PageMeta{
 }
 
 
-function Settings({users,  pageMeta, handlePageChange}: SettingsPropsInterface) {
+function Settings({users,  pageMeta, handlePageChange, handlePageLimitChange, pageLimit}: SettingsPropsInterface) {
   return (
     <>
     <MarginBase>
-      <UsersTableHeaderContainer/>
+      <UsersTableHeaderContainer
+       pageLimit = {pageLimit}
+       pageMeta={pageMeta}
+       handlePageLimitChange={handlePageLimitChange}
+      />
       <UsersTableContainer users={users} />
     </MarginBase>
-    <PageSelection pageMeta={pageMeta} handlePageChange={handlePageChange}/>
+    <PageSelection 
+    pageMeta={pageMeta} 
+    handlePageChange={handlePageChange}
+    />
     
     </>
   );
@@ -49,14 +58,15 @@ function Settings({users,  pageMeta, handlePageChange}: SettingsPropsInterface) 
 function SettingsContainer() {
   const [users, setUsers] = useState<Users[] | null>(null)
   const [pageMeta, setPageMeta] = useState(null)
+  const [pageLimit, setPageLimit] = useState(5)
 
   useEffect(() => {
-    getUsers(1)
+    getUsers(1, 5)
   }, [])
 
-  const getUsers = async(page:number) => {
+  const getUsers = async(page:number, limit:number) => {
     try{
-      const response = await fetch(`http://localhost:3000/users/?page=${page}`, {
+      const response = await fetch(`http://localhost:3000/users/?page=${page}&limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -84,16 +94,26 @@ function SettingsContainer() {
     )
   }
 
-  const handlePageChange = (page:number) => {
-    getUsers(page)
+  const handlePageChange = (page:number, ) => {
+    getUsers(page, pageLimit)
   }
 
+  const handlePageLimitChange = (limit:number) => {
+    setPageLimit(limit)
+    getUsers(1, limit)
+  }
 
   const location = useLocation(); 
 
   return(
     <>
-        <Settings users={users} pageMeta={pageMeta} handlePageChange={handlePageChange} />
+        <Settings 
+        users={users} 
+        pageMeta={pageMeta} 
+        handlePageChange={handlePageChange}
+        pageLimit = {pageLimit} 
+        handlePageLimitChange={handlePageLimitChange}
+        />
         {location.state && location.state.hasNewUser == true ? <NewUserMsg/>: <></>}
     </>
   )

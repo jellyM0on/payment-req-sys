@@ -11,6 +11,8 @@ interface HomePropsInterface{
   requests: Request[] | null
   pageMeta: PageMeta | null
   handlePageChange: (page:number) => void
+  handlePageLimitChange: (limit:number) => void
+  pageLimit: number
 }
 
 interface PageMeta{
@@ -40,15 +42,19 @@ interface Approval{
   stage: string
 }
 
-function Home({requests, pageMeta, handlePageChange} : HomePropsInterface){
+function Home({requests, pageMeta, handlePageChange, handlePageLimitChange, pageLimit} : HomePropsInterface){
   return (
     <>
       <MarginBase mb={3}>
-      <RequestsTableHeaderContainer/>
+      <RequestsTableHeaderContainer 
+      pageLimit = {pageLimit}
+      pageMeta={pageMeta}
+      handlePageLimitChange={handlePageLimitChange}/>
       <RequestTable requests = {requests}/>
       </MarginBase>
     
-      <PageSelection pageMeta={pageMeta} handlePageChange={handlePageChange}/>
+      <PageSelection pageMeta={pageMeta} 
+      handlePageChange={handlePageChange}/>
     </>
   )
 }
@@ -76,16 +82,17 @@ function EditedRequestMsg(){
 export default function HomeContainer() {
   const [requests, setRequests] = useState(null)
   const [pageMeta, setPageMeta] = useState(null)
+  const [pageLimit, setPageLimit] = useState(5)
 
   useEffect(() => {
-    getRequests(1)
+    getRequests(1, 5)
     console.log(requests); 
     console.log(pageMeta); 
   }, [])
 
-  const getRequests = async(page:number) => {
+  const getRequests = async(page:number, limit:number) => {
     try{
-      const response = await fetch(`http://localhost:3000/requests/?page=${page}`, {
+      const response = await fetch(`http://localhost:3000/requests/?page=${page}&limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -107,14 +114,23 @@ export default function HomeContainer() {
   }
 
   const handlePageChange = (page:number) => {
-    getRequests(page)
+    getRequests(page, pageLimit)
+  }
+
+  const handlePageLimitChange = (limit:number) => {
+    setPageLimit(limit)
+    getRequests(1, limit)
   }
 
   const location = useLocation(); 
 
   return (
     <>
-       <Home requests = {requests} pageMeta={pageMeta} handlePageChange={handlePageChange}/>
+       <Home requests = {requests} 
+       pageMeta={pageMeta} 
+       pageLimit = {pageLimit}
+       handlePageChange={handlePageChange}
+       handlePageLimitChange={handlePageLimitChange}/>
        {location.state && location.state.hasNewRequest == true ? <NewRequestMsg/>: <></>}
        {location.state && location.state.hasEditedRequest == true ? <EditedRequestMsg/>: <></>}
     </>
