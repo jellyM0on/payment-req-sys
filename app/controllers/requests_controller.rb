@@ -2,6 +2,7 @@ class RequestsController < ApplicationController
 
   before_action :authenticate_user!
   before_action :check_role 
+  before_action :check_unspec_role, only: [ :index ]
   before_action :validate_params, only: [ :create, :update ]
 
   def index
@@ -20,10 +21,15 @@ class RequestsController < ApplicationController
       requests = Request.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id)).distinct
     end
 
-    if(filter_param == "own_approvals")
-      requests = requests.where.not(
-        user_id: current_user.id
-      )
+    if(filter_param == "own_approvals" && @user_role != "admin")
+      requests = requests.joins(:approvals)
+      .where(current_stage: @user_unspec_role, approvals: {status: "pending", stage: @user_unspec_role})
+      .where.not(user_id: current_user.id)
+    end
+
+    if(filter_param == "own_approvals" && @user_role == "admin")
+      requests = requests.joins(:approvals)
+      .where(current_stage: @user_unspec_role, approvals: {status: "pending", stage: @user_unspec_role})
     end
 
     if(!requests) 
@@ -117,6 +123,14 @@ class RequestsController < ApplicationController
       @user_role = "accounting_manager"
     else 
       @user_role = current_user.role
+    end
+  end
+
+  def check_unspec_role
+    if(current_user.department == "accounting")
+      @user_unspec_role = "accountant"
+    else 
+      @user_unspec_role = current_user.role
     end
   end
 
