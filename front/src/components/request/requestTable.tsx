@@ -70,6 +70,7 @@ function RequestTableContainer({
   };
 
   useEffect(() => {
+    console.log(requests)
     if (requests) {
       const rows = [];
       for (let i = 0; i < requests.length; i++) {

@@ -52,18 +52,6 @@ function NavTabs({ role }: NavTabsProps) {
 
   const adminNavLinks = managerNavLinks.concat([
     {
-      title: "Summary",
-      url: "#",
-      IconComponent: MdOutlinePieChart,
-      current: location.pathname == "/summary" ? true : false,
-    },
-    {
-      title: "Reports",
-      url: "#",
-      IconComponent: IoIosStats,
-      current: location.pathname == "/reports" ? true : false,
-    },
-    {
       title: "Settings",
       url: "/settings",
       IconComponent: IoMdSettings,

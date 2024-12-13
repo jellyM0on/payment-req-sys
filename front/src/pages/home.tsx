@@ -85,6 +85,7 @@ export default function HomeContainer() {
   const [requests, setRequests] = useState(null);
   const [pageMeta, setPageMeta] = useState(null);
   const [pageLimit, setPageLimit] = useState(5);
+  const [filter, setFilter] = useState(""); 
 
   useEffect(() => {
     getRequests(1, 5);
@@ -111,6 +112,7 @@ export default function HomeContainer() {
       if (response.ok) {
         setRequests(result.requests);
         setPageMeta(result.pagination_meta);
+        console.log(requests); 
       }
 
       // return result
@@ -120,20 +122,22 @@ export default function HomeContainer() {
   };
 
   const handlePageChange = (page: number) => {
-    getRequests(page, pageLimit);
+    getRequests(page, pageLimit, filter);
   };
 
   const handlePageLimitChange = (limit: number) => {
     setPageLimit(limit);
-    getRequests(1, limit);
+    getRequests(1, limit, filter);
   };
 
   const handleFilter = (mode: string) => {
     if (mode == "all") {
+      setFilter("")
       getRequests(1, pageLimit);
     }
 
     if (mode == "own_approvals") {
+      setFilter("own_approvals")
       getRequests(1, pageLimit, "own_approvals");
     }
   };
