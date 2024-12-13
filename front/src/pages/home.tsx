@@ -1,6 +1,6 @@
 import RequestTable from "../components/request/requestTable";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { FloatingMessageBlock, Text, MarginBase } from "@freee_jp/vibes";
 import RequestsTableHeaderContainer from "../components/request/requestTableHeader";
 import PageSelection from "../components/utils/pageSelection";
@@ -66,16 +66,62 @@ function Home({
 }
 
 function NewRequestMsg() {
-  return (
-    <FloatingMessageBlock success onClose={() => {}}>
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isShown, setIsShown] = useState(true);
+
+  useEffect(() => {
+    if (location.state.hasNewRequest == true) {
+      setIsShown(false);
+    } else {
+      setIsShown(true);
+    }
+  }, [location.state]);
+
+  const handleClose = () => {
+    setIsShown(false);
+    navigate("/", {
+      state: {
+        hasNewRequest: false,
+      },
+    });
+  };
+
+  return isShown ? (
+    <></>
+  ) : (
+    <FloatingMessageBlock success onClose={handleClose}>
       <Text>Your Payment Request has been submitted successfully.</Text>
     </FloatingMessageBlock>
   );
 }
 
 function EditedRequestMsg() {
-  return (
-    <FloatingMessageBlock success onClose={() => {}}>
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isShown, setIsShown] = useState(true);
+
+  useEffect(() => {
+    if (location.state.hasEditedRequest == true) {
+      setIsShown(false);
+    } else {
+      setIsShown(true);
+    }
+  }, [location.state]);
+
+  const handleClose = () => {
+    setIsShown(false);
+    navigate("/", {
+      state: {
+        hasEditedRequest: false,
+      },
+    });
+  };
+
+  return isShown ? (
+    <></>
+  ) : (
+    <FloatingMessageBlock success onClose={handleClose}>
       <Text>Your Payment Request has been edited successfully.</Text>
     </FloatingMessageBlock>
   );
@@ -85,7 +131,7 @@ export default function HomeContainer() {
   const [requests, setRequests] = useState(null);
   const [pageMeta, setPageMeta] = useState(null);
   const [pageLimit, setPageLimit] = useState(5);
-  const [filter, setFilter] = useState(""); 
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     getRequests(1, 5);
@@ -93,7 +139,11 @@ export default function HomeContainer() {
     console.log(pageMeta);
   }, []);
 
-  const getRequests = async (page: number, limit: number, filtered: string="") => {
+  const getRequests = async (
+    page: number,
+    limit: number,
+    filtered: string = ""
+  ) => {
     console.log(filtered);
     try {
       const response = await fetch(
@@ -112,7 +162,7 @@ export default function HomeContainer() {
       if (response.ok) {
         setRequests(result.requests);
         setPageMeta(result.pagination_meta);
-        console.log(requests); 
+        console.log(requests);
       }
 
       // return result
@@ -132,12 +182,12 @@ export default function HomeContainer() {
 
   const handleFilter = (mode: string) => {
     if (mode == "all") {
-      setFilter("")
+      setFilter("");
       getRequests(1, pageLimit);
     }
 
     if (mode == "own_approvals") {
-      setFilter("own_approvals")
+      setFilter("own_approvals");
       getRequests(1, pageLimit, "own_approvals");
     }
   };
@@ -154,16 +204,9 @@ export default function HomeContainer() {
         handlePageLimitChange={handlePageLimitChange}
         handleFilter={handleFilter}
       />
-      {location.state && location.state.hasNewRequest == true ? (
-        <NewRequestMsg />
-      ) : (
-        <></>
-      )}
-      {location.state && location.state.hasEditedRequest == true ? (
-        <EditedRequestMsg />
-      ) : (
-        <></>
-      )}
+
+      {location.state ? <NewRequestMsg /> : <></>}
+      {location.state ? <EditedRequestMsg /> : <></>}
     </>
   );
 }
