@@ -35,7 +35,22 @@ function NavTabs({ role }: NavTabsProps) {
     },
   ];
 
-  const adminNavLinks = employeeNavLinks.concat([
+  const managerNavLinks = employeeNavLinks.concat([
+    {
+      title: "Summary",
+      url: "#",
+      IconComponent: MdOutlinePieChart,
+      current: location.pathname == "/summary" ? true : false,
+    },
+    {
+      title: "Reports",
+      url: "#",
+      IconComponent: IoIosStats,
+      current: location.pathname == "/reports" ? true : false,
+    },
+  ]);
+
+  const adminNavLinks = managerNavLinks.concat([
     {
       title: "Summary",
       url: "#",
@@ -56,7 +71,12 @@ function NavTabs({ role }: NavTabsProps) {
     },
   ]);
 
-  const navLinks = role === "employee" ? employeeNavLinks : adminNavLinks;
+  let navLinks;
+
+  if (role == "employee") navLinks = employeeNavLinks;
+  if (role == "manager") navLinks = managerNavLinks;
+  if (role == "admin") navLinks = adminNavLinks;
+
   return <GlobalNavi hideHelpForm links={navLinks} />;
 }
 
