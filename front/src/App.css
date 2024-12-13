@@ -1,112 +1,66 @@
-
 * {
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
-.input{
+.input {
   width: 100%;
 }
 
-.login-page{
+.login-page {
   display: grid;
   grid-template-rows: 0.5fr 1fr 0.5fr;
   height: 100vh;
 }
 
-.login-form{
-  justify-self: center; 
+.login-form {
+  justify-self: center;
   align-self: center;
   width: 40%;
 }
 
 p {
-  margin: 0 
+  margin: 0;
 }
 
-.left-content{
-  display: flex; 
+.left-content {
+  display: flex;
   flex-direction: column;
   gap: 2em;
   padding: 2em;
-  border-bottom: 1px solid #E9E7E7;
+  border-bottom: 1px solid #e9e7e7;
   width: 100%;
 }
 
-.auth-btn{
-  padding: 2em; 
+.auth-btn {
+  padding: 2em;
   gap: 1em;
-
 }
 
-.center-content-fit{
-  display: flex; 
+.center-content-fit {
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: fit-content;
 }
 
-.center-content{
-  display: flex; 
+.center-content {
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.half-width{
-  width: 50vw; 
+.half-width {
+  width: 50vw;
 }
 
 /* nav */
 
-.nav-header{
-  display: flex; 
+.nav-header {
+  display: flex;
   gap: 1em;
   align-items: center;
   justify-content: center;
   height: 100%;
-
 }
-
-/* #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-} */

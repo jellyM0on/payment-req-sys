@@ -1,14 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 * {
-  font-family: 'Open Sans', sans-serif !important;
+  font-family: "Open Sans", sans-serif !important;
 }
 
 :root {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -18,18 +18,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#auth-form .vb-descriptionList__row:nth-child(2n+1){
+#auth-form .vb-descriptionList__row:nth-child(2n + 1) {
   background-color: white;
 }
 
-.vb-gridBlock--half{
+.vb-gridBlock--half {
   flex-basis: calc((100%) / 2);
 }
 
-#cardbase-btm{
-  position: fixed; 
+#cardbase-btm {
+  position: fixed;
   bottom: -1%;
   width: 100%;
   left: 0;
-  margin: 0
+  margin: 0;
 }
