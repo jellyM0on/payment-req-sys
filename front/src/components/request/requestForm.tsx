@@ -135,8 +135,9 @@ const RadioContainer = ({
   disabled,
   formValue,
 }: RadioContainerProps) => {
+  console.log("radio" + formValue);
   const [selectedOpt, setSelectedOpt] = useState(
-    formValue != null ? formValue : options[0].value
+    formValue ? formValue : options[0].value
   );
 
   return (
@@ -652,12 +653,12 @@ function RequestFormContainer({
     vendor_tin: null,
     vendor_email: null,
     vendor_contact_num: null,
-    vendor_certificate_of_reg: null,
+    vendor_certificate_of_reg: "applicable",
     vendor_attachment: null,
-    payment_due_date: null,
+    payment_due_date: new Date().toString(),
     payment_payable_to: null,
-    payment_mode: null,
-    purchase_category: null,
+    payment_mode: "bank_transfer",
+    purchase_category: "company_events",
     purchase_description: null,
     purchase_amount: null,
   });
