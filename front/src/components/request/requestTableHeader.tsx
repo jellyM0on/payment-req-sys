@@ -45,7 +45,7 @@ function FilterToggleInput({handleFilter}: FilterToggleInputProps) {
       label: "All Requests",
     },
     {
-      value: "approval",
+      value: "own_approvals",
       label: "Needs My Approval",
     },
   ];
@@ -63,7 +63,7 @@ function FilterToggleInput({handleFilter}: FilterToggleInputProps) {
             toggled={selectedOpt == option.value ? true : false}
             onChange={() => {
               setSelectedOpt(option.value);
-              handleFilter(selectedOpt)
+              handleFilter(option.value)
             }}
           >
             {option.label}

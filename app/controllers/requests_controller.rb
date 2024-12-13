@@ -5,6 +5,7 @@ class RequestsController < ApplicationController
   before_action :validate_params, only: [ :create, :update ]
 
   def index
+    filter_param = params[:filter_by]
 
     case @user_role
     when "admin", "accounting_employee", "accounting_manager"
@@ -17,6 +18,12 @@ class RequestsController < ApplicationController
 
     when "manager"
       requests = Request.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id)).distinct
+    end
+
+    if(filter_param == "own_approvals")
+      requests = requests.where.not(
+        user_id: current_user.id
+      )
     end
 
     if(!requests) 

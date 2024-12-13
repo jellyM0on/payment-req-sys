@@ -87,15 +87,16 @@ export default function HomeContainer() {
   const [pageLimit, setPageLimit] = useState(5);
 
   useEffect(() => {
-    getRequests(1, 5, "false");
+    getRequests(1, 5);
     console.log(requests);
     console.log(pageMeta);
   }, []);
 
-  const getRequests = async (page: number, limit: number, filtered: string) => {
+  const getRequests = async (page: number, limit: number, filtered: string="") => {
+    console.log(filtered);
     try {
       const response = await fetch(
-        `http://localhost:3000/requests/?page=${page}&limit=${limit}&filter_approvals=${filtered}`,
+        `http://localhost:3000/requests/?page=${page}&limit=${limit}&filter_by=${filtered}`,
         {
           method: "GET",
           headers: {
@@ -119,22 +120,21 @@ export default function HomeContainer() {
   };
 
   const handlePageChange = (page: number) => {
-    getRequests(page, pageLimit, "false");
+    getRequests(page, pageLimit);
   };
 
   const handlePageLimitChange = (limit: number) => {
     setPageLimit(limit);
-    getRequests(1, limit, "false");
+    getRequests(1, limit);
   };
 
   const handleFilter = (mode: string) => {
-    console.log(mode);
     if (mode == "all") {
-      getRequests(1, pageLimit, "false");
+      getRequests(1, pageLimit);
     }
 
-    if (mode == "approval") {
-      getRequests(1, pageLimit, "true");
+    if (mode == "own_approvals") {
+      getRequests(1, pageLimit, "own_approvals");
     }
   };
 
