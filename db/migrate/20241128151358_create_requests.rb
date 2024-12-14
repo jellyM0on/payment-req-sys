@@ -12,7 +12,6 @@ class CreateRequests < ActiveRecord::Migration[7.2]
       t.string :vendor_email, null: false 
       t.string :vendor_contact_num, null: false 
       t.integer :vendor_certificate_of_reg, null: false
-      t.integer :vendor_attachment, null: false 
     
       #payment 
       t.timestamp :payment_due_date

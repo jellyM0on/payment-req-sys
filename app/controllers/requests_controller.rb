@@ -1,4 +1,5 @@
 class RequestsController < ApplicationController
+  include Rails.application.routes.url_helpers
 
   before_action :authenticate_user!
   before_action :check_role 
@@ -56,10 +57,18 @@ class RequestsController < ApplicationController
         isReviewer = true 
       end
     end
-  
 
-    if( request.user_id == current_user.id || isReviewer)
-      render json: { request: request.as_json( :include => { :approvals => { :only => [:id, :stage, :status, :decided_at]}}) }
+    request = request.as_json(
+      include: {
+        approvals: { only: [:id, :stage, :status, :decided_at] }
+      }
+    ).merge(
+      vendor_attachment_url: url_for(request.vendor_attachment),
+      supporting_documents_urls: request.supporting_documents.map { |document| url_for(document) }
+    )
+
+    if(request.user_id == current_user.id || isReviewer)
+        render json: { request: build_request(request) }
     else 
       render json: "Unauthorized", status: :unauthorized
     end
@@ -70,6 +79,7 @@ class RequestsController < ApplicationController
     request = Request.new(@validated_params)
     request.user_id = current_user.id
     request.overall_status = "pending"
+    attach_documents(request)
 
     puts @user_role
 
@@ -87,7 +97,7 @@ class RequestsController < ApplicationController
     buildApprovals(request, @user_role)
   
     if request.save
-      render json: request, status: :ok
+      render json: build_request_with_documents(request), status: :ok
     else 
       render json: { errors: request.errors }, status: :bad_request
     end
@@ -109,8 +119,10 @@ class RequestsController < ApplicationController
       return
     end
 
+    attach_documents(request)
+
     if request.update(@validated_params)
-      render json: request, status: :ok
+      render json: build_request_with_documents(request), status: :ok
     else 
       render json: { errors: request.errors },  status: :bad_request
     end
@@ -138,22 +150,41 @@ class RequestsController < ApplicationController
   end
 
   def validate_params
-    @validated_params = params.require(:request)
-      .permit(
+    @validated_params = params.require(:request).permit(
         :vendor_name, 
         :vendor_tin, 
         :vendor_address, 
         :vendor_email, 
         :vendor_contact_num, 
         :vendor_certificate_of_reg, 
-        :vendor_attachment,
         :payment_due_date, 
         :payment_payable_to, 
         :payment_mode,
         :purchase_category, 
         :purchase_description, 
-        :purchase_amount,
+        :purchase_amount, 
+        :vendor_attachment, 
+        supporting_documents:[]
       )
+  end
+
+  def attach_documents(request)
+    if params[:vendor_attachment].present?
+      request.vendor_attachment.purge if request.vendor_attachment.attached? 
+      request.vendor_attachment.attach(params[:vendor_attachment])
+    end
+
+    if params[:supporting_documents].present?
+      request.supporting_documents.purge if request.supporting_documents.attached?
+      request.supporting_documents.attach(params[:supporting_documents])
+    end
+  end
+
+  def build_request_with_documents(request)
+    request.as_json.merge(
+      vendor_attachment_url: url_for(request.vendor_attachment), 
+      supporting_documents_urls: request.supporting_documents.map { |document| url_for(document) }
+    )
   end
 
   def buildApprovals(request, user_role)
