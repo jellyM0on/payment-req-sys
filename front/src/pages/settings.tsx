@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
 import { FloatingMessageBlock, Text, MarginBase } from "@freee_jp/vibes";
 import PageSelection from "../components/utils/pageSelection";
+import { getCurrentSettingsPage, getCurrentSettingsPageLimit, setCurrentSettingsPage, setCurrentSettingsPageLimit } from "../utils/settingsPageDataUtils";
 
 interface Users {
   id: number;
@@ -59,10 +60,13 @@ function Settings({
 function SettingsContainer() {
   const [users, setUsers] = useState<Users[] | null>(null);
   const [pageMeta, setPageMeta] = useState(null);
-  const [pageLimit, setPageLimit] = useState(5);
+  const [pageLimit, setPageLimit] = useState(10);
 
   useEffect(() => {
-    getUsers(1, 5);
+    const page = getCurrentSettingsPage(); 
+    const limit = getCurrentSettingsPageLimit(); 
+    setPageLimit(limit)
+    getUsers(page, limit);
   }, []);
 
   const getUsers = async (page: number, limit: number) => {
@@ -98,11 +102,13 @@ function SettingsContainer() {
   }
 
   const handlePageChange = (page: number) => {
+    setCurrentSettingsPage(page); 
     getUsers(page, pageLimit);
   };
 
   const handlePageLimitChange = (limit: number) => {
     setPageLimit(limit);
+    setCurrentSettingsPageLimit(limit); 
     getUsers(1, limit);
   };
 

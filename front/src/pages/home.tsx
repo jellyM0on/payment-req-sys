@@ -4,6 +4,14 @@ import { useLocation, useNavigate } from "react-router";
 import { FloatingMessageBlock, Text, MarginBase } from "@freee_jp/vibes";
 import RequestsTableHeaderContainer from "../components/request/requestTableHeader";
 import PageSelection from "../components/utils/pageSelection";
+import {
+  getCurrentHomePage,
+  getCurrentHomePageFilter,
+  getCurrentHomePageLimit,
+  setCurrentHomePage,
+  setCurrentHomePageFilter,
+  setCurrentHomePageLimit,
+} from "../utils/homePageDataUtils";
 interface HomePropsInterface {
   requests: Request[] | null;
   pageMeta: PageMeta | null;
@@ -130,12 +138,16 @@ function EditedRequestMsg() {
 export default function HomeContainer() {
   const [requests, setRequests] = useState(null);
   const [pageMeta, setPageMeta] = useState(null);
-  const [pageLimit, setPageLimit] = useState(5);
-  const [filter, setFilter] = useState("");
+  const [pageLimit, setPageLimit] = useState(10);
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    
-    getRequests(1, 5);
+    const page = getCurrentHomePage(); 
+    const limit = getCurrentHomePageLimit(); 
+    const filter = getCurrentHomePageFilter(); 
+    setPageLimit(limit)
+    setFilter(filter)
+    getRequests(page, limit, filter);
   }, []);
 
   const getRequests = async (
@@ -171,23 +183,29 @@ export default function HomeContainer() {
   };
 
   const handlePageChange = (page: number) => {
-
+    setCurrentHomePage(page);
     getRequests(page, pageLimit, filter);
   };
 
   const handlePageLimitChange = (limit: number) => {
+    setCurrentHomePage(1); 
     setPageLimit(limit);
+    setCurrentHomePageLimit(limit);
     getRequests(1, limit, filter);
   };
 
   const handleFilter = (mode: string) => {
     if (mode == "all") {
-      setFilter("");
-      getRequests(1, pageLimit);
+      setFilter("all");
+      setCurrentHomePageFilter("all"); 
+      setCurrentHomePage(1)
+      getRequests(1, pageLimit, "all");
     }
 
     if (mode == "own_approvals") {
       setFilter("own_approvals");
+      setCurrentHomePageFilter("own_approvals"); 
+      setCurrentHomePage(1)
       getRequests(1, pageLimit, "own_approvals");
     }
   };

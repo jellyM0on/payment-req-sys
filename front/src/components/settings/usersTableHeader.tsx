@@ -33,10 +33,9 @@ function UsersTableHeader({
           rowCount={pageMeta?.total_count}
           rowsPerPageValue={pageLimit}
           rowsPerPageOptions={[
-            { value: "5", name: `5 items` },
             { value: "10", name: "10 items" },
             { value: "20", name: "20 items" },
-            { value: "25", name: "25 items" },
+            { value: "50", name: "50 items" },
           ]}
         />
       </HStack>

@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useAuthContext } from "../../providers/authProvider";
 
 import { MdOutlinePostAdd } from "react-icons/md";
+import { getCurrentHomePageFilter } from "../../utils/homePageDataUtils";
 
 interface UsersTableHeaderProps {
   handleAddRequest: () => void;
@@ -38,7 +39,7 @@ interface FilterToggleInputProps{
 }
 
 function FilterToggleInput({handleFilter}: FilterToggleInputProps) {
-  const [selectedOpt, setSelectedOpt] = useState("all");
+  const [selectedOpt, setSelectedOpt] = useState(getCurrentHomePageFilter());
   const options: Option[] = [
     {
       value: "all",
@@ -92,10 +93,9 @@ function RequestsTableHeader({
           rowCount={pageMeta?.total_count}
           rowsPerPageValue={pageLimit}
           rowsPerPageOptions={[
-            { value: "5", name: `5 items` },
             { value: "10", name: "10 items" },
             { value: "20", name: "20 items" },
-            { value: "25", name: "25 items" },
+            { value: "50", name: "50 items" },
           ]}
         />
         {
