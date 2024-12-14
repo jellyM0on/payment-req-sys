@@ -134,9 +134,8 @@ export default function HomeContainer() {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
+    
     getRequests(1, 5);
-    console.log(requests);
-    console.log(pageMeta);
   }, []);
 
   const getRequests = async (
@@ -172,6 +171,7 @@ export default function HomeContainer() {
   };
 
   const handlePageChange = (page: number) => {
+
     getRequests(page, pageLimit, filter);
   };
 
