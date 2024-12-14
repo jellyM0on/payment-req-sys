@@ -409,11 +409,6 @@ function SignupForm() {
                         text: "Manager",
                         onClick: handleDropdown,
                       },
-                      {
-                        type: "selectable",
-                        text: "Admin",
-                        onClick: handleDropdown,
-                      },
                     ]}
                   />
                 ),

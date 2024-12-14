@@ -34,6 +34,18 @@ function getCurrentHomePageFilter() {
   return filter;
 }
 
+function setCurrentHomeSearch(input: string) {
+  sessionStorage.setItem("homeSearch", input);
+}
+
+function getCurrentHomeSearch() {
+  let search = sessionStorage.getItem("homeSearch");
+  if (!search) {
+    search = "";
+  }
+  return search; 
+}
+
 export {
   setCurrentHomePage,
   getCurrentHomePage,
@@ -41,4 +53,6 @@ export {
   getCurrentHomePageLimit,
   setCurrentHomePageFilter,
   getCurrentHomePageFilter,
+  setCurrentHomeSearch, 
+  getCurrentHomeSearch
 };

@@ -20,4 +20,10 @@ class User < ApplicationRecord
   validates :name, presence: true, length: { in: 1..100 }
   validates :email, presence: true, length: { in: 1..100 }
   validates :position, presence: true, length: { in: 1..250 }
+
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[name]
+  end
+
 end

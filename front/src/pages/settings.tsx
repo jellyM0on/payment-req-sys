@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
 import { FloatingMessageBlock, Text, MarginBase } from "@freee_jp/vibes";
 import PageSelection from "../components/utils/pageSelection";
-import { getCurrentSettingsPage, getCurrentSettingsPageLimit, setCurrentSettingsPage, setCurrentSettingsPageLimit } from "../utils/settingsPageDataUtils";
+import {
+  getCurrentSettingsPage,
+  getCurrentSettingsPageLimit,
+  getCurrentSettingsSearch,
+  setCurrentSettingsPage,
+  setCurrentSettingsPageLimit,
+  setCurrentSettingsSearch,
+} from "../utils/settingsPageDataUtils";
 
 interface Users {
   id: number;
@@ -27,6 +34,7 @@ interface SettingsPropsInterface {
   handlePageChange: (page: number) => void;
   handlePageLimitChange: (limit: number) => void;
   pageLimit: number;
+  handleSearch: (input: string) => void;
 }
 interface PageMeta {
   current_page: number;
@@ -41,6 +49,7 @@ function Settings({
   handlePageChange,
   handlePageLimitChange,
   pageLimit,
+  handleSearch,
 }: SettingsPropsInterface) {
   return (
     <>
@@ -49,6 +58,7 @@ function Settings({
           pageLimit={pageLimit}
           pageMeta={pageMeta}
           handlePageLimitChange={handlePageLimitChange}
+          handleSearch={handleSearch}
         />
         <UsersTableContainer users={users} />
       </MarginBase>
@@ -61,18 +71,21 @@ function SettingsContainer() {
   const [users, setUsers] = useState<Users[] | null>(null);
   const [pageMeta, setPageMeta] = useState(null);
   const [pageLimit, setPageLimit] = useState(10);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const page = getCurrentSettingsPage(); 
-    const limit = getCurrentSettingsPageLimit(); 
-    setPageLimit(limit)
-    getUsers(page, limit);
+    const page = getCurrentSettingsPage();
+    const limit = getCurrentSettingsPageLimit();
+    const search = getCurrentSettingsSearch();
+    setPageLimit(limit);
+    setSearch(search);
+    getUsers(page, limit, search);
   }, []);
 
-  const getUsers = async (page: number, limit: number) => {
+  const getUsers = async (page: number, limit: number, search: string = "") => {
     try {
       const response = await fetch(
-        `http://localhost:3000/users/?page=${page}&limit=${limit}`,
+        `http://localhost:3000/users/?page=${page}&limit=${limit}&q[name_cont]=${search}`,
         {
           method: "GET",
           headers: {
@@ -102,14 +115,20 @@ function SettingsContainer() {
   }
 
   const handlePageChange = (page: number) => {
-    setCurrentSettingsPage(page); 
-    getUsers(page, pageLimit);
+    setCurrentSettingsPage(page);
+    getUsers(page, pageLimit, search);
   };
 
   const handlePageLimitChange = (limit: number) => {
     setPageLimit(limit);
-    setCurrentSettingsPageLimit(limit); 
-    getUsers(1, limit);
+    setCurrentSettingsPageLimit(limit);
+    getUsers(1, limit, search);
+  };
+
+  const handleSearch = (input: string) => {
+    setCurrentSettingsSearch(input);
+    setSearch(input);
+    getUsers(1, pageLimit, input);
   };
 
   const location = useLocation();
@@ -122,6 +141,7 @@ function SettingsContainer() {
         handlePageChange={handlePageChange}
         pageLimit={pageLimit}
         handlePageLimitChange={handlePageLimitChange}
+        handleSearch={handleSearch}
       />
       {location.state && location.state.hasNewUser == true ? (
         <NewUserMsg />

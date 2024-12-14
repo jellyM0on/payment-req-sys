@@ -8,9 +8,11 @@ import {
   getCurrentHomePage,
   getCurrentHomePageFilter,
   getCurrentHomePageLimit,
+  getCurrentHomeSearch,
   setCurrentHomePage,
   setCurrentHomePageFilter,
   setCurrentHomePageLimit,
+  setCurrentHomeSearch,
 } from "../utils/homePageDataUtils";
 interface HomePropsInterface {
   requests: Request[] | null;
@@ -19,6 +21,7 @@ interface HomePropsInterface {
   handlePageLimitChange: (limit: number) => void;
   pageLimit: number;
   handleFilter: (mode: string) => void;
+  handleSearch: (input: string) => void;
 }
 
 interface PageMeta {
@@ -55,6 +58,7 @@ function Home({
   handlePageLimitChange,
   pageLimit,
   handleFilter,
+  handleSearch,
 }: HomePropsInterface) {
   return (
     <>
@@ -64,6 +68,7 @@ function Home({
           pageMeta={pageMeta}
           handlePageLimitChange={handlePageLimitChange}
           handleFilter={handleFilter}
+          handleSearch={handleSearch}
         />
         <RequestTable requests={requests} />
       </MarginBase>
@@ -140,25 +145,29 @@ export default function HomeContainer() {
   const [pageMeta, setPageMeta] = useState(null);
   const [pageLimit, setPageLimit] = useState(10);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const page = getCurrentHomePage(); 
-    const limit = getCurrentHomePageLimit(); 
-    const filter = getCurrentHomePageFilter(); 
-    setPageLimit(limit)
-    setFilter(filter)
-    getRequests(page, limit, filter);
+    const page = getCurrentHomePage();
+    const limit = getCurrentHomePageLimit();
+    const filter = getCurrentHomePageFilter();
+    const search = getCurrentHomeSearch();
+    setPageLimit(limit);
+    setFilter(filter);
+    setSearch(search);
+    getRequests(page, limit, filter, search);
   }, []);
 
   const getRequests = async (
     page: number,
     limit: number,
-    filtered: string = ""
+    filtered: string = "",
+    search: string = ""
   ) => {
     console.log(filtered);
     try {
       const response = await fetch(
-        `http://localhost:3000/requests/?page=${page}&limit=${limit}&filter_by=${filtered}`,
+        `http://localhost:3000/requests/?page=${page}&limit=${limit}&filter_by=${filtered}&q[user_name_cont]=${search}`,
         {
           method: "GET",
           headers: {
@@ -184,30 +193,36 @@ export default function HomeContainer() {
 
   const handlePageChange = (page: number) => {
     setCurrentHomePage(page);
-    getRequests(page, pageLimit, filter);
+    getRequests(page, pageLimit, filter, search);
   };
 
   const handlePageLimitChange = (limit: number) => {
-    setCurrentHomePage(1); 
+    setCurrentHomePage(1);
     setPageLimit(limit);
     setCurrentHomePageLimit(limit);
-    getRequests(1, limit, filter);
+    getRequests(1, limit, filter, search);
   };
 
   const handleFilter = (mode: string) => {
     if (mode == "all") {
       setFilter("all");
-      setCurrentHomePageFilter("all"); 
-      setCurrentHomePage(1)
-      getRequests(1, pageLimit, "all");
+      setCurrentHomePageFilter("all");
+      setCurrentHomePage(1);
+      getRequests(1, pageLimit, "all", search);
     }
 
     if (mode == "own_approvals") {
       setFilter("own_approvals");
-      setCurrentHomePageFilter("own_approvals"); 
-      setCurrentHomePage(1)
-      getRequests(1, pageLimit, "own_approvals");
+      setCurrentHomePageFilter("own_approvals");
+      setCurrentHomePage(1);
+      getRequests(1, pageLimit, "own_approvals", search);
     }
+  };
+
+  const handleSearch = (input: string) => {
+    setCurrentHomeSearch(input);
+    setSearch(input)
+    getRequests(1, pageLimit, filter, input);
   };
 
   const location = useLocation();
@@ -221,6 +236,7 @@ export default function HomeContainer() {
         handlePageChange={handlePageChange}
         handlePageLimitChange={handlePageLimitChange}
         handleFilter={handleFilter}
+        handleSearch={handleSearch}
       />
 
       {location.state ? <NewRequestMsg /> : <></>}

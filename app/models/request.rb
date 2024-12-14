@@ -22,4 +22,12 @@ class Request < ApplicationRecord
   validates :purchase_description, presence: true, length: { in: 1..500 }
   validates :purchase_amount, presence: true
   validates :purchase_category, presence: true
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[user]
+  end
 end

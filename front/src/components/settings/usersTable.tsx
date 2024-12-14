@@ -292,7 +292,7 @@ function UsersTableContainer({ users }: UsersTableContainerPropsInterface) {
 
   useEffect(() => {
     console.log("RERENDER");
-    if (users) {
+    if (users && users.length > 0) {
       const rows = [];
       for (let i = 0; i < users.length; i++) {
         const cUser = users[i];
@@ -326,6 +326,8 @@ function UsersTableContainer({ users }: UsersTableContainerPropsInterface) {
         });
         setRows(rows);
       }
+    } else {
+      setRows([])
     }
   }, [users, isUpdated]);
 

@@ -11,15 +11,15 @@ import { useState } from "react";
 import { useAuthContext } from "../../providers/authProvider";
 
 import { MdOutlinePostAdd } from "react-icons/md";
-import { getCurrentHomePageFilter } from "../../utils/homePageDataUtils";
+import { getCurrentHomePageFilter, getCurrentHomeSearch } from "../../utils/homePageDataUtils";
 
-interface UsersTableHeaderProps {
+interface RequestTableHeaderProps {
   handleAddRequest: () => void;
   pageMeta: PageMeta | null;
   handleChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   pageLimit: number;
-  handleFilter: (mode:string) => void
-
+  handleFilter: (mode: string) => void;
+  handleSearch: (input: string) => void;
 }
 
 interface PageMeta {
@@ -34,11 +34,11 @@ interface Option {
   label: string;
 }
 
-interface FilterToggleInputProps{
-  handleFilter: (mode:string) => void
+interface FilterToggleInputProps {
+  handleFilter: (mode: string) => void;
 }
 
-function FilterToggleInput({handleFilter}: FilterToggleInputProps) {
+function FilterToggleInput({ handleFilter }: FilterToggleInputProps) {
   const [selectedOpt, setSelectedOpt] = useState(getCurrentHomePageFilter());
   const options: Option[] = [
     {
@@ -64,7 +64,7 @@ function FilterToggleInput({handleFilter}: FilterToggleInputProps) {
             toggled={selectedOpt == option.value ? true : false}
             onChange={() => {
               setSelectedOpt(option.value);
-              handleFilter(option.value)
+              handleFilter(option.value);
             }}
           >
             {option.label}
@@ -80,13 +80,14 @@ function RequestsTableHeader({
   handleAddRequest,
   pageLimit,
   handleChange,
-  handleFilter
-}: UsersTableHeaderProps) {
+  handleFilter,
+  handleSearch,
+}: RequestTableHeaderProps) {
   const { user } = useAuthContext();
   return (
     <HStack justifyContent="space-between" mb={1}>
       <HStack>
-        <SearchField />
+        <SearchField value={getCurrentHomeSearch()} placeholder="Requestor" onChange={(e) => handleSearch(e.target.value)} />
         <Pagination
           onChange={handleChange}
           currentPage={pageMeta ? pageMeta.current_page : 1}
@@ -98,9 +99,11 @@ function RequestsTableHeader({
             { value: "50", name: "50 items" },
           ]}
         />
-        {
-          user && user.role == "employee" ? <></> : <FilterToggleInput handleFilter={handleFilter} />
-        }
+        {user && user.role == "employee" ? (
+          <></>
+        ) : (
+          <FilterToggleInput handleFilter={handleFilter} />
+        )}
       </HStack>
       <Button IconComponent={MdOutlinePostAdd} onClick={handleAddRequest}>
         Create Request
@@ -113,14 +116,16 @@ interface RequestsTableHeaderContainerProps {
   pageMeta: PageMeta | null;
   handlePageLimitChange: (limit: number) => void;
   pageLimit: number;
-  handleFilter: (mode:string) => void
+  handleFilter: (mode: string) => void;
+  handleSearch: (input: string) => void; 
 }
 
 function RequestsTableHeaderContainer({
   pageMeta,
   handlePageLimitChange,
   pageLimit,
-  handleFilter
+  handleFilter,
+  handleSearch
 }: RequestsTableHeaderContainerProps) {
   const navigate = useNavigate();
 
@@ -138,7 +143,7 @@ function RequestsTableHeaderContainer({
       handleChange={handleChange}
       pageLimit={pageLimit}
       handleFilter={handleFilter}
-
+      handleSearch={handleSearch}
     />
   );
 }

@@ -22,9 +22,23 @@ function getCurrentSettingsPageLimit() {
   return Number(limit);
 }
 
+function setCurrentSettingsSearch(input: string) {
+  sessionStorage.setItem("settingsSearch", input);
+}
+
+function getCurrentSettingsSearch() {
+  let search = sessionStorage.getItem("settingsSearch");
+  if (!search) {
+    search = "";
+  }
+  return search; 
+}
+
 export {
   getCurrentSettingsPage,
   getCurrentSettingsPageLimit,
   setCurrentSettingsPage,
   setCurrentSettingsPageLimit,
+  getCurrentSettingsSearch, 
+  setCurrentSettingsSearch
 };

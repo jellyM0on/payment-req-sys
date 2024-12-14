@@ -71,7 +71,7 @@ function RequestTableContainer({
 
   useEffect(() => {
     console.log(requests)
-    if (requests) {
+    if (requests && requests.length > 0) {
       const rows = [];
       for (let i = 0; i < requests.length; i++) {
         const cRequest = requests[i];
@@ -97,10 +97,12 @@ function RequestTableContainer({
         });
         setRows(rows);
       }
+    } else {
+      setRows([]);
     }
   }, [requests]);
 
-  return <RequestTable rows={rows} />;
+  return <RequestTable rows={rows}/>
 }
 
 export default RequestTableContainer;

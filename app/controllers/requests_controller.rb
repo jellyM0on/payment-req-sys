@@ -32,11 +32,14 @@ class RequestsController < ApplicationController
       .where(current_stage: @user_unspec_role, approvals: {status: "pending", stage: @user_unspec_role})
     end
 
-    if(!requests) 
+    if(requests.nil?) 
       render json: { requests: nil, pagination_meta: nil }, status: :ok
       return 
     end
-    
+
+    @q = requests.ransack(params[:q])
+    requests = @q.result
+
     requests = requests.order(created_at: :desc).page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 5)
  
     render json: { requests: requests.as_json(:only =>  [:id, :overall_status, :purchase_category, :current_stage],:include => [{:user => { :only => [:name, :department]}}, { :approvals => { :only => [:stage], :include => { :reviewer => {:only => [:name]}}} }]),
