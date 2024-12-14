@@ -53,15 +53,17 @@ function Settings({
 }: SettingsPropsInterface) {
   return (
     <>
-      <MarginBase>
-        <UsersTableHeaderContainer
-          pageLimit={pageLimit}
-          pageMeta={pageMeta}
-          handlePageLimitChange={handlePageLimitChange}
-          handleSearch={handleSearch}
-        />
-        <UsersTableContainer users={users} />
-      </MarginBase>
+      <div id="table">
+        <MarginBase>
+          <UsersTableHeaderContainer
+            pageLimit={pageLimit}
+            pageMeta={pageMeta}
+            handlePageLimitChange={handlePageLimitChange}
+            handleSearch={handleSearch}
+          />
+          <UsersTableContainer users={users} />
+        </MarginBase>
+      </div>
       <PageSelection pageMeta={pageMeta} handlePageChange={handlePageChange} />
     </>
   );

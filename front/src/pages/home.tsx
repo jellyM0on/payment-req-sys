@@ -62,16 +62,18 @@ function Home({
 }: HomePropsInterface) {
   return (
     <>
-      <MarginBase mb={3}>
-        <RequestsTableHeaderContainer
-          pageLimit={pageLimit}
-          pageMeta={pageMeta}
-          handlePageLimitChange={handlePageLimitChange}
-          handleFilter={handleFilter}
-          handleSearch={handleSearch}
-        />
-        <RequestTable requests={requests} />
-      </MarginBase>
+      <div id="table">
+        <MarginBase mb={3}>
+          <RequestsTableHeaderContainer
+            pageLimit={pageLimit}
+            pageMeta={pageMeta}
+            handlePageLimitChange={handlePageLimitChange}
+            handleFilter={handleFilter}
+            handleSearch={handleSearch}
+          />
+          <RequestTable requests={requests} />
+        </MarginBase>
+      </div>
 
       <PageSelection pageMeta={pageMeta} handlePageChange={handlePageChange} />
     </>
@@ -221,7 +223,7 @@ export default function HomeContainer() {
 
   const handleSearch = (input: string) => {
     setCurrentHomeSearch(input);
-    setSearch(input)
+    setSearch(input);
     getRequests(1, pageLimit, filter, input);
   };
 

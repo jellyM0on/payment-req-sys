@@ -25,14 +25,16 @@ function PageSelection({ pageMeta, handlePageChange }: PageSelectionProps) {
   }, [pageMeta]);
 
   return (
-    <Pager
-      currentPage={currentPage}
-      pageCount={pageCount}
-      onPageChange={(page) => {
-        handlePageChange(page);
-        setCurrentPage(page);
-      }}
-    />
+    <div id="pager">
+      <Pager
+        currentPage={currentPage}
+        pageCount={pageCount}
+        onPageChange={(page) => {
+          handlePageChange(page);
+          setCurrentPage(page);
+        }}
+      />
+    </div>
   );
 }
 

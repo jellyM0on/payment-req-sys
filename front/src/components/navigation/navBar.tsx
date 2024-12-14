@@ -8,10 +8,10 @@ interface NavBarProps {
 
 function NavBar({ name, role }: NavBarProps) {
   return (
-    <>
+    <div id="navbar">
       <NavHeader name={name} />
       <NavTabs role={role} />
-    </>
+    </div>
   );
 }
 
