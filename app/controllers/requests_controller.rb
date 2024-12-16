@@ -185,19 +185,14 @@ class RequestsController < ApplicationController
       :purchase_category, 
       :purchase_description, 
       :purchase_amount, 
+    )
+
+    @custom_params = params.require(:request).permit(
       :new_vendor_attachment, 
       new_supporting_documents:[], 
       deleted_supporting_documents:[]
     )
   end
-
-  # def validate_params_update_custom
-  #   @custom_params = params.permit(
-  #     :new_vendor_attachment, 
-  #     new_supporting_documents:[],
-  #     deleted_supporting_documents:[]
-  #   )
-  # end
 
   def attach_documents(request)
     if params[:vendor_attachment].present?
@@ -212,13 +207,13 @@ class RequestsController < ApplicationController
   end
 
   def update_documents(request)
-    new_vendor_attachment = @validated_params_update[:new_vendor_attachment]
+    new_vendor_attachment = @custom_params[:new_vendor_attachment]
     if new_vendor_attachment.present? 
       request.vendor_attachment.purge 
       request.vendor_attachment.attach(new_vendor_attachment)
     end
 
-    deleted_supporting_documents = @validated_params_update[:deleted_supporting_documents]
+    deleted_supporting_documents = @custom_params[:deleted_supporting_documents]
     if deleted_supporting_documents.present? 
       deleted_supporting_documents.each do | document_id |
         file = request.supporting_documents.find_by(id: document_id)
@@ -230,7 +225,7 @@ class RequestsController < ApplicationController
       end
     end 
 
-    new_supporting_documents = @validated_params_update[:new_supporting_documents]
+    new_supporting_documents = @custom_params[:new_supporting_documents]
     if new_supporting_documents.present? 
       request.supporting_documents.attach(new_supporting_documents)
     end
