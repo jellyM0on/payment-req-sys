@@ -132,7 +132,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       await response.json();
       if (response.status === 200) {
         setLoading(false);
-        sessionStorage.removeItem("user");
+        sessionStorage.clear()
         setUser(null);
       }
     } catch (error) {

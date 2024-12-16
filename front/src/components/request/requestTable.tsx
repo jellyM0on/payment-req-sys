@@ -1,5 +1,6 @@
 import { ListTable, TableRow, Text, StatusIcon, Stack } from "@freee_jp/vibes";
 import { useState, useEffect } from "react";
+import { useAuthContext } from "../../providers/authProvider";
 
 interface RequestTableContainerPropsInterface {
   requests: Request[] | null;
@@ -30,7 +31,17 @@ interface RequestTablePropsInterface {
 }
 
 function RequestTable({ rows }: RequestTablePropsInterface) {
-  const headerArr = [
+  const { user } = useAuthContext();
+
+  const employeeHeaderArr = [
+    { value: "Request No." },
+    { value: "Status" },
+    { value: "Category" },
+    { value: "Current Approval Stage" },
+    { value: "Participants" },
+  ];
+
+  const nonEmployeeHeaderArr = [
     { value: "Request No." },
     { value: "Status" },
     { value: "Requestor" },
@@ -38,9 +49,9 @@ function RequestTable({ rows }: RequestTablePropsInterface) {
     { value: "Department" },
     { value: "Current Approval Stage" },
     { value: "Participants" },
-  ];
+  ]
 
-  return <ListTable headers={headerArr} rows={rows} />;
+  return <ListTable headers={user && user.role == "employee" ? employeeHeaderArr : nonEmployeeHeaderArr} rows={rows} />;
 }
 
 function RequestTableContainer({
@@ -69,31 +80,55 @@ function RequestTableContainer({
     }
   };
 
-  useEffect(() => {
-    console.log(requests)
+  const { user } = useAuthContext();
+
+  const employeeCells = (cRequest:Request) => {
+    return [
+      { value: <Text>{cRequest.id}</Text> },
+      { value: setStatus(cRequest.overall_status) },
+      { value: <Text>{cRequest.purchase_category}</Text> },
+      { value: <Text>{cRequest.current_stage}</Text> },
+      {
+        value: (
+          <Stack>
+            {cRequest.approvals.map((approval, key) =>
+              setParticipants(approval, key)
+            )}
+          </Stack>
+        ),
+      },
+    ];
+  };
+
+  const nonEmployeeCells = (cRequest:Request) => {
+    return [
+      { value: <Text>{cRequest.id}</Text> },
+      { value: setStatus(cRequest.overall_status) },
+      { value: <Text>{cRequest.user.name}</Text> },
+      { value: <Text>{cRequest.purchase_category}</Text> },
+      { value: <Text>{cRequest.user.department}</Text> },
+      { value: <Text>{cRequest.current_stage}</Text> },
+      {
+        value: (
+          <Stack>
+            {cRequest.approvals.map((approval, key) =>
+              setParticipants(approval, key)
+            )}
+          </Stack>
+        ),
+      },
+    ];
+  };
+
+   useEffect(() => {
+    console.log(requests);
     if (requests && requests.length > 0) {
       const rows = [];
       for (let i = 0; i < requests.length; i++) {
         const cRequest = requests[i];
         rows.push({
           url: `/requests/${cRequest.id}`,
-          cells: [
-            { value: <Text>{cRequest.id}</Text> },
-            { value: setStatus(cRequest.overall_status) },
-            { value: <Text>{cRequest.user.name}</Text> },
-            { value: <Text>{cRequest.purchase_category}</Text> },
-            { value: <Text>{cRequest.user.department}</Text> },
-            { value: <Text>{cRequest.current_stage}</Text> },
-            {
-              value: (
-                <Stack>
-                  {cRequest.approvals.map((approval, key) =>
-                    setParticipants(approval, key)
-                  )}
-                </Stack>
-              ),
-            },
-          ],
+          cells: user && user.role == "employee" ? employeeCells(cRequest) : nonEmployeeCells(cRequest)
         });
         setRows(rows);
       }
@@ -102,7 +137,7 @@ function RequestTableContainer({
     }
   }, [requests]);
 
-  return <RequestTable rows={rows}/>
+  return <RequestTable rows={rows} />;
 }
 
 export default RequestTableContainer;
