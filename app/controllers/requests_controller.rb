@@ -122,24 +122,7 @@ class RequestsController < ApplicationController
       return
     end
 
-     # update params 
-    if params[:new_vendor_attachment].present? 
-      request.vendor_attachment.purge if request.vendor_attachment.attached? 
-      request.vendor_attachment.attach(params[:new_vendor_attachment])
-    end
-
-    if params[:deleted_supporting_documents].present? 
-      params[:deleted_supporting_documents].each do | document |
-        file = request.supporting_documents.find(document)
-        if file.attached? 
-          file.purge
-        end
-      end
-    end 
-
-    if params[:new_supporting_documents].present? 
-      request.supporting_documents.attach(params[:new_supporting_documents])
-    end
+    update_documents(request)
 
     if request.update(@validated_params_update) 
       render json: build_request_with_documents(request), status: :ok
@@ -202,8 +185,19 @@ class RequestsController < ApplicationController
       :purchase_category, 
       :purchase_description, 
       :purchase_amount, 
+      :new_vendor_attachment, 
+      new_supporting_documents:[], 
+      deleted_supporting_documents:[]
     )
   end
+
+  # def validate_params_update_custom
+  #   @custom_params = params.permit(
+  #     :new_vendor_attachment, 
+  #     new_supporting_documents:[],
+  #     deleted_supporting_documents:[]
+  #   )
+  # end
 
   def attach_documents(request)
     if params[:vendor_attachment].present?
@@ -218,22 +212,27 @@ class RequestsController < ApplicationController
   end
 
   def update_documents(request)
-    if params[:new_vendor_attachment].present? 
-      request.vendor_attachment.purge if request.vendor_attachment.attached? 
-      request.vendor_attachment.attach(params[:new_vendor_attachment])
+    new_vendor_attachment = @validated_params_update[:new_vendor_attachment]
+    if new_vendor_attachment.present? 
+      request.vendor_attachment.purge 
+      request.vendor_attachment.attach(new_vendor_attachment)
     end
 
-    if params[:deleted_supporting_documents].present? 
-      params[:deleted_supporting_documents].each do | document |
-        file = request.supporting_documents.find(document)
-        if file.attached? 
+    deleted_supporting_documents = @validated_params_update[:deleted_supporting_documents]
+    if deleted_supporting_documents.present? 
+      deleted_supporting_documents.each do | document_id |
+        file = request.supporting_documents.find_by(id: document_id)
+        puts file.to_json
+        puts file.inspect
+        if(file)
           file.purge
         end
       end
     end 
 
-    if params[:new_supporting_documents].present? 
-      request.supporting_documents.attach(params[:new_supporting_documents])
+    new_supporting_documents = @validated_params_update[:new_supporting_documents]
+    if new_supporting_documents.present? 
+      request.supporting_documents.attach(new_supporting_documents)
     end
 
   end

@@ -67,8 +67,16 @@ interface RequestFormProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeDate: (date: string) => void;
   handleChangeDropdown: (category: string) => void;
-  handleChangeVendorAttachment: (attachment: Attachment[], editedAttachment: Attachment[]) => void;
-  handleChangeDocumentsAttachment:  (attachment: Attachment[], editedAttachment: Attachment[], deleted: boolean, ids: number[]) => void;
+  handleChangeVendorAttachment: (
+    attachment: Attachment[],
+    editedAttachment: Attachment[]
+  ) => void;
+  handleChangeDocumentsAttachment: (
+    attachment: Attachment[],
+    editedAttachment: Attachment[],
+    deleted: boolean,
+    ids: number[]
+  ) => void;
   handleSubmit: () => void;
   handleCancel: () => void;
   errors: RequestErrors | null;
@@ -327,7 +335,12 @@ interface AttachmentInputProps {
   id: string;
   limit: number;
   formValue?: Attachment[] | null;
-  handleFormUpdate: (attachment: Attachment[], editedAttachment: Attachment[], deleted: boolean, ids: number[]) => void;
+  handleFormUpdate: (
+    attachment: Attachment[],
+    editedAttachment: Attachment[],
+    deleted: boolean,
+    ids: number[]
+  ) => void;
 }
 
 const AttachmentInput = ({
@@ -338,23 +351,28 @@ const AttachmentInput = ({
 }: AttachmentInputProps) => {
   const [editMode, setEditMode] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [editedAttachments, setEditedAttachments] = useState<Attachment[]>([])
-  const [deletedAttachments, setDeletedAttachments] = useState<number[]>([])
+  const [editedAttachments, setEditedAttachments] = useState<Attachment[]>([]);
+  const [deletedAttachments, setDeletedAttachments] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (formValue) {
-      setEditMode(true)
+      setEditMode(true);
       setAttachments(formValue);
     }
 
-    console.log(formValue)
+    console.log(formValue);
   }, [formValue]);
 
   useEffect(() => {
-    const deleted = deletedAttachments.length > 0 ? true : false
+    const deleted = deletedAttachments.length > 0 ? true : false;
     if (attachments.length >= 1) {
-      handleFormUpdate(attachments, editedAttachments, deleted, deletedAttachments)
+      handleFormUpdate(
+        attachments,
+        editedAttachments,
+        deleted,
+        deletedAttachments
+      );
     }
   }, [attachments]);
 
@@ -368,16 +386,17 @@ const AttachmentInput = ({
         file: file,
       };
       setAttachments((prevInputs) => [...prevInputs, fileObj]);
-      if(editMode) setEditedAttachments((prevInputs) => [...prevInputs, fileObj]);
+      if (editMode)
+        setEditedAttachments((prevInputs) => [...prevInputs, fileObj]);
     });
 
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleFileDeletion = (index: number, id: number|null = null) => {
+  const handleFileDeletion = (index: number, id: number | null = null) => {
     setAttachments((prevInputs) => prevInputs.filter((_, i) => i !== index));
-    if(editMode && id){
-      setDeletedAttachments([...deletedAttachments, id])
+    if (editMode && id) {
+      setDeletedAttachments([...deletedAttachments, id]);
     }
   };
 
@@ -433,7 +452,12 @@ interface AttachmentInput {
   label: string;
   limit: number;
   formValue?: Attachment[] | null;
-  handleFormUpdate:  (attachment: Attachment[], editedAttachment: Attachment[], deleted: boolean, ids: number[]) => void;
+  handleFormUpdate: (
+    attachment: Attachment[],
+    editedAttachment: Attachment[],
+    deleted: boolean,
+    ids: number[]
+  ) => void;
   errors?: Array<string>;
 }
 
@@ -441,7 +465,7 @@ interface Attachment {
   name: string;
   url: string;
   file?: File;
-  id?: number
+  id?: number;
 }
 
 const setAttachmentInput = ({
@@ -452,7 +476,6 @@ const setAttachmentInput = ({
   handleFormUpdate,
   errors,
 }: AttachmentInput) => {
-
   return {
     title: (
       <FormControlLabel id={id}>
@@ -810,7 +833,9 @@ function RequestForm({
 }
 
 interface RequestFormContainerProps {
-  handleRequest: (requestData: Request|EditedRequest) => Promise<FetchResult | null>;
+  handleRequest: (
+    requestData: Request | EditedRequest
+  ) => Promise<FetchResult | null>;
   existingRequest?: Request;
   mode: string;
 }
@@ -915,7 +940,10 @@ function RequestFormContainer({
     }
   };
 
-  const handleChangeVendorAttachment = (attachment: Attachment[], newAttachment: Attachment[]) => {
+  const handleChangeVendorAttachment = (
+    attachment: Attachment[],
+    newAttachment: Attachment[]
+  ) => {
     setFormInput((prevInputs) => ({
       ...prevInputs,
       vendor_attachment: attachment,
@@ -931,7 +959,7 @@ function RequestFormContainer({
 
   const handleChangeDocumentsAttachment = (
     attachments: Attachment[],
-    newAttachments: Attachment[], 
+    newAttachments: Attachment[],
     deleted: boolean = false,
     ids: number[]
   ) => {
@@ -960,11 +988,11 @@ function RequestFormContainer({
   const handleSubmit = async () => {
     if (!user) return;
 
-    const requestData = existingRequest ? editedInput : formInput
+    const requestData = existingRequest ? editedInput : formInput;
 
-    console.log(editedInput)
-    console.log(requestData); 
-    
+    console.log(editedInput);
+    console.log(requestData);
+
     const result = await handleRequest(requestData);
 
     if (result && result.errors) {

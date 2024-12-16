@@ -43,3 +43,7 @@
 #table{
   min-height: 70vh;
 }
+
+#request-info-table .vb-descriptionList__row:nth-child(2n):last-child {
+  border-bottom: none;
+}

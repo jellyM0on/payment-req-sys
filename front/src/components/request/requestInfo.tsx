@@ -4,6 +4,7 @@ import {
   ButtonGroup,
   Button,
   HStack,
+  VStack,
   DescriptionList,
   GridWrapper,
   GridBlock,
@@ -12,6 +13,7 @@ import {
   Text,
   Paragraph,
   StatusIcon,
+  InlineLink,
 } from "@freee_jp/vibes";
 import { MdEdit } from "react-icons/md";
 import { useAuthContext } from "../../providers/authProvider";
@@ -29,7 +31,7 @@ interface RequestInfoProps {
 
 interface RequestInfoContainerProps {
   request: Request;
-  handleRequestUpdate: (request: Request) => void;
+  handleRequestUpdate: (request: Request | EditedRequest) => void;
 }
 
 interface Request {
@@ -42,7 +44,6 @@ interface Request {
   vendor_email: string;
   vendor_contact_num: string;
   vendor_certificate_of_reg: string;
-  vendor_attachment: number;
   payment_due_date: string | null;
   payment_payable_to: string;
   payment_mode: string;
@@ -52,6 +53,33 @@ interface Request {
   created_at: string;
   approvals: Approval[];
   overall_status: string;
+  vendor_attachment: Attachment[] | null;
+  supporting_documents: Attachment[] | null;
+}
+
+interface EditedRequest {
+  vendor_name?: string | null;
+  vendor_address?: string | null;
+  vendor_tin?: string | null;
+  vendor_email?: string | null;
+  vendor_contact_num?: string | null;
+  vendor_certificate_of_reg?: string | null;
+  payment_due_date?: string | null;
+  payment_payable_to?: string | null;
+  payment_mode?: string | null;
+  purchase_category?: string | null;
+  purchase_description?: string | null;
+  purchase_amount?: number | null;
+  new_vendor_attachment?: Attachment[] | null;
+  new_supporting_documents?: Attachment[] | null;
+  deleted_supporting_documents?: number[] | null;
+}
+
+interface Attachment {
+  name: string;
+  url: string;
+  file?: File;
+  id?: number;
 }
 
 interface Approval {
@@ -74,6 +102,24 @@ function RequestInfo({
     return {
       title: <Text size={0.75}>{label}</Text>,
       value: <Paragraph>{value}</Paragraph>,
+    };
+  };
+
+  const setAttachmentItem = (
+    label: string,
+    attachments: Attachment[] | null
+  ) => {
+    return {
+      title: <Text size={0.75}>{label}</Text>,
+      value: (
+        <VStack>
+          {!attachments
+            ? null
+            : attachments.map((attachment) => (
+                <InlineLink target="_blank" href={attachment.url}>{attachment.name}</InlineLink>
+              ))}
+        </VStack>
+      ),
     };
   };
 
@@ -167,7 +213,7 @@ function RequestInfo({
                 setListItem("Vendor Name", request.vendor_name),
                 setListItem("Address", request.vendor_address),
                 setListItem("Contact No.", request.vendor_contact_num),
-                setListItem("Attachment", request.vendor_attachment),
+                setAttachmentItem("Attachment", request.vendor_attachment),
               ]}
             />
           </GridBlock>
@@ -197,28 +243,39 @@ function RequestInfo({
           </SectionTitle>
         </HStack>
 
-        <GridWrapper ma={0.25}>
-          <GridBlock size="half">
-            <DescriptionList
-              listContents={[
-                setListItem("Category", request.purchase_category),
-                setListItem("Description", request.purchase_description),
-                setListItem("Amount", `PHP ${request.purchase_amount}`),
-                setListItem("Supporting Documents", 0),
-              ]}
-            />
-          </GridBlock>
-          <GridBlock size="half">
-            <DescriptionList
-              listContents={[
-                setListItem("Payment Due Date", request.payment_due_date),
-                setListItem("Make Payable To", request.payment_payable_to),
-                setListItem("Mode of Payment", request.payment_mode),
-                setListItem("", ""),
-              ]}
-            />
-          </GridBlock>
-        </GridWrapper>
+        <div id="request-info-table"
+          style={{
+            borderBottom: 1,
+            borderBottomColor: "#e5e7eb",
+            borderBottomStyle: "solid",
+            marginBottom: 0.25,
+          }}
+        >
+          <GridWrapper mt={0.25} mr={0.25} ml={0.25}>
+            <GridBlock size="half">
+              <DescriptionList
+                listContents={[
+                  setListItem("Category", request.purchase_category),
+                  setListItem("Description", request.purchase_description),
+                  setListItem("Amount", `PHP ${request.purchase_amount}`),
+                  setAttachmentItem(
+                    "Supporting Documents",
+                    request.supporting_documents
+                  ),
+                ]}
+              />
+            </GridBlock>
+            <GridBlock size="half">
+              <DescriptionList
+                listContents={[
+                  setListItem("Payment Due Date", request.payment_due_date),
+                  setListItem("Make Payable To", request.payment_payable_to),
+                  setListItem("Mode of Payment", request.payment_mode),
+                ]}
+              />
+            </GridBlock>
+          </GridWrapper>
+        </div>
       </MarginBase>
 
       <MarginBase ml={-0.25} mr={-0.25}>
