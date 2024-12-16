@@ -9,13 +9,38 @@ interface Request {
   vendor_email: string | null;
   vendor_contact_num: string | null;
   vendor_certificate_of_reg: string | null;
-  vendor_attachment: number | null;
   payment_due_date: string | null;
   payment_payable_to: string | null;
   payment_mode: string | null;
   purchase_category: string | null;
   purchase_description: string | null;
   purchase_amount: number | null;
+  vendor_attachment: Attachment[] | null;
+  supporting_documents: Attachment[] | null;
+}
+
+interface EditedRequest {
+  vendor_name?: string | null;
+  vendor_address?: string | null;
+  vendor_tin?: string | null;
+  vendor_email?: string | null;
+  vendor_contact_num?: string | null;
+  vendor_certificate_of_reg?: string | null;
+  payment_due_date?: string | null;
+  payment_payable_to?: string | null;
+  payment_mode?: string | null;
+  purchase_category?: string | null;
+  purchase_description?: string | null;
+  purchase_amount?: number | null;
+  new_vendor_attachment?: Attachment[] | null;
+  new_supporting_documents?: Attachment[] | null;
+  deleted_supporting_documents?: number[] | null;
+}
+
+interface Attachment {
+  name: string;
+  url: string;
+  file?: File;
 }
 
 interface RequestErrors {
@@ -25,13 +50,14 @@ interface RequestErrors {
   vendor_email?: Array<string>;
   vendor_contact_num?: Array<string>;
   vendor_certificate_of_reg?: Array<string>;
-  vendor_attachment?: Array<string>;
   payment_due_date?: Array<string>;
   payment_payable_to?: Array<string>;
   payment_mode?: Array<string>;
   purchase_category?: Array<string>;
   purchase_description?: Array<string>;
   purchase_amount?: Array<string>;
+  vendor_attachment?: Array<string>;
+  supporting_documents?: Array<string>;
 }
 
 interface FetchResult {
@@ -40,7 +66,7 @@ interface FetchResult {
 }
 
 interface EditRequestProps {
-  handleRequest: (requestData: Request) => Promise<FetchResult>;
+  handleRequest: (requestData: Request | EditedRequest) => Promise<FetchResult>;
   existingRequest: Request | undefined;
   mode: string;
 }
@@ -63,15 +89,32 @@ function EditRequestContainer() {
   const [request, setRequest] = useState<Request | null>(null);
   const { id } = useParams();
 
-  const editRequest = async (requestData: Request) => {
+  const editRequest = async (requestData: Request | EditedRequest) => {
+    console.log(requestData);
+
+    const formData = new FormData();
+
+    for (const [key, value] of Object.entries(requestData)) {
+      if (key == "new_vendor_attachment") {
+        if (!value[0]) continue; 
+        formData.append(`request[${key}]`, value[0].file);
+      } else if (key == "new_supporting_documents") {
+        value.forEach((doc: Attachment) => {
+          if (doc.file) formData.append(`request[${key}][]`, doc.file);
+        });
+      } else if (key == "deleted_supporting_documents") {
+        formData.append(`request[${key}][]`, value);
+      } else {
+        formData.append(`request[${key}]`, value);
+        console.log(formData);
+      }
+    }
+
     try {
       const response = await fetch(`http://localhost:3000/requests/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         credentials: "include",
-        body: JSON.stringify(requestData),
+        body: formData,
       });
 
       const result = await response.json();
@@ -109,6 +152,7 @@ function EditRequestContainer() {
           purchase_description: result.request.purchase_description,
           purchase_amount: result.request.purchase_amount,
           vendor_attachment: result.request.vendor_attachment,
+          supporting_documents: result.request.supporting_documents,
         });
       }
     } catch (error) {

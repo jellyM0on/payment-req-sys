@@ -4,7 +4,8 @@ class RequestsController < ApplicationController
   before_action :authenticate_user!
   before_action :check_role 
   before_action :check_unspec_role, only: [ :index ]
-  before_action :validate_params, only: [ :create, :update ]
+  before_action :validate_params, only: [ :create ]
+  before_action :validate_params_update, only: [ :update ]
 
   def index
     filter_param = params[:filter_by]
@@ -58,14 +59,16 @@ class RequestsController < ApplicationController
       end
     end
 
-    request = request.as_json(
-      include: {
-        approvals: { only: [:id, :stage, :status, :decided_at] }
-      }
-    ).merge(
-      vendor_attachment_url: url_for(request.vendor_attachment),
-      supporting_documents_urls: request.supporting_documents.map { |document| url_for(document) }
-    )
+    def build_request(request)
+      request = request.as_json(
+        include: {
+          approvals: { only: [:id, :stage, :status, :decided_at] }
+        }
+      ).merge(
+        vendor_attachment: [{id: request.vendor_attachment.id, name: request.vendor_attachment.filename.to_s, url: url_for(request.vendor_attachment)}],
+        supporting_documents: request.supporting_documents.map { |document| {id: document.id, name: document.filename.to_s, url: url_for(document) }}
+      )
+    end
 
     if(request.user_id == current_user.id || isReviewer)
         render json: { request: build_request(request) }
@@ -119,9 +122,26 @@ class RequestsController < ApplicationController
       return
     end
 
-    attach_documents(request)
+     # update params 
+    if params[:new_vendor_attachment].present? 
+      request.vendor_attachment.purge if request.vendor_attachment.attached? 
+      request.vendor_attachment.attach(params[:new_vendor_attachment])
+    end
 
-    if request.update(@validated_params)
+    if params[:deleted_supporting_documents].present? 
+      params[:deleted_supporting_documents].each do | document |
+        file = request.supporting_documents.find(document)
+        if file.attached? 
+          file.purge
+        end
+      end
+    end 
+
+    if params[:new_supporting_documents].present? 
+      request.supporting_documents.attach(params[:new_supporting_documents])
+    end
+
+    if request.update(@validated_params_update) 
       render json: build_request_with_documents(request), status: :ok
     else 
       render json: { errors: request.errors },  status: :bad_request
@@ -168,6 +188,23 @@ class RequestsController < ApplicationController
       )
   end
 
+  def validate_params_update 
+    @validated_params_update = params.require(:request).permit(
+      :vendor_name, 
+      :vendor_tin, 
+      :vendor_address, 
+      :vendor_email, 
+      :vendor_contact_num, 
+      :vendor_certificate_of_reg, 
+      :payment_due_date, 
+      :payment_payable_to, 
+      :payment_mode,
+      :purchase_category, 
+      :purchase_description, 
+      :purchase_amount, 
+    )
+  end
+
   def attach_documents(request)
     if params[:vendor_attachment].present?
       request.vendor_attachment.purge if request.vendor_attachment.attached? 
@@ -180,10 +217,31 @@ class RequestsController < ApplicationController
     end
   end
 
+  def update_documents(request)
+    if params[:new_vendor_attachment].present? 
+      request.vendor_attachment.purge if request.vendor_attachment.attached? 
+      request.vendor_attachment.attach(params[:new_vendor_attachment])
+    end
+
+    if params[:deleted_supporting_documents].present? 
+      params[:deleted_supporting_documents].each do | document |
+        file = request.supporting_documents.find(document)
+        if file.attached? 
+          file.purge
+        end
+      end
+    end 
+
+    if params[:new_supporting_documents].present? 
+      request.supporting_documents.attach(params[:new_supporting_documents])
+    end
+
+  end
+
   def build_request_with_documents(request)
     request.as_json.merge(
-      vendor_attachment_url: url_for(request.vendor_attachment), 
-      supporting_documents_urls: request.supporting_documents.map { |document| url_for(document) }
+        vendor_attachment: [{id: request.vendor_attachment.id, name: request.vendor_attachment.filename.to_s, url: url_for(request.vendor_attachment)}],
+        supporting_documents: request.supporting_documents.map { |document| {id: document.id, name: document.filename.to_s, url: url_for(document) }}
     )
   end
 

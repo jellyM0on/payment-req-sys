@@ -18,10 +18,14 @@ import {
   TextFieldType,
   FloatingMessageBlock,
   DropdownContent,
+  Note,
+  HStack,
+  VStack,
+  InlineLink,
 } from "@freee_jp/vibes";
 
 import { RequiredIcon } from "@freee_jp/vibes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuthContext } from "../../providers/authProvider";
 import { useNavigate } from "react-router";
 
@@ -32,13 +36,14 @@ interface Request {
   vendor_email: string | null;
   vendor_contact_num: string | null;
   vendor_certificate_of_reg: string | null;
-  vendor_attachment: number | null;
   payment_due_date: string | null;
   payment_payable_to: string | null;
   payment_mode: string | null;
   purchase_category: string | null;
   purchase_description: string | null;
   purchase_amount: number | null;
+  vendor_attachment: Attachment[] | null;
+  supporting_documents: Attachment[] | null;
 }
 
 interface RequestErrors {
@@ -48,19 +53,22 @@ interface RequestErrors {
   vendor_email?: Array<string>;
   vendor_contact_num?: Array<string>;
   vendor_certificate_of_reg?: Array<string>;
-  vendor_attachment?: Array<string>;
   payment_due_date?: Array<string>;
   payment_payable_to?: Array<string>;
   payment_mode?: Array<string>;
   purchase_category?: Array<string>;
   purchase_description?: Array<string>;
   purchase_amount?: Array<string>;
+  vendor_attachment?: Array<string>;
+  supporting_documents?: Array<string>;
 }
 
 interface RequestFormProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeDate: (date: string) => void;
   handleChangeDropdown: (category: string) => void;
+  handleChangeVendorAttachment: (attachment: Attachment[], editedAttachment: Attachment[]) => void;
+  handleChangeDocumentsAttachment:  (attachment: Attachment[], editedAttachment: Attachment[], deleted: boolean, ids: number[]) => void;
   handleSubmit: () => void;
   handleCancel: () => void;
   errors: RequestErrors | null;
@@ -315,10 +323,173 @@ const setDropdownItem = ({
   };
 };
 
+interface AttachmentInputProps {
+  id: string;
+  limit: number;
+  formValue?: Attachment[] | null;
+  handleFormUpdate: (attachment: Attachment[], editedAttachment: Attachment[], deleted: boolean, ids: number[]) => void;
+}
+
+const AttachmentInput = ({
+  id,
+  limit,
+  formValue,
+  handleFormUpdate,
+}: AttachmentInputProps) => {
+  const [editMode, setEditMode] = useState(false);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [editedAttachments, setEditedAttachments] = useState<Attachment[]>([])
+  const [deletedAttachments, setDeletedAttachments] = useState<number[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (formValue) {
+      setEditMode(true)
+      setAttachments(formValue);
+    }
+
+    console.log(formValue)
+  }, [formValue]);
+
+  useEffect(() => {
+    const deleted = deletedAttachments.length > 0 ? true : false
+    if (attachments.length >= 1) {
+      handleFormUpdate(attachments, editedAttachments, deleted, deletedAttachments)
+    }
+  }, [attachments]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    files.forEach((file) => {
+      const fileObj = {
+        name: file.name,
+        url: URL.createObjectURL(file),
+        file: file,
+      };
+      setAttachments((prevInputs) => [...prevInputs, fileObj]);
+      if(editMode) setEditedAttachments((prevInputs) => [...prevInputs, fileObj]);
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleFileDeletion = (index: number, id: number|null = null) => {
+    setAttachments((prevInputs) => prevInputs.filter((_, i) => i !== index));
+    if(editMode && id){
+      setDeletedAttachments([...deletedAttachments, id])
+    }
+  };
+
+  return (
+    <VStack justifyContent="center">
+      {attachments.length <= 0 ? (
+        <></>
+      ) : (
+        <VStack>
+          {attachments.map((attachment, i) => (
+            <HStack>
+              <InlineLink href={attachment.url} target="_blank">
+                {attachment.name}
+              </InlineLink>
+              <Button
+                appearance="tertiary"
+                danger
+                small
+                onClick={() => handleFileDeletion(i, attachment.id)}
+              >
+                x
+              </Button>
+            </HStack>
+          ))}
+        </VStack>
+      )}
+      <HStack gap={1}>
+        <div style={{ width: "fit-content" }}>
+          <input
+            ref={fileInputRef}
+            id={id}
+            type="file"
+            hidden
+            onChange={handleFileChange}
+            multiple={limit > 1 ? true : false}
+            disabled={attachments.length == limit ? true : false}
+          ></input>
+          <label
+            htmlFor={id}
+            className={`vb-button vb-button--appearanceSecondary vb-button--small ${attachments.length == limit ? "vb-button--disabled" : ""}`}
+          >
+            Select a File
+          </label>
+        </div>
+        <Note>You can upload 1 PDF, PNG, and JPG file of up to 10MB.</Note>
+      </HStack>
+    </VStack>
+  );
+};
+
+interface AttachmentInput {
+  id: string;
+  label: string;
+  limit: number;
+  formValue?: Attachment[] | null;
+  handleFormUpdate:  (attachment: Attachment[], editedAttachment: Attachment[], deleted: boolean, ids: number[]) => void;
+  errors?: Array<string>;
+}
+
+interface Attachment {
+  name: string;
+  url: string;
+  file?: File;
+  id?: number
+}
+
+const setAttachmentInput = ({
+  id,
+  label,
+  limit,
+  formValue,
+  handleFormUpdate,
+  errors,
+}: AttachmentInput) => {
+
+  return {
+    title: (
+      <FormControlLabel id={id}>
+        {label}
+        <RequiredIcon ml={0.5} />
+      </FormControlLabel>
+    ),
+    value: (
+      <Stack>
+        <AttachmentInput
+          id={`${id}-input`}
+          limit={limit}
+          formValue={formValue}
+          handleFormUpdate={handleFormUpdate}
+        />
+        {errors ? (
+          errors.map((msg) => (
+            <Message error>
+              <Text size={0.75}>{msg}</Text>
+            </Message>
+          ))
+        ) : (
+          <></>
+        )}
+      </Stack>
+    ),
+  };
+};
+
+// request form
+
 function RequestForm({
   handleChange,
   handleChangeDate,
   handleChangeDropdown,
+  handleChangeVendorAttachment,
+  handleChangeDocumentsAttachment,
   handleSubmit,
   handleCancel,
   errors,
@@ -469,17 +640,16 @@ function RequestForm({
                   },
                 ],
               }),
-              setListItem({
+              setAttachmentInput({
                 label: "Attachment",
-                name: "vendor_attachment",
-                type: "text",
+                id: "vendor_attachment",
+                limit: 1,
+                handleFormUpdate: handleChangeVendorAttachment,
                 errors: errors?.vendor_attachment,
-                formValue: formInput
-                  ? formInput.vendor_attachment?.toString()
-                  : "0",
-                handleChange: handleChange,
+                formValue: formInput?.vendor_attachment
+                  ? formInput.vendor_attachment
+                  : null,
               }),
-
               {
                 title: "",
                 value: <></>,
@@ -604,6 +774,16 @@ function RequestForm({
                 title: "",
                 value: <></>,
               },
+              setAttachmentInput({
+                label: "Upload Supporting Documents",
+                id: "supporting_documents",
+                limit: 10,
+                handleFormUpdate: handleChangeDocumentsAttachment,
+                errors: errors?.supporting_documents,
+                formValue: formInput?.supporting_documents
+                  ? formInput.supporting_documents
+                  : null,
+              }),
             ]}
           />
         </AccordionPanel>
@@ -630,7 +810,7 @@ function RequestForm({
 }
 
 interface RequestFormContainerProps {
-  handleRequest: (requestData: Request) => Promise<FetchResult | null>;
+  handleRequest: (requestData: Request|EditedRequest) => Promise<FetchResult | null>;
   existingRequest?: Request;
   mode: string;
 }
@@ -638,6 +818,24 @@ interface RequestFormContainerProps {
 interface FetchResult {
   request?: Request;
   errors?: RequestErrors;
+}
+
+interface EditedRequest {
+  vendor_name?: string | null;
+  vendor_address?: string | null;
+  vendor_tin?: string | null;
+  vendor_email?: string | null;
+  vendor_contact_num?: string | null;
+  vendor_certificate_of_reg?: string | null;
+  payment_due_date?: string | null;
+  payment_payable_to?: string | null;
+  payment_mode?: string | null;
+  purchase_category?: string | null;
+  purchase_description?: string | null;
+  purchase_amount?: number | null;
+  new_vendor_attachment?: Attachment[] | null;
+  new_supporting_documents?: Attachment[] | null;
+  deleted_supporting_documents?: number[] | null;
 }
 
 function RequestFormContainer({
@@ -654,14 +852,17 @@ function RequestFormContainer({
     vendor_email: null,
     vendor_contact_num: null,
     vendor_certificate_of_reg: "applicable",
-    vendor_attachment: null,
     payment_due_date: new Date().toString(),
     payment_payable_to: null,
     payment_mode: "bank_transfer",
     purchase_category: "company_events",
     purchase_description: null,
     purchase_amount: null,
+    vendor_attachment: null,
+    supporting_documents: null,
   });
+
+  const [editedInput, setEditedInput] = useState<EditedRequest>({});
 
   const [errors, setErrors] = useState<RequestErrors | null>(null);
 
@@ -675,12 +876,25 @@ function RequestFormContainer({
       ...prevInputs,
       [e.target.name]: e.target.value,
     }));
-    console.log(formInput);
+
+    if (existingRequest) {
+      setEditedInput((prevInputs) => ({
+        ...prevInputs,
+        [e.target.name]: e.target.value,
+      }));
+    }
   };
 
   const handleChangeDate = (date: string | undefined) => {
     if (date) {
       setFormInput((prevInputs) => ({
+        ...prevInputs,
+        payment_due_date: date,
+      }));
+    }
+
+    if (date && existingRequest) {
+      setEditedInput((prevInputs) => ({
         ...prevInputs,
         payment_due_date: date,
       }));
@@ -692,16 +906,66 @@ function RequestFormContainer({
       ...prevInputs,
       purchase_category: category,
     }));
-    console.log(formInput);
+
+    if (existingRequest) {
+      setEditedInput((prevInputs) => ({
+        ...prevInputs,
+        purchase_category: category,
+      }));
+    }
+  };
+
+  const handleChangeVendorAttachment = (attachment: Attachment[], newAttachment: Attachment[]) => {
+    setFormInput((prevInputs) => ({
+      ...prevInputs,
+      vendor_attachment: attachment,
+    }));
+
+    if (existingRequest) {
+      setEditedInput((prevInputs) => ({
+        ...prevInputs,
+        new_vendor_attachment: newAttachment,
+      }));
+    }
+  };
+
+  const handleChangeDocumentsAttachment = (
+    attachments: Attachment[],
+    newAttachments: Attachment[], 
+    deleted: boolean = false,
+    ids: number[]
+  ) => {
+    setFormInput((prevInputs) => ({
+      ...prevInputs,
+      supporting_documents: attachments,
+    }));
+
+    if (existingRequest) {
+      if (!deleted) {
+        setEditedInput((prevInputs) => ({
+          ...prevInputs,
+          new_supporting_documents: newAttachments,
+        }));
+      }
+
+      if (deleted) {
+        setEditedInput((prevInputs) => ({
+          ...prevInputs,
+          deleted_supporting_documents: ids,
+        }));
+      }
+    }
   };
 
   const handleSubmit = async () => {
     if (!user) return;
-    console.log(handleRequest);
-    const result = await handleRequest(formInput);
 
-    console.log(result);
-    console.log(typeof result);
+    const requestData = existingRequest ? editedInput : formInput
+
+    console.log(editedInput)
+    console.log(requestData); 
+    
+    const result = await handleRequest(requestData);
 
     if (result && result.errors) {
       handleErrors(result.errors);
@@ -759,6 +1023,8 @@ function RequestFormContainer({
         handleChange={handleChange}
         handleChangeDate={handleChangeDate}
         handleChangeDropdown={handleChangeDropdown}
+        handleChangeVendorAttachment={handleChangeVendorAttachment}
+        handleChangeDocumentsAttachment={handleChangeDocumentsAttachment}
         handleSubmit={handleSubmit}
         handleCancel={handleCancel}
         errors={errors}
