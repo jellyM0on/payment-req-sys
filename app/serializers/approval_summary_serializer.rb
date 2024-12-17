@@ -1,10 +1,10 @@
 class ApprovalSummarySerializer < ActiveModel::Serializer
   attributes :stage, :reviewer
 
-  def reviewer  
-    if(object.reviewer)
+  def reviewer
+    if object.reviewer
       { name: object.reviewer.name }
-    elsif(!object.reviewer && object.stage == "accountant")
+    elsif !object.reviewer && object.stage == "accountant"
       { name: "TBA" }
     end
   end
@@ -12,5 +12,4 @@ class ApprovalSummarySerializer < ActiveModel::Serializer
   def stage
     object.format_stage
   end
-
 end

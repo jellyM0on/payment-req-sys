@@ -2,7 +2,7 @@ class RequestSerializer < ActiveModel::Serializer
   attributes :id, :user_id,
   :vendor_name, :vendor_tin, :vendor_address, :vendor_email, :vendor_contact_num, :vendor_certificate_of_reg,
   :payment_payable_to, :payment_mode, :purchase_description, :purchase_amount, :purchase_category, :payment_due_date,
-  :overall_status, :current_stage, :created_at, 
+  :overall_status, :current_stage, :created_at,
   :vendor_attachment, :supporting_documents
 
   has_many :approvals, serializer: ApprovalSerializer
@@ -10,8 +10,8 @@ class RequestSerializer < ActiveModel::Serializer
   def vendor_attachment
     [
       {
-        id: object.vendor_attachment.id, 
-        name: object.vendor_attachment.filename.to_s, 
+        id: object.vendor_attachment.id,
+        name: object.vendor_attachment.filename.to_s,
         url: Rails.application.routes.url_helpers.url_for(object.vendor_attachment)
       }
     ]
@@ -20,13 +20,13 @@ class RequestSerializer < ActiveModel::Serializer
   def supporting_documents
     object.supporting_documents.map do | doc |
       {
-        id: doc.id, 
+        id: doc.id,
         name: doc.filename.to_s,
         url: Rails.application.routes.url_helpers.url_for(doc)
       }
     end
   end
-  
+
   def overall_status
     object.format_overall_status
   end

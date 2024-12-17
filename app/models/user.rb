@@ -3,7 +3,7 @@ class User < ApplicationRecord
   has_many :approvals
 
   # currently users only have 1 manager
-  has_one :manager_assignment, foreign_key: :user_id, class_name: 'ManagerAssignment'
+  has_one :manager_assignment, foreign_key: :user_id, class_name: "ManagerAssignment"
   has_one :manager, through: :manager_assignment, source: :manager
 
 
@@ -12,11 +12,11 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  # enums 
+  # enums
   enum :role, { employee: 0, manager: 1, admin: 2 }
   enum :department, { technical: 0, accounting: 1, hr_admin: 2 }
 
-  # validations 
+  # validations
   validates :name, presence: true, length: { in: 1..100 }
   validates :email, presence: true, length: { in: 1..100 }
   validates :position, presence: true, length: { in: 1..250 }
@@ -40,5 +40,4 @@ class User < ApplicationRecord
       "HR & Admin"
     end
   end
-
 end

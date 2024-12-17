@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
-
   before_action :authenticate_user!
   before_action :check_auth
   # before_action :configure_sign_up_params, only: [:create]
@@ -15,10 +14,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # POST /resource
   def create
     user = User.new(
-      email: params[:email], 
-      password: params[:password], 
-      password_confirmation: params[:password_confirmation], 
-      name: params[:name], 
+      email: params[:email],
+      password: params[:password],
+      password_confirmation: params[:password_confirmation],
+      name: params[:name],
       position: params[:position],
       role: params[:role],
       department: params[:department]
@@ -26,13 +25,14 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
     puts user
 
-    if(params[:manager_id])
+    if params[:manager_id]
+      puts "building manager"
       user.build_manager_assignment(manager: User.find(params[:manager_id]))
     end
-    
+
     if user.save
       render json: user.to_json(include: :manager), status: :created
-    else 
+    else
       render json: { error: user.errors }, status: :bad_request
     end
   end
@@ -82,14 +82,13 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # def after_inactive_sign_up_path_for(resource)
   #   super(resource)
   # end
-  # 
-  private 
+  #
+  private
 
   def check_auth
     puts current_user.inspect
     unless current_user && current_user.role == "admin"
-      render json: { error: "Not authorized"}, status: :unauthorized
+      render json: { error: "Not authorized" }, status: :unauthorized
     end
   end
-
 end

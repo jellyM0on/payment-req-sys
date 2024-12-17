@@ -98,13 +98,13 @@ function RequestModal({
       id={"test"}
       title="Confirm Approval"
       closeButtonLabel="Cancel"
-      confirmButtonLabel={status == "accepted" ? "Approve" : "Reject"}
-      danger={status == "accepted" ? false : true}
+      confirmButtonLabel={status == "Accepted" ? "Approve" : "Reject"}
+      danger={status == "Accepted" ? false : true}
       isOpen={isOpen}
       onRequestClose={handleClose}
       onConfirm={handleConfirm}
     >
-      {status == "accepted" ? (
+      {status == "Accepted" ? (
         <Text>
           You are about to approve Request No. {id} for {vendorName}.
         </Text>
@@ -122,7 +122,7 @@ function RequestMsg({ id, status }: RequestMsgProps) {
     <FloatingMessageBlock success>
       <Text>
         Payment Request No. {id} has been{" "}
-        {status == "accepted" ? "approved" : "rejected"}
+        {status == "Accepted" ? "Approved" : "Rejected"}
       </Text>
     </FloatingMessageBlock>
   );
@@ -141,11 +141,11 @@ function RequestModalContainer({
   const [isUpdated, setIsUpdated] = useState(false);
 
   const handleApprovalConfirm = () => {
-    updateStatus("accepted");
+    updateStatus("Accepted");
   };
 
   const handleRejectConfirm = () => {
-    updateStatus("rejected");
+    updateStatus("Rejected");
   };
 
   console.log(status);
@@ -159,7 +159,7 @@ function RequestModalContainer({
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ status: status }),
+          body: JSON.stringify({ status: status.toLowerCase() }),
         }
       );
 
@@ -185,7 +185,7 @@ function RequestModalContainer({
       <RequestModal
         handleClose={handleClose}
         handleConfirm={
-          status == "accepted" ? handleApprovalConfirm : handleRejectConfirm
+          status == "Accepted" ? handleApprovalConfirm : handleRejectConfirm
         }
         isOpen={isOpen}
         vendorName={vendorName}

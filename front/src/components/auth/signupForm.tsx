@@ -130,12 +130,6 @@ function SignupForm() {
   };
 
   const handleSubmit = async () => {
-    if (manager?.id) {
-      setFormInput((prevInputs) => ({
-        ...prevInputs,
-        manager_id: manager!.id,
-      }));
-    }
     const result = await registerAccount(formInput);
 
     if (result.error) {
@@ -148,6 +142,7 @@ function SignupForm() {
   };
 
   const registerAccount = async (userData: UserSignup) => {
+    console.log(userData)
     try {
       const response = await fetch("http://localhost:3000/users", {
         method: "POST",
@@ -205,7 +200,7 @@ function SignupForm() {
                     {errors?.name ? (
                       errors.name.map((msg) => (
                         <Message error>
-                          <Text color="alert" size={0.75}>
+                          <Text size={0.75}>
                             {msg}
                           </Text>
                         </Message>
@@ -235,7 +230,7 @@ function SignupForm() {
                     {errors?.email ? (
                       errors.email.map((msg) => (
                         <Message error>
-                          <Text color="alert" size={0.75}>
+                          <Text size={0.75}>
                             {msg}
                           </Text>
                         </Message>
@@ -266,7 +261,7 @@ function SignupForm() {
                     {errors?.password ? (
                       errors.password.map((msg) => (
                         <Message error>
-                          <Text color="alert" size={0.75}>
+                          <Text size={0.75}>
                             {msg}
                           </Text>
                         </Message>
@@ -296,7 +291,7 @@ function SignupForm() {
                     {errors?.password_confirmation ? (
                       errors.password_confirmation.map((msg) => (
                         <Message error>
-                          <Text color="alert" size={0.75}>
+                          <Text size={0.75}>
                             {msg}
                           </Text>
                         </Message>
@@ -325,7 +320,7 @@ function SignupForm() {
                     {errors?.position ? (
                       errors.position.map((msg) => (
                         <Message error>
-                          <Text color="alert" size={0.75}>
+                          <Text size={0.75}>
                             {msg}
                           </Text>
                         </Message>
@@ -384,6 +379,10 @@ function SignupForm() {
                     placeholder="Select a Manager"
                     onChange={(opt) => {
                       setManager(opt);
+                      setFormInput((prevInputs) => ({
+                        ...prevInputs,
+                        manager_id: opt!.id,
+                      }));
                     }}
                     {...managers}
                   />

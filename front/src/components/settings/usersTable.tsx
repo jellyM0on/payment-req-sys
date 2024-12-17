@@ -85,7 +85,7 @@ const EditRoleContainer = ({
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ role: role }),
+        body: JSON.stringify({ role: role.toLowerCase() }),
       });
 
       const result = await response.json();
@@ -184,7 +184,7 @@ const EditManagerContainer = ({
         },
         credentials: "include",
         body: JSON.stringify({
-          role: role,
+          role: role.toLowerCase(),
           manager_id: selectedManager ? selectedManager.id : null,
         }),
       });

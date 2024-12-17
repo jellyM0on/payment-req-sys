@@ -3,14 +3,14 @@
 class Users::SessionsController < Devise::SessionsController
   # before_action :configure_sign_in_params, only: [:create]
   before_action :set_current_user
-  # 
+  #
   respond_to :json
 
   # GET /resource/sign_in
   def new
     if @current_user
-      render json: { user: ActiveModelSerializers::SerializableResource.new(@current_user, serializer: UserSerializer), logged_in: true}
-    else 
+      render json: { user: ActiveModelSerializers::SerializableResource.new(@current_user, serializer: UserSerializer), logged_in: true }
+    else
       render json: { signed_in: false }
     end
   end
@@ -23,8 +23,8 @@ class Users::SessionsController < Devise::SessionsController
       session[:user_id] = user.id
       sign_in user
       render json: { user: ActiveModelSerializers::SerializableResource.new(user, serializer: UserSerializer), signed_in: true }, status: :created
-    else 
-      render json: { error: 'Invalid credentials' }, status: :unauthorized
+    else
+      render json: { error: "Invalid credentials" }, status: :unauthorized
     end
   end
 
@@ -40,7 +40,7 @@ class Users::SessionsController < Devise::SessionsController
   # def configure_sign_in_params
   #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
   # end
-  # 
+  #
 
   private
 
@@ -60,6 +60,6 @@ class Users::SessionsController < Devise::SessionsController
 
   def respond_to_on_destroy
     reset_session
-    render json: { message: 'Logged out successfully.' }, status: :ok
+    render json: { message: "Logged out successfully." }, status: :ok
   end
 end

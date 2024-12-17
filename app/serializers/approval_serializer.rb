@@ -10,9 +10,8 @@ class ApprovalSerializer < ActiveModel::Serializer
   end
 
   def decided_at
-    if(object.decided_at)
+    if object.decided_at
       object.format_decided_at
     end
   end
-
 end

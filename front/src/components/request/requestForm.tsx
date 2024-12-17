@@ -93,6 +93,7 @@ interface TextFormInput {
   formValue?: string | null;
   handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
+  message?: string;
 }
 
 const setListItem = ({
@@ -102,6 +103,7 @@ const setListItem = ({
   errors,
   formValue,
   disabled,
+  message,
   handleChange,
 }: TextFormInput) => {
   return {
@@ -112,7 +114,7 @@ const setListItem = ({
       </FormControlLabel>
     ),
     value: (
-      <Stack gap={0}>
+      <Stack gap={0.5}>
         <TextField
           name={name}
           type={type}
@@ -123,6 +125,7 @@ const setListItem = ({
           width="large"
           required
         />
+        {message ? <Note>{message}</Note> : null}
         {errors ? (
           errors.map((msg) => (
             <Message error>
@@ -200,7 +203,7 @@ const setRadioItem = ({
     title: (
       <FormControlLabel id={id} mr={3}>
         {label}
-        <RequiredIcon />
+        <RequiredIcon ml={0.5} />
       </FormControlLabel>
     ),
     value: (
@@ -231,10 +234,10 @@ const DateFormInput = ({ handleChange, formValue }: DateFormInputProps) => {
 
   return (
     <DateInput
-      onChange={() => {
-        setDate(date);
+      onChange={(date) => {
+        setDate(new Date(date).toString());
         console.log(date);
-        handleChange(date);
+        handleChange(new Date(date).toString());
       }}
       value={date}
     />
@@ -361,10 +364,10 @@ const AttachmentInput = ({
   }, [formValue]);
 
   useEffect(() => {
-    if(editMode && formValue){
+    if (editMode && formValue) {
       setAttachments(formValue);
     }
-  }, [editMode])
+  }, [editMode]);
 
   useEffect(() => {
     const deleted = deletedAttachments.length > 0 ? true : false;
@@ -443,7 +446,6 @@ const AttachmentInput = ({
             Select a File
           </label>
         </div>
-        <Note>You can upload 1 PDF, PNG, and JPG file of up to 10MB.</Note>
       </HStack>
     </VStack>
   );
@@ -461,6 +463,7 @@ interface AttachmentInput {
     ids: number[]
   ) => void;
   errors?: Array<string>;
+  message?: string;
 }
 
 interface Attachment {
@@ -476,6 +479,7 @@ const setAttachmentInput = ({
   limit,
   formValue,
   handleFormUpdate,
+  message,
   errors,
 }: AttachmentInput) => {
   return {
@@ -486,13 +490,17 @@ const setAttachmentInput = ({
       </FormControlLabel>
     ),
     value: (
-      <Stack>
-        <AttachmentInput
-          id={`${id}-input`}
-          limit={limit}
-          formValue={formValue}
-          handleFormUpdate={handleFormUpdate}
-        />
+      <Stack gap={0.5}>
+        <HStack>
+          <AttachmentInput
+            id={`${id}-input`}
+            limit={limit}
+            formValue={formValue}
+            handleFormUpdate={handleFormUpdate}
+          />
+          <Note>{message}</Note>
+        </HStack>
+
         {errors ? (
           errors.map((msg) => (
             <Message error>
@@ -613,6 +621,7 @@ function RequestForm({
                 type: "text",
                 errors: errors?.vendor_name,
                 formValue: formInput?.vendor_name,
+                message: "Owned and Operated By or Proprietor Name",
                 handleChange: handleChange,
               }),
               setListItem({
@@ -621,6 +630,8 @@ function RequestForm({
                 type: "text",
                 errors: errors?.vendor_tin,
                 formValue: formInput?.vendor_tin,
+                message:
+                  "Input the 1st 9-digits of TIN; for example: 010358084",
                 handleChange: handleChange,
               }),
               setListItem({
@@ -670,6 +681,8 @@ function RequestForm({
                 id: "vendor_attachment",
                 limit: 1,
                 handleFormUpdate: handleChangeVendorAttachment,
+                message:
+                  "You can upload 1 PDF, PNG, and JPG file of up to 10MB.",
                 errors: errors?.vendor_attachment,
                 formValue: formInput?.vendor_attachment
                   ? formInput.vendor_attachment
@@ -793,17 +806,29 @@ function RequestForm({
                 type: "number",
                 formValue: formInput?.purchase_amount?.toString(),
                 errors: errors?.purchase_amount,
+                message: "Values are in Php by default. Format: 20000.00",
                 handleChange: handleChange,
               }),
               {
-                title: "",
-                value: <></>,
+                title: "Supporting Documents",
+                value: (
+                  <Message info>
+                    Supporting documents are the documents received from the
+                    supplier in relation to the payment amount you are
+                    requesting.
+                    <br></br>
+                    Ex. Quotation form from Supplier/Vendor, Contract/Proposal,
+                    Sales Invoice, etc.
+                  </Message>
+                ),
               },
               setAttachmentInput({
                 label: "Upload Supporting Documents",
                 id: "supporting_documents",
                 limit: 10,
                 handleFormUpdate: handleChangeDocumentsAttachment,
+                message:
+                  "You can upload up to 10 PDF, PNG, and JPG file of maximum 10MB each.",
                 errors: errors?.supporting_documents,
                 formValue: formInput?.supporting_documents
                   ? formInput.supporting_documents

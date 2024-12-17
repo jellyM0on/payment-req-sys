@@ -1,11 +1,10 @@
 class UsersController < ApplicationController
- 
   before_action :authenticate_user!
   before_action :check_auth
   before_action :validate_params, only: [ :update ]
 
 
-  def index 
+  def index
     @q = User.includes(:manager).ransack(params[:q])
     users = @q.result
             .order(created_at: :desc)
@@ -17,36 +16,36 @@ class UsersController < ApplicationController
     user = User.includes(:manager).find(params[:id])
 
     def update_manager
-      if (params[:manager_id])
+      if params[:manager_id]
         manager = ManagerAssignment.find_by(
           user_id: params[:id]
         )
 
-        if(!manager)
-          new_assign = ManagerAssignment.new(user_id: params[:id],manager_id: params[:manager_id])
+        if !manager
+          new_assign = ManagerAssignment.new(user_id: params[:id], manager_id: params[:manager_id])
           new_assign.save
-        else 
+        else
           manager.update(manager_id: params[:manager_id])
         end
-      else 
-        return true
+      else
+        true
       end
     end
 
 
-    if(user.role == "employee" && params[:role] != "employee")
+    if user.role == "employee" && params[:role] != "employee"
       puts(true)
       manager = ManagerAssignment.find_by(
         user_id: params[:id]
       )
-      if(manager)
+      if manager
         ManagerAssignment.destroy(manager.id)
       end
     end
-      
+
     if user.update(@validated_params) && update_manager
       render json: user, serializer: UserSerializer, status: :ok
-    else 
+    else
       render json: { error: user.errors }, status: :bad_request
     end
   end
@@ -61,7 +60,7 @@ class UsersController < ApplicationController
 
   def check_auth
     unless current_user.role == "admin"
-      render json: { error: "Not authorized"}, status: :unauthorized
+      render json: { error: "Not authorized" }, status: :unauthorized
     end
   end
 
@@ -70,11 +69,10 @@ class UsersController < ApplicationController
   end
 
   def pagination_meta(users) {
-    current_page: users.current_page, 
-    next_page: users.next_page, 
-    total_pages: users.total_pages, 
+    current_page: users.current_page,
+    next_page: users.next_page,
+    total_pages: users.total_pages,
     total_count: users.total_count
-  } 
+  }
   end
-
 end
