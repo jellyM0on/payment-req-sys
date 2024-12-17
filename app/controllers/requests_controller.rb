@@ -10,17 +10,19 @@ class RequestsController < ApplicationController
   def index
     filter_param = params[:filter_by]
 
+    requests = Request.includes(:user, approvals: :reviewer)
+
     case @user_role
     when "admin", "accounting_employee", "accounting_manager"
-      requests = Request.all
+      requests = requests.all
 
     when "employee"
-      requests = Request.where(
+      requests = requests.where(
         user_id: current_user.id
       )
 
     when "manager"
-      requests = Request.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id)).distinct
+      requests = requests.joins(:approvals).where(:approvals => {:reviewer => current_user.id}).or(Request.where(user: current_user.id)).distinct
     end
 
     if(filter_param == "own_approvals" && @user_role != "admin")
@@ -44,7 +46,7 @@ class RequestsController < ApplicationController
 
     requests = requests.order(created_at: :desc).page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 5)
  
-    render json: { requests: requests.as_json(:only =>  [:id, :overall_status, :purchase_category, :current_stage],:include => [{:user => { :only => [:name, :department]}}, { :approvals => { :only => [:stage], :include => { :reviewer => {:only => [:name]}}} }]),
+    render json: { requests: ActiveModelSerializers::SerializableResource.new(requests, each_serializer: RequestSummarySerializer),
                     pagination_meta: pagination_meta(requests)
                 },  status: :ok
   end
@@ -59,19 +61,26 @@ class RequestsController < ApplicationController
       end
     end
 
-    def build_request(request)
-      request = request.as_json(
-        include: {
-          approvals: { only: [:id, :stage, :status, :decided_at] }
-        }
-      ).merge(
-        vendor_attachment: [{id: request.vendor_attachment.id, name: request.vendor_attachment.filename.to_s, url: url_for(request.vendor_attachment)}],
-        supporting_documents: request.supporting_documents.map { |document| {id: document.id, name: document.filename.to_s, url: url_for(document) }}
-      )
+    if(request.user_id == current_user.id || isReviewer)
+        render json: { request: ActiveModelSerializers::SerializableResource.new(request, serializer: RequestSerializer)}
+    else 
+      render json: "Unauthorized", status: :unauthorized
+    end
+
+  end
+
+  def show_edit
+    request = Request.find(params[:id])
+
+    isReviewer = false 
+    request.approvals.each do |approval|
+      if(approval.reviewer_id == current_user.id || approval.stage == "accountant" && current_user.department == "accounting")
+        isReviewer = true 
+      end
     end
 
     if(request.user_id == current_user.id || isReviewer)
-        render json: { request: build_request(request) }
+        render json: { request: ActiveModelSerializers::SerializableResource.new(request, serializer: RequestEditSerializer)}
     else 
       render json: "Unauthorized", status: :unauthorized
     end

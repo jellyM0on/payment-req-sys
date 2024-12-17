@@ -44,6 +44,11 @@ GEM
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
+    active_model_serializers (0.10.15)
+      actionpack (>= 4.1)
+      activemodel (>= 4.1)
+      case_transform (>= 0.2)
+      jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
     active_storage_validations (1.3.5)
       activejob (>= 6.1.4)
       activemodel (>= 6.1.4)
@@ -89,6 +94,8 @@ GEM
     brakeman (6.2.2)
       racc
     builder (3.3.0)
+    case_transform (0.2)
+      activesupport
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
     crass (1.0.6)
@@ -113,6 +120,7 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (2.8.2)
+    jsonapi-renderer (0.2.2)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     kaminari (1.2.2)
@@ -291,6 +299,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  active_model_serializers
   active_storage_validations
   activestorage (~> 8.0.1)
   api-pagination

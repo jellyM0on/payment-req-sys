@@ -6,16 +6,15 @@ class UsersController < ApplicationController
 
 
   def index 
-    users = User.all
-            .order(created_at: :desc)
-            .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 5)
-    @q = users.ransack(params[:q])
+    @q = User.includes(:manager).ransack(params[:q])
     users = @q.result
-    render json: { users: users.as_json(:only => [:id, :name, :role, :email, :position, :department], :include =>{ :manager => {:only => [:id, :name]} } ), pagination_meta: pagination_meta(users) }
+            .order(created_at: :desc)
+            .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
+    render json: { users: ActiveModelSerializers::SerializableResource.new(users, each_serializer: UserSerializer), pagination_meta: pagination_meta(users) }
   end
 
   def update
-    user = User.find(params[:id])
+    user = User.includes(:manager).find(params[:id])
 
     def update_manager
       if (params[:manager_id])
@@ -46,7 +45,7 @@ class UsersController < ApplicationController
     end
       
     if user.update(@validated_params) && update_manager
-      render json: user.to_json(:except => [:created_at, :updated_at], :include => {:manager => {:only => [:id, :name]}}), status: :ok
+      render json: user, serializer: UserSerializer, status: :ok
     else 
       render json: { error: user.errors }, status: :bad_request
     end
@@ -55,13 +54,12 @@ class UsersController < ApplicationController
   def index_managers
     managers = User.where(role: "manager")
               .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
-    render json: { managers: managers.as_json(:only => [:id, :name]), pagination_meta: pagination_meta(managers) }
+    render json: { managers: ActiveModelSerializers::SerializableResource.new(managers, each_serializer: ManagerSerializer), pagination_meta: pagination_meta(managers) }
   end
 
   private
 
   def check_auth
-    puts current_user.inspect
     unless current_user.role == "admin"
       render json: { error: "Not authorized"}, status: :unauthorized
     end

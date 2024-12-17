@@ -137,11 +137,11 @@ function RequestInfo({
 
   const setStatus = (status: string) => {
     switch (status) {
-      case "pending":
+      case "Pending":
         return <StatusIcon type="progress">{status}</StatusIcon>;
-      case "accepted":
+      case "Accepted":
         return <StatusIcon type="success">{status}</StatusIcon>;
-      case "rejected":
+      case "Rejected":
         return <StatusIcon type="error">{status}</StatusIcon>;
     }
   };
@@ -371,8 +371,8 @@ function RequestInfoContainer({
   }, [request]);
 
   const getUserRole = (role: string, department: string) => {
-    if (department == "accounting") {
-      return "accountant";
+    if (department == "Accounting") {
+      return "Accountant";
     } else {
       return role;
     }
@@ -381,7 +381,7 @@ function RequestInfoContainer({
   const hasDecidedApproval = () => {
     let state = false;
     request.approvals.forEach((approval) => {
-      if (approval.status == "accepted" || approval.status == "rejected") {
+      if (approval.status == "Accepted" || approval.status == "Rejected") {
         state = true;
       }
     });
@@ -393,7 +393,7 @@ function RequestInfoContainer({
       (approval) =>
         user && approval.stage == getUserRole(user.role, user.department)
     );
-    if (approval && approval.status != "pending") {
+    if (approval && approval.status != "Pending") {
       return true;
     } else {
       return false;
@@ -401,12 +401,12 @@ function RequestInfoContainer({
   };
 
   const handleApprovalBtn = () => {
-    setStatus("accepted");
+    setStatus("Accepted");
     setIsModalOpen(true);
   };
 
   const handleRejectBtn = () => {
-    setStatus("rejected");
+    setStatus("Rejected");
     setIsModalOpen(true);
   };
 

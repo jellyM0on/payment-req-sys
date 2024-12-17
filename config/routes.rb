@@ -19,5 +19,5 @@ Rails.application.routes.draw do
   end
 
   get "/users/managers", to: "users#index_managers"
-  
+  get "/requests/edit/:id", to: "requests#show_edit"
 end

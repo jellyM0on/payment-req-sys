@@ -151,7 +151,6 @@ const RadioContainer = ({
   disabled,
   formValue,
 }: RadioContainerProps) => {
-  console.log("radio" + formValue);
   const [selectedOpt, setSelectedOpt] = useState(
     formValue ? formValue : options[0].value
   );
@@ -358,11 +357,14 @@ const AttachmentInput = ({
   useEffect(() => {
     if (formValue) {
       setEditMode(true);
+    }
+  }, [formValue]);
+
+  useEffect(() => {
+    if(editMode && formValue){
       setAttachments(formValue);
     }
-
-    console.log(formValue);
-  }, [formValue]);
+  }, [editMode])
 
   useEffect(() => {
     const deleted = deletedAttachments.length > 0 ? true : false;

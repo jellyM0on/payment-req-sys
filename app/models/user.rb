@@ -26,4 +26,19 @@ class User < ApplicationRecord
     %w[name]
   end
 
+  def format_role
+    role.titleize
+  end
+
+  def format_department
+    case department
+    when "technical"
+      "Technical"
+    when "accounting"
+      "Accounting"
+    when "hr_admin"
+      "HR & Admin"
+    end
+  end
+
 end

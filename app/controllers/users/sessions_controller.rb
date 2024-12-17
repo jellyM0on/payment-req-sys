@@ -9,7 +9,7 @@ class Users::SessionsController < Devise::SessionsController
   # GET /resource/sign_in
   def new
     if @current_user
-      render json: { user: @current_user, logged_in: true}
+      render json: { user: ActiveModelSerializers::SerializableResource.new(@current_user, serializer: UserSerializer), logged_in: true}
     else 
       render json: { signed_in: false }
     end
@@ -22,7 +22,7 @@ class Users::SessionsController < Devise::SessionsController
     if user&.valid_password?(params[:password])
       session[:user_id] = user.id
       sign_in user
-      render json: { user: user, signed_in: true }, status: :created
+      render json: { user: ActiveModelSerializers::SerializableResource.new(user, serializer: UserSerializer), signed_in: true }, status: :created
     else 
       render json: { error: 'Invalid credentials' }, status: :unauthorized
     end

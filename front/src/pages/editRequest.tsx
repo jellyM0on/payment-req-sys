@@ -127,7 +127,7 @@ function EditRequestContainer() {
 
   const getRequest = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/requests/${id}`, {
+      const response = await fetch(`http://localhost:3000/requests/edit/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

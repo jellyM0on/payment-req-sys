@@ -35,7 +35,53 @@ class Request < ApplicationRecord
     %w[user]
   end
 
-  # def image_url 
-  #   Rails.application.routes.url_helpers.url_for(vendor_attachment) if vendor_attachment.attached? 
-  # end
+  def format_overall_status
+    overall_status.titleize
+  end
+
+  def format_current_stage
+    current_stage.titleize
+  end
+
+  def format_vendor_certificate_of_reg
+    case vendor_certificate_of_reg
+    when "n_applicable"
+      "Not Applicable"
+    when "applicable"
+      "Applicable"
+    end
+  end
+
+  def format_payment_mode
+    case payment_mode
+    when "bank_transfer"
+      "Bank Transfer"
+    when "credit_card"
+      "Credit Card"
+    when "check"
+      "Check"
+    end
+  end
+
+  def format_purchase_category
+    case purchase_category
+    when "company_events"
+      "Company Events and Activities"
+    when "office_events"
+      "Office Events and Activities"
+    when "trainings"
+      "Trainings and Seminars"
+    when "others"
+      "Others"
+    end
+  end
+
+  def format_created_at
+    created_at.strftime("%d %B %Y")
+  end
+
+  def format_payment_due_date
+    payment_due_date.strftime("%d %B %Y")
+  end
+
 end

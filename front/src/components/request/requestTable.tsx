@@ -51,7 +51,7 @@ function RequestTable({ rows }: RequestTablePropsInterface) {
     { value: "Participants" },
   ]
 
-  return <ListTable headers={user && user.role == "employee" ? employeeHeaderArr : nonEmployeeHeaderArr} rows={rows} />;
+  return <ListTable headers={user && user.role == "Employee" ? employeeHeaderArr : nonEmployeeHeaderArr} rows={rows} />;
 }
 
 function RequestTableContainer({
@@ -61,19 +61,17 @@ function RequestTableContainer({
 
   const setStatus = (status: string) => {
     switch (status) {
-      case "pending":
+      case "Pending":
         return <StatusIcon type="progress">{status}</StatusIcon>;
-      case "accepted":
+      case "Accepted":
         return <StatusIcon type="success">{status}</StatusIcon>;
-      case "rejected":
+      case "Rejected":
         return <StatusIcon type="error">{status}</StatusIcon>;
     }
   };
 
   const setParticipants = (approval: Approval, key: number) => {
-    if (approval.stage == "accountant" && !approval.reviewer) {
-      return <Text key={key}>TBA</Text>;
-    } else if (!approval.reviewer) {
+      if (!approval.reviewer) {
       return null;
     } else {
       return <Text key={key}>{approval.reviewer.name}</Text>;
@@ -128,7 +126,7 @@ function RequestTableContainer({
         const cRequest = requests[i];
         rows.push({
           url: `/requests/${cRequest.id}`,
-          cells: user && user.role == "employee" ? employeeCells(cRequest) : nonEmployeeCells(cRequest)
+          cells: user && user.role == "Employee" ? employeeCells(cRequest) : nonEmployeeCells(cRequest)
         });
         setRows(rows);
       }

@@ -19,7 +19,7 @@ function NavTabs({ role }: NavTabsProps) {
 
   const employeeNavLinks = [
     {
-      title: role == "employee" ? "My Requests" : "Home",
+      title: role == "Employee" ? "My Requests" : "Home",
       url: "/",
       IconComponent: IoMdHome,
       current:
@@ -61,9 +61,9 @@ function NavTabs({ role }: NavTabsProps) {
 
   let navLinks;
 
-  if (role == "employee") navLinks = employeeNavLinks;
-  if (role == "manager") navLinks = managerNavLinks;
-  if (role == "admin") navLinks = adminNavLinks;
+  if (role == "Employee") navLinks = employeeNavLinks;
+  if (role == "Manager") navLinks = managerNavLinks;
+  if (role == "Admin") navLinks = adminNavLinks;
 
   return <GlobalNavi hideHelpForm links={navLinks} />;
 }
