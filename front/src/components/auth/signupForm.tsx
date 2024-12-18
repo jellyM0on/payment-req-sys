@@ -70,7 +70,7 @@ function SignupForm() {
 
   const getManagers = async () => {
     try {
-      const response = await fetch("http://localhost:3000/users/managers", {
+      const response = await fetch("http://localhost:3000/managers", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -100,14 +100,7 @@ function SignupForm() {
       ...prevInputs,
       role: selectedItem!.toLowerCase(),
     }));
-    
-    if(selectedItem != "Employee"){
-      setManager(undefined)
-      setFormInput((prevInputs) => ({
-        ...prevInputs,
-        manager_id: null
-      }));
-    }
+    console.log(formInput);
   };
 
   interface Manager {
@@ -374,6 +367,29 @@ function SignupForm() {
               },
               {
                 title: (
+                  <FormControlLabel htmlFor="manager" mr={3}>
+                    Manager <RequiredIcon />
+                  </FormControlLabel>
+                ),
+                value: (
+                  <ApiComboBox
+                    width="full"
+                    listWidth="large"
+                    value={manager}
+                    placeholder="Select a Manager"
+                    onChange={(opt) => {
+                      setManager(opt);
+                      setFormInput((prevInputs) => ({
+                        ...prevInputs,
+                        manager_id: opt!.id,
+                      }));
+                    }}
+                    {...managers}
+                  />
+                ),
+              },
+              {
+                title: (
                   <FormControlLabel htmlFor="role">
                     Role <RequiredIcon />
                   </FormControlLabel>
@@ -393,38 +409,6 @@ function SignupForm() {
                         onClick: handleDropdown,
                       },
                     ]}
-                  />
-                ),
-              },
-              {
-                title: (
-                  <FormControlLabel htmlFor="manager" mr={3}>
-                    Manager <RequiredIcon />
-                  </FormControlLabel>
-                ),
-                value: (
-                  <ApiComboBox
-                    width="full"
-                    listWidth="large"
-                    value={manager}
-                    disabled={role == "Employee" ? false : true}
-                    placeholder="Select a Manager"
-                    onChange={(opt) => {
-                      if(opt){
-                      setManager(opt);
-                      setFormInput((prevInputs) => ({
-                        ...prevInputs,
-                        manager_id: opt.id,
-                      }));
-                      } else {
-                        setManager(undefined)
-                        setFormInput((prevInputs) => ({
-                          ...prevInputs,
-                          manager_id: null
-                        }));
-                      }
-                    }}
-                    {...managers}
                   />
                 ),
               },

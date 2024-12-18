@@ -17,7 +17,6 @@ interface Request {
   vendor_email: string;
   vendor_contact_num: string;
   vendor_certificate_of_reg: string;
-  vendor_attachment: number;
   payment_due_date: string | null;
   payment_payable_to: string;
   payment_mode: string;

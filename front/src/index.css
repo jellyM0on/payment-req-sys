@@ -18,8 +18,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#auth-form .vb-descriptionList__row:nth-child(2n + 1) {
+#auth-form .vb-descriptionList__row:nth-child(2n + 1), 
+#user-edit-form .vb-descriptionList__row:nth-child(2n + 1){
   background-color: white;
+}
+
+#user-edit-form .vb-descriptionList__row:nth-child(2n):last-child{
+  border-bottom: none; 
 }
 
 .vb-gridBlock--half {

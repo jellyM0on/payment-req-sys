@@ -5,7 +5,8 @@ import Login from "./pages/login.tsx";
 import HomeContainer from "./pages/home.tsx";
 import ViewRequestContainer from "./pages/viewRequest.tsx";
 import EditRequestContainer from "./pages/editRequest.tsx";
-import CreateUserContainer from "./pages/createUser.tsx";
+import CreateUserContainer from "./pages/createUser.tsx"
+import EditUserContainer from "./pages/editUser.tsx";
 
 import Request from "./pages/createRequest.tsx";
 import Settings from "./pages/settings.tsx";
@@ -30,6 +31,8 @@ function App() {
           <Route path="/request/new" element={<Request />}></Route>
           <Route path="/settings" element={<Settings />}></Route>
           <Route path="/settings/new" element={<CreateUserContainer />}></Route>
+          <Route path="/settings/user/:id" element={<EditUserContainer/>}></Route>
+
         </Route>
       </Routes>
     </BrowserRouter>

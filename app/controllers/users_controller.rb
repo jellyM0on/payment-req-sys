@@ -12,6 +12,16 @@ class UsersController < ApplicationController
     render json: { users: ActiveModelSerializers::SerializableResource.new(users, each_serializer: UserSerializer), pagination_meta: pagination_meta(users) }
   end
 
+  def show
+    user = User.find(params[:id])
+
+    if user
+      render json: user, serializer: UserEditSerializer, status: :ok
+    else
+      render json: { error: user.errors }, status: :bad_request
+    end
+  end
+
   def update
     user = User.includes(:manager).find(params[:id])
 
@@ -40,6 +50,23 @@ class UsersController < ApplicationController
       )
       if manager
         ManagerAssignment.destroy(manager.id)
+      end
+    end
+
+    if user.role == "manager" && params[:role] != "manager"
+      employees = ManagerAssignment.find_by(
+        manager_id: params[:id]
+      )
+
+      approvals = Approval.find_by(
+        reviewer_id: params[:id],
+        stage: "manager",
+        status: "pending"
+      )
+
+      if employees || approvals
+        render json: { error: "Manager has assigned employees and/or pending approvals" }, status: :bad_request
+        return
       end
     end
 

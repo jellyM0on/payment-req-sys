@@ -23,7 +23,7 @@ function NavTabs({ role }: NavTabsProps) {
       url: "/",
       IconComponent: IoMdHome,
       current:
-        location.pathname == "/" || location.pathname.match(/^\/requests\.*/)
+        location.pathname == "/" || location.pathname.match(/^\/requests\/*/)
           ? true
           : false,
     },

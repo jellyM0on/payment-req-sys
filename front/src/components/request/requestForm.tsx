@@ -437,11 +437,11 @@ const AttachmentInput = ({
             hidden
             onChange={handleFileChange}
             multiple={limit > 1 ? true : false}
-            disabled={attachments.length == limit ? true : false}
+            disabled={attachments.length >= limit ? true : false}
           ></input>
           <label
             htmlFor={id}
-            className={`vb-button vb-button--appearanceSecondary vb-button--small ${attachments.length == limit ? "vb-button--disabled" : ""}`}
+            className={`vb-button vb-button--appearanceSecondary vb-button--small ${attachments.length >= limit ? "vb-button--disabled" : ""}`}
           >
             Select a File
           </label>

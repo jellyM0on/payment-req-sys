@@ -7,17 +7,17 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-  # 
+  #
   devise_for :users, controllers: {
-    sessions: 'users/sessions',
-    registrations: 'users/registrations'
+    sessions: "users/sessions",
+    registrations: "users/registrations"
   }
 
-  resources :users, only: [ :index, :update ] 
+  resources :users, only: [ :index, :show, :update ]
   resources :requests, only: [ :index, :show, :create, :update ] do
     resources :approvals, only: [ :update ]
   end
 
-  get "/users/managers", to: "users#index_managers"
+  get "/managers", to: "users#index_managers"
   get "/requests/edit/:id", to: "requests#show_edit"
 end
