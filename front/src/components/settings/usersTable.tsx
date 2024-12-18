@@ -122,7 +122,7 @@ const EditRoleContainer = ({
       ) : (
         <Text>{selectedRole}</Text>
       )}
-      {role == "admin" ? (
+      {role == "Admin" ? (
         <></>
       ) : (
         <IconOnlyButton
@@ -253,7 +253,7 @@ const EditManagerContainer = ({
       ) : (
         <Text>{selectedManager ? selectedManager.name : "N/A"}</Text>
       )}
-      {role == "admin" || role == "manager" ? (
+      {role == "Admin" || role == "Manager" ? (
         <></>
       ) : (
         <IconOnlyButton

@@ -211,7 +211,7 @@ const setRadioItem = ({
         options={options}
         handleChange={handleChange}
         disabled={disabled}
-        formValue={formValue}
+        formValue={formValue?.toLowerCase()}
       />
     ),
   };
@@ -815,10 +815,10 @@ function RequestForm({
                   <Message info>
                     Supporting documents are the documents received from the
                     supplier in relation to the payment amount you are
-                    requesting.
+                    requesting. 
                     <br></br>
-                    Ex. Quotation form from Supplier/Vendor, Contract/Proposal,
-                    Sales Invoice, etc.
+                    Ex. Quotation form from Supplier/Vendor,
+                    Contract/Proposal, Sales Invoice, etc.
                   </Message>
                 ),
               },

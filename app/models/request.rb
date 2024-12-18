@@ -24,8 +24,13 @@ class Request < ApplicationRecord
   validates :purchase_amount, presence: true
   validates :purchase_category, presence: true
 
-  validates :vendor_attachment, attached: true, content_type: [ "image/png", "image/jpg", "application/pdf" ], size: { less_than: 10.megabytes, message: "is too large" }
-  validates :supporting_documents, content_type: [ "image/png", "image/jpg", "application/pdf" ], size: { less_than: 10.megabytes,  message: "is too large" }
+  validates :vendor_attachment, attached: true, content_type: [ "image/png", "image/jpg", "application/pdf" ],
+            size: { less_than: 10.megabytes, message: "File size is too large" }
+
+  validates :supporting_documents,
+            content_type: [ "image/png", "image/jpg", "application/pdf" ],
+            size: { less_than: 10.megabytes,  message: "File size is too large" },
+            limit: { min: 1, max: 10, message: "Must upload 1 to 10 files" }
 
   def self.ransackable_attributes(auth_object = nil)
     %w[]

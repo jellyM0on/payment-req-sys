@@ -79,14 +79,13 @@ function CreateRequestContainer() {
     const formData = new FormData();
 
     for (const [key, value] of Object.entries(requestData)) {
-      if (key == "vendor_attachment") {
-        console.log(key, value[0].file);
+      if (key == "vendor_attachment" && value) {
         formData.append(`request[${key}]`, value[0].file);
-      } else if (key == "supporting_documents") {
+      } else if (key == "supporting_documents" && value) {
         value.forEach((doc: Attachment) => {
           if (doc.file) formData.append(`request[${key}][]`, doc.file);
         });
-      } else {
+      } else if(value) {
         formData.append(`request[${key}]`, value);
         console.log(formData);
       }

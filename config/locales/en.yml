@@ -28,4 +28,11 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  activerecord: 
+    errors:
+      messages: 
+        blank: "This is a required field"
+        too_short: "Input is too short (minimum is %{count} character/s)"
+        too_long: "Input is too long (maximum is %{count} character/s)"
+        wrong_length: "Input is the wrong length (should be %{count} characters)"
+
