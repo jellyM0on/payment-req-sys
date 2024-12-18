@@ -1,26 +1,22 @@
 import {
   CardBase,
   DescriptionList,
-  TextField,
+  PageTitle,
   Button,
   FormControlLabel,
   RequiredIcon,
-  RadioButton,
-  FormControlGroup,
   DropdownButton,
   ApiComboBox,
   SingleComboBoxOption,
   useApiComboBox,
-  Stack,
   MarginBase,
   Text,
-  Message,
   FloatingMessageBlock,
   HStack,
   BackwardButton,
-  Note,
-  TextFieldType,
   DropdownContent,
+  Message,
+  VStack,
 } from "@freee_jp/vibes";
 
 import { useState, useEffect } from "react";
@@ -48,84 +44,41 @@ interface Manager {
 }
 
 interface UserErrors {
-  name?: Array<string>;
-  email?: Array<string>;
-  position?: Array<string>;
-  department?: Array<string>;
   manager_id?: Array<string>;
   role?: Array<string>;
 }
 
+// list item
 interface TextFormInput {
   label: string;
   name: string;
-  type: TextFieldType;
-  errors?: Array<string>;
   formValue?: string | null;
-  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean;
-  message?: string;
 }
 
-const setListItem = ({
-  label,
-  name,
-  type,
-  errors,
-  formValue,
-  disabled,
-  message,
-  handleChange,
-}: TextFormInput) => {
+const setListItem = ({ label, name, formValue }: TextFormInput) => {
   return {
     title: (
       <FormControlLabel mr={3} id={name}>
         {label}
-        <RequiredIcon ml={0.5} />
       </FormControlLabel>
     ),
-    value: (
-      <Stack gap={0.5}>
-        <TextField
-          name={name}
-          type={type}
-          onChange={handleChange}
-          disabled={disabled}
-          value={formValue ? formValue : ""}
-          error={errors ? true : false}
-          width="large"
-          required
-        />
-        {message ? <Note>{message}</Note> : null}
-        {errors ? (
-          errors.map((msg) => (
-            <Message error>
-              <Text size={0.75}>{msg}</Text>
-            </Message>
-          ))
-        ) : (
-          <></>
-        )}
-      </Stack>
-    ),
+    value: <Text>{formValue}</Text>,
   };
 };
+
+//dropdown
 
 interface DropdownInputProps {
   options: { text: string; value: string }[];
   formValue: string | null | undefined;
   handleChange: (category: string) => void;
-  disabled: boolean;
 }
 
 const DropdownInput = ({
   options,
   formValue,
   handleChange,
-  disabled,
 }: DropdownInputProps) => {
-  console.log(formValue);
-  console.log(typeof formValue == "string");
   const [category, setCategory] = useState(options[0].text);
 
   useEffect(() => {
@@ -146,135 +99,15 @@ const DropdownInput = ({
       },
     })
   );
-  return (
-    <DropdownButton
-      buttonLabel={category}
-      dropdownContents={contents}
-      disabled={disabled}
-    />
-  );
-};
-
-interface DropdownFormInput {
-  options: { text: string; value: string }[];
-  formValue?: string | null;
-  label: string;
-  id: string;
-  handleChange: (category: string) => void;
-  disabled: boolean;
-}
-
-const setDropdownItem = ({
-  options,
-  formValue,
-  label,
-  id,
-  disabled,
-  handleChange,
-}: DropdownFormInput) => {
-  return {
-    title: (
-      <FormControlLabel id={id}>
-        {label}
-        <RequiredIcon ml={0.5} />
-      </FormControlLabel>
-    ),
-    value: (
-      <DropdownInput
-        options={options}
-        formValue={formValue}
-        handleChange={handleChange}
-        disabled={disabled}
-      />
-    ),
-  };
-};
-
-interface RadioContainerProps {
-  options: { name: string; value: string; label: string; checked?: boolean }[];
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean;
-  formValue?: string;
-}
-
-const RadioContainer = ({
-  options,
-  handleChange,
-  disabled,
-  formValue,
-}: RadioContainerProps) => {
-  console.log(formValue);
-  const [selectedOpt, setSelectedOpt] = useState(
-    formValue ? formValue : options[0].value
-  );
-
-  useEffect(() => {
-    if (formValue) {
-      setSelectedOpt(formValue);
-    }
-  }, [formValue]);
-
-  return (
-    <FormControlGroup>
-      <Stack gap={0}>
-        {options.map((option, i) => (
-          <RadioButton
-            name={option.name}
-            disabled={disabled}
-            value={option.value}
-            key={i}
-            checked={selectedOpt == option.value ? true : false}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              if (disabled) return;
-              setSelectedOpt(option.value);
-              handleChange(e);
-            }}
-          >
-            {option.label}
-          </RadioButton>
-        ))}
-      </Stack>
-    </FormControlGroup>
-  );
-};
-
-interface RadioFormInput {
-  options: { name: string; value: string; label: string; checked?: boolean }[];
-  label: string;
-  id: string;
-  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean;
-  formValue?: string;
-}
-
-const setRadioItem = ({
-  options,
-  label,
-  id,
-  disabled,
-  formValue,
-  handleChange,
-}: RadioFormInput) => {
-  return {
-    title: (
-      <FormControlLabel id={id} mr={3}>
-        {label}
-        <RequiredIcon ml={0.5} />
-      </FormControlLabel>
-    ),
-    value: (
-      <RadioContainer
-        options={options}
-        handleChange={handleChange}
-        disabled={disabled}
-        formValue={formValue?.toLowerCase()}
-      />
-    ),
-  };
+  return <DropdownButton buttonLabel={category} dropdownContents={contents} />;
 };
 
 interface UserFormProps {
   user: User | null;
+}
+interface Manager {
+  id: number;
+  name: string;
 }
 
 function UserForm({ user }: UserFormProps) {
@@ -289,16 +122,33 @@ function UserForm({ user }: UserFormProps) {
       ...prevInputs,
       role: role,
     }));
-    console.log(formInput);
+
+    if (role == "manager") {
+      setManager(undefined);
+    }
+
+    if (role == "employee" && user?.manager) {
+      setManager({ id: user.manager.id, label: user.manager.name });
+    }
   };
 
-  const handleManagerChange = (manager_id: number|undefined) => {
+  const handleManagerChange = (manager_id: number | undefined) => {
     setFormInput((prevInputs) => ({
-        ...prevInputs,
-        manager_id: manager_id,
-      }));
-      console.log(formInput);
-  }
+      ...prevInputs,
+      manager_id: manager_id,
+    }));
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    setFormInput((prevInputs) => ({
+      ...prevInputs,
+      role: user.role,
+    }));
+
+    if (!user.manager) return;
+    setManager({ id: user.manager.id, label: user.manager.name });
+  }, [user]);
 
   useEffect(() => {
     if (
@@ -325,19 +175,18 @@ function UserForm({ user }: UserFormProps) {
 
       const result = await response.json();
 
+      const filteredManagers = result.managers.filter(
+        (manager: Manager) => manager.id !== user?.id
+      );
+
       return {
-        items: result.managers,
+        items: filteredManagers,
         meta: result.pagination_meta,
       };
     } catch (error) {
       console.log(error);
     }
   };
-
-  interface Manager {
-    id: number;
-    name: string;
-  }
 
   const managers = useApiComboBox<Manager>({
     fetchItems: getManagers,
@@ -350,27 +199,47 @@ function UserForm({ user }: UserFormProps) {
       ),
   });
 
-//   useEffect(() => {
-//     if(user && user.manager){
-//         const manager = managers.options.find((opt) => opt.id == user.manager?.id)
-//         setManager(manager)
-//     }
-//     console.log({...managers})
-//   }, [managers])
-
-
   const navigate = useNavigate();
 
   const redirectSuccess = () => {
     navigate("/settings", {
       state: {
-        hasNewUser: true,
+        hasEditedUser: true,
       },
     });
   };
 
+  const handleSubmit = () => {
+    console.log(formInput);
+    updateUser();
+  };
+
+  const updateUser = async () => {
+    if (!user) return;
+    try {
+      const response = await fetch(`http://localhost:3000/users/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formInput),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        redirectSuccess();
+      } else if (result.error) {
+        setErrors(result.error);
+        console.log(result.error);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
-    <CardBase paddingSize="zero" overflowHidden={false}>
+    <CardBase paddingSize="small" overflowHidden={false}>
       {errors == null ? (
         <></>
       ) : (
@@ -383,30 +252,48 @@ function UserForm({ user }: UserFormProps) {
       )}
 
       <MarginBase mt={2} mb={2}>
-        <HStack justifyContent="end" ma={2}>
-          <BackwardButton>Back to Home</BackwardButton>
-          <Button
-            appearance="primary"
-            onClick={() => {
-              if (inViewMode) {
-                setInViewMode(false);
-              } else {
-                //handle save
-              }
-            }}
-          >
-            {inViewMode ? "Edit" : "Submit"}
-          </Button>
-          {inViewMode ? (
-            <></>
-          ) : (
-            <Button
-              onClick={() => {
-                setInViewMode(true);
-              }}
-            >
-              Cancel
-            </Button>
+        <HStack justifyContent="space-between" mr={2} mb={2}>
+          <PageTitle ml={1}>{`User ID: ${user?.id}`}</PageTitle>
+          {!user || user?.role == "admin" ? null : (
+            <HStack>
+              <BackwardButton url="/settings">Back to Home</BackwardButton>
+              <Button
+                appearance="primary"
+                onClick={() => {
+                  if (inViewMode) {
+                    setInViewMode(false);
+                  } else {
+                    handleSubmit();
+                  }
+                }}
+              >
+                {inViewMode ? "Edit" : "Submit"}
+              </Button>
+              {inViewMode ? (
+                <></>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setInViewMode(true);
+
+                    //reset
+                    if (!user) return;
+                    setFormInput((prevInputs) => ({
+                      ...prevInputs,
+                      role: user.role,
+                    }));
+
+                    if (!user.manager) return;
+                    setManager({
+                      id: user.manager.id,
+                      label: user.manager.name,
+                    });
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </HStack>
           )}
         </HStack>
 
@@ -416,89 +303,86 @@ function UserForm({ user }: UserFormProps) {
               setListItem({
                 label: "Name",
                 name: "name",
-                type: "text",
                 formValue: `${user?.name}`,
-                disabled: true,
               }),
               setListItem({
                 label: "Email",
                 name: "email",
-                type: "text",
                 formValue: `${user?.email}`,
-                disabled: true,
               }),
               setListItem({
                 label: "Position",
                 name: "email",
-                type: "text",
+
                 formValue: `${user?.position}`,
-                disabled: true,
               }),
-              setRadioItem({
-                handleChange: () => console.log("test"),
-                disabled: true,
-                formValue: `${user?.department}`,
+              setListItem({
                 label: "Department",
-                id: "department",
-                options: [
-                  {
-                    name: "department",
-                    label: "Technical",
-                    value: "technical",
-                  },
-                  {
-                    name: "department",
-                    label: "HR & Admin",
-                    value: "hr_admin",
-                  },
-                  {
-                    name: "department",
-                    label: "Accounting",
-                    value: "accounting",
-                  },
-                ],
-              }),
-              setDropdownItem({
-                id: "role",
-                label: "Role",
-                disabled: inViewMode,
-                formValue: user?.role,
-                handleChange: handleRoleChange,
-                options: [
-                  {
-                    text: "Employee",
-                    value: "employee",
-                  },
-                  {
-                    text: "Manager",
-                    value: "manager",
-                  },
-                ],
+                name: "department",
+                formValue: user?.department,
               }),
               {
                 title: (
                   <FormControlLabel htmlFor="manager" mr={3}>
-                    Manager <RequiredIcon ml={0.5} />
+                    Role {inViewMode ? null : <RequiredIcon ml={0.5} />}
                   </FormControlLabel>
                 ),
-                value: (
-                  <ApiComboBox
-                    width="full"
-                    listWidth="large"
-                    value={manager}
-                    disabled={noManager}
-                    placeholder="Select a Manager"
-                    onChange={(opt) => {
-                      if (opt) {
-                        setManager(opt);
-                        handleManagerChange(Number(opt.id))
-                      } else {
-                        setManager(undefined);
-                        handleManagerChange(undefined)
-                      }
-                    }}
-                    {...managers}
-                  />
+                value: inViewMode ? (
+                  <Text>{user?.role}</Text>
+                ) : (
+                  <VStack>
+                    <DropdownInput
+                      formValue={user?.role}
+                      handleChange={handleRoleChange}
+                      options={[
+                        { text: "Employee", value: "employee" },
+                        { text: "Manager", value: "manager" },
+                      ]}
+                    />
+                    {errors?.role ? (
+                      <Message error>
+                        <Text size={0.75}>{errors.role}</Text>
+                      </Message>
+                    ) : null}
+                  </VStack>
+                ),
+              },
+              {
+                title: (
+                  <FormControlLabel htmlFor="manager" mr={3}>
+                    Manager
+                    {inViewMode == false && formInput?.role == "employee" ? (
+                      <RequiredIcon ml={0.5} />
+                    ) : null}
+                  </FormControlLabel>
+                ),
+                value: inViewMode ? (
+                  <Text>{`${user && user.manager ? user.manager.name : "N/A"}`}</Text>
+                ) : (
+                  <VStack>
+                    <ApiComboBox
+                      width="large"
+                      listWidth="large"
+                      value={manager}
+                      disabled={noManager}
+                      placeholder="Select a Manager"
+                      onChange={(opt) => {
+                        if (opt) {
+                          setManager(opt);
+                          handleManagerChange(Number(opt.id));
+                        } else {
+                          setManager(undefined);
+                          handleManagerChange(undefined);
+                        }
+                      }}
+                      {...managers}
+                    />
+                    {errors?.manager_id ? (
+                      <Message error>
+                        <Text size={0.75}>{errors.manager_id}</Text>
+                      </Message>
+                    ) : null}
+                  </VStack>
                 ),
               },
             ]}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import UserForm from "../components/settings/userForm";
-import { Container, Stack } from "@freee_jp/vibes";
+import { Container } from "@freee_jp/vibes";
 
 interface User {
   id: number;
@@ -25,9 +25,7 @@ interface EditUserProps {
 function EditUser({ user }: EditUserProps) {
   return (
     <Container>
-      <Stack direction="vertical" justifyContent="center" alignItems="center">
-        <UserForm user={user} />
-      </Stack>
+      <UserForm user={user} />
     </Container>
   );
 }

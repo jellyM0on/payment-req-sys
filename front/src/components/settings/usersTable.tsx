@@ -38,7 +38,6 @@ function UsersTable({ rows }: UsersTablePropsInterface) {
     { value: "Position" },
     { value: "Department" },
     { value: "Manager" },
-    { value: ""}
   ];
 
   return <ListTable headers={headerArr} rows={rows} />;
@@ -63,7 +62,7 @@ function UsersTableContainer({ users }: UsersTableContainerPropsInterface) {
             { value: <Text>{cUser.email}</Text> },
             { value: <Text>{cUser.position}</Text> },
             { value: <Text>{cUser.department}</Text> },
-            { value: <Text>{cUser.manager ? cUser.manager.name : "TBA"}</Text> },
+            { value: <Text>{cUser.manager ? cUser.manager.name : "N/A"}</Text> },
           ],
         });
         setRows(rows);

@@ -1,7 +1,7 @@
 import UsersTableContainer from "../components/settings/usersTable";
 import UsersTableHeaderContainer from "../components/settings/usersTableHeader";
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { FloatingMessageBlock, Text, MarginBase } from "@freee_jp/vibes";
 import PageSelection from "../components/utils/pageSelection";
 import {
@@ -108,14 +108,6 @@ function SettingsContainer() {
     }
   };
 
-  function NewUserMsg() {
-    return (
-      <FloatingMessageBlock success>
-        <Text>New user created successfully.</Text>
-      </FloatingMessageBlock>
-    );
-  }
-
   const handlePageChange = (page: number) => {
     setCurrentSettingsPage(page);
     getUsers(page, pageLimit, search);
@@ -133,6 +125,68 @@ function SettingsContainer() {
     getUsers(1, pageLimit, input);
   };
 
+  function NewUserMsg() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [isShown, setIsShown] = useState(true);
+
+    useEffect(() => {
+      if (location.state.hasNewUser == true) {
+        setIsShown(false);
+      } else {
+        setIsShown(true);
+      }
+    }, [location.state]);
+
+    const handleClose = () => {
+      setIsShown(false);
+      navigate("/settings", {
+        state: {
+          hasNewUser: false,
+        },
+      });
+    };
+
+    return isShown ? (
+      <></>
+    ) : (
+      <FloatingMessageBlock success onClose={handleClose}>
+        <Text>New user created successfully.</Text>
+      </FloatingMessageBlock>
+    );
+  }
+
+  function EditedUserMsg() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [isShown, setIsShown] = useState(true);
+  
+    useEffect(() => {
+      if (location.state.hasEditedUser == true) {
+        setIsShown(false);
+      } else {
+        setIsShown(true);
+      }
+    }, [location.state]);
+  
+    const handleClose = () => {
+      setIsShown(false);
+      navigate("/settings", {
+        state: {
+          hasEditedUser: false,
+        },
+      });
+    };
+  
+    return isShown ? (
+      <></>
+    ) : (
+      <FloatingMessageBlock success onClose={handleClose}>
+        <Text>User information edited successfully.</Text>
+      </FloatingMessageBlock>
+    );
+  }
+
   const location = useLocation();
 
   return (
@@ -145,11 +199,9 @@ function SettingsContainer() {
         handlePageLimitChange={handlePageLimitChange}
         handleSearch={handleSearch}
       />
-      {location.state && location.state.hasNewUser == true ? (
-        <NewUserMsg />
-      ) : (
-        <></>
-      )}
+
+      {location.state ? <NewUserMsg /> : <></>}
+      {location.state ? <EditedUserMsg/> : <></>}
     </>
   );
 }
