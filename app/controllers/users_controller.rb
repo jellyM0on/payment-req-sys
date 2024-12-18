@@ -16,7 +16,7 @@ class UsersController < ApplicationController
     user = User.includes(:manager).find(params[:id])
 
     def update_manager
-      if params[:manager_id]
+      if params[:manager_id].present?
         manager = ManagerAssignment.find_by(
           user_id: params[:id]
         )
@@ -65,7 +65,7 @@ class UsersController < ApplicationController
   end
 
   def validate_params
-    @validated_params = params.require(:user).permit(:role, :manager_id)
+    @validated_params = params.require(:user).permit(:role)
   end
 
   def pagination_meta(users) {
