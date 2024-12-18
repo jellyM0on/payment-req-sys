@@ -23,10 +23,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
       department: params[:department]
     )
 
-    puts user
+    user.manager_id = params[:manager_id]
 
-    if params[:manager_id]
-      puts "building manager"
+    if user.manager_id && params[:role] == "employee"
       user.build_manager_assignment(manager: User.find(params[:manager_id]))
     end
 

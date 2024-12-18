@@ -20,7 +20,11 @@ class User < ApplicationRecord
   validates :name, presence: true, length: { in: 1..100 }
   validates :email, presence: true, length: { in: 1..100 }
   validates :position, presence: true, length: { in: 1..250 }
+  validates :role, presence: true
 
+  attr_accessor :manager_id
+
+  validates :manager_id, presence: true, if: :is_employee
 
   def self.ransackable_attributes(auth_object = nil)
     %w[name]
@@ -39,5 +43,9 @@ class User < ApplicationRecord
     when "hr_admin"
       "HR & Admin"
     end
+  end
+
+  def is_employee
+    role == "employee"
   end
 end

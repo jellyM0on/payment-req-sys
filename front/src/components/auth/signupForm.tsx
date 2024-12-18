@@ -53,7 +53,7 @@ function SignupForm() {
     password: null,
     password_confirmation: null,
     position: null,
-    department: null,
+    department: "technical",
     manager_id: null,
     role: null,
   });
@@ -142,7 +142,7 @@ function SignupForm() {
   };
 
   const registerAccount = async (userData: UserSignup) => {
-    console.log(userData)
+    console.log(userData);
     try {
       const response = await fetch("http://localhost:3000/users", {
         method: "POST",
@@ -185,7 +185,7 @@ function SignupForm() {
               {
                 title: (
                   <FormControlLabel htmlFor="name" mr={3}>
-                    Name <RequiredIcon />{" "}
+                    Name <RequiredIcon ml={0.5} />{" "}
                   </FormControlLabel>
                 ),
                 value: (
@@ -200,9 +200,7 @@ function SignupForm() {
                     {errors?.name ? (
                       errors.name.map((msg) => (
                         <Message error>
-                          <Text size={0.75}>
-                            {msg}
-                          </Text>
+                          <Text size={0.75}>{msg}</Text>
                         </Message>
                       ))
                     ) : (
@@ -214,7 +212,7 @@ function SignupForm() {
               {
                 title: (
                   <FormControlLabel htmlFor="email" mr={3}>
-                    Email <RequiredIcon />
+                    Email <RequiredIcon ml={0.5} />
                   </FormControlLabel>
                 ),
                 value: (
@@ -230,9 +228,7 @@ function SignupForm() {
                     {errors?.email ? (
                       errors.email.map((msg) => (
                         <Message error>
-                          <Text size={0.75}>
-                            {msg}
-                          </Text>
+                          <Text size={0.75}>{msg}</Text>
                         </Message>
                       ))
                     ) : (
@@ -244,7 +240,7 @@ function SignupForm() {
               {
                 title: (
                   <FormControlLabel htmlFor="password" mr={3}>
-                    Password <RequiredIcon />
+                    Password <RequiredIcon ml={0.5} />
                   </FormControlLabel>
                 ),
                 value: (
@@ -261,9 +257,7 @@ function SignupForm() {
                     {errors?.password ? (
                       errors.password.map((msg) => (
                         <Message error>
-                          <Text size={0.75}>
-                            {msg}
-                          </Text>
+                          <Text size={0.75}>{msg}</Text>
                         </Message>
                       ))
                     ) : (
@@ -275,7 +269,7 @@ function SignupForm() {
               {
                 title: (
                   <FormControlLabel htmlFor="password_confirmation" mr={3}>
-                    Confirm Password <RequiredIcon />
+                    Confirm Password <RequiredIcon ml={0.5} />
                   </FormControlLabel>
                 ),
                 value: (
@@ -291,9 +285,7 @@ function SignupForm() {
                     {errors?.password_confirmation ? (
                       errors.password_confirmation.map((msg) => (
                         <Message error>
-                          <Text size={0.75}>
-                            {msg}
-                          </Text>
+                          <Text size={0.75}>{msg}</Text>
                         </Message>
                       ))
                     ) : (
@@ -305,7 +297,7 @@ function SignupForm() {
               {
                 title: (
                   <FormControlLabel htmlFor="position" mr={3}>
-                    Position <RequiredIcon />
+                    Position <RequiredIcon ml={0.5} />
                   </FormControlLabel>
                 ),
                 value: (
@@ -320,9 +312,7 @@ function SignupForm() {
                     {errors?.position ? (
                       errors.position.map((msg) => (
                         <Message error>
-                          <Text size={0.75}>
-                            {msg}
-                          </Text>
+                          <Text size={0.75}>{msg}</Text>
                         </Message>
                       ))
                     ) : (
@@ -334,7 +324,7 @@ function SignupForm() {
               {
                 title: (
                   <FormControlLabel htmlFor="department" id="department" mr={3}>
-                    Department <RequiredIcon />
+                    Department <RequiredIcon ml={0.5} />
                   </FormControlLabel>
                 ),
                 value: (
@@ -343,6 +333,9 @@ function SignupForm() {
                       <RadioButton
                         name="department"
                         value="technical"
+                        checked={
+                          formInput.department == "technical" ? true : false
+                        }
                         onChange={handleInput}
                       >
                         Technical
@@ -350,6 +343,9 @@ function SignupForm() {
                       <RadioButton
                         name="department"
                         value="hr_admin"
+                        checked={
+                          formInput.department == "hr_admin" ? true : false
+                        }
                         onChange={handleInput}
                       >
                         HR and Admin
@@ -357,6 +353,9 @@ function SignupForm() {
                       <RadioButton
                         name="department"
                         value="accounting"
+                        checked={
+                          formInput.department == "accounting" ? true : false
+                        }
                         onChange={handleInput}
                       >
                         Accounting
@@ -367,49 +366,83 @@ function SignupForm() {
               },
               {
                 title: (
-                  <FormControlLabel htmlFor="manager" mr={3}>
-                    Manager <RequiredIcon />
-                  </FormControlLabel>
-                ),
-                value: (
-                  <ApiComboBox
-                    width="full"
-                    listWidth="large"
-                    value={manager}
-                    placeholder="Select a Manager"
-                    onChange={(opt) => {
-                      setManager(opt);
-                      setFormInput((prevInputs) => ({
-                        ...prevInputs,
-                        manager_id: opt!.id,
-                      }));
-                    }}
-                    {...managers}
-                  />
-                ),
-              },
-              {
-                title: (
                   <FormControlLabel htmlFor="role">
                     Role <RequiredIcon />
                   </FormControlLabel>
                 ),
                 value: (
-                  <DropdownButton
-                    buttonLabel={role}
-                    dropdownContents={[
-                      {
-                        type: "selectable",
-                        text: "Employee",
-                        onClick: handleDropdown,
-                      },
-                      {
-                        type: "selectable",
-                        text: "Manager",
-                        onClick: handleDropdown,
-                      },
-                    ]}
-                  />
+                  <Stack>
+                    <DropdownButton
+                      buttonLabel={role}
+                      dropdownContents={[
+                        {
+                          type: "selectable",
+                          text: "Employee",
+                          onClick: handleDropdown,
+                        },
+                        {
+                          type: "selectable",
+                          text: "Manager",
+                          onClick: handleDropdown,
+                        },
+                      ]}
+                    />
+                    {errors?.role? (
+                      errors.role.map((msg) => (
+                        <Message error>
+                          <Text size={0.75}>{msg}</Text>
+                        </Message>
+                      ))
+                    ) : (
+                      <></>
+                    )}
+                  </Stack>
+                ),
+              },
+              {
+                title: (
+                  <FormControlLabel htmlFor="manager" mr={3}>
+                    Manager
+                    {formInput.role == "employee" ? (
+                      <RequiredIcon ml={0.5} />
+                    ) : null}
+                  </FormControlLabel>
+                ),
+                value: (
+                  <Stack gap={0}>
+                    <ApiComboBox
+                      width="full"
+                      listWidth="large"
+                      value={manager}
+                      disabled={formInput.role == "employee" ? false : true}
+                      placeholder="Select a Manager"
+                      onChange={(opt) => {
+                        if (opt) {
+                          setManager(opt);
+                          setFormInput((prevInputs) => ({
+                            ...prevInputs,
+                            manager_id: opt.id,
+                          }));
+                        } else {
+                          setManager(undefined);
+                          setFormInput((prevInputs) => ({
+                            ...prevInputs,
+                            manager_id: null,
+                          }));
+                        }
+                      }}
+                      {...managers}
+                    />
+                    {errors?.manager_id ? (
+                      errors.manager_id.map((msg) => (
+                        <Message error>
+                          <Text size={0.75}>{msg}</Text>
+                        </Message>
+                      ))
+                    ) : (
+                      <></>
+                    )}
+                  </Stack>
                 ),
               },
             ]}

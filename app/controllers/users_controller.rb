@@ -25,11 +25,6 @@ class UsersController < ApplicationController
   def update
     user = User.includes(:manager).find(params[:id])
 
-    if params[:role] == "employee" && !(params[:manager_id].present?)
-      render json: { error: { manager_id: "Manager assignment is required" } }, status: :bad_request
-        return
-    end
-
     def update_manager
       if params[:manager_id].present?
         manager = ManagerAssignment.find_by(
