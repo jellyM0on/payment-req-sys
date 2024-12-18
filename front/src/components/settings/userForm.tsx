@@ -143,6 +143,7 @@ function UserForm({ user }: UserFormProps) {
     if (!user) return;
     setFormInput((prevInputs) => ({
       ...prevInputs,
+      id: user.id,
       role: user.role,
     }));
 
@@ -254,47 +255,52 @@ function UserForm({ user }: UserFormProps) {
       <MarginBase mt={2} mb={2}>
         <HStack justifyContent="space-between" mr={2} mb={2}>
           <PageTitle ml={1}>{`User ID: ${user?.id}`}</PageTitle>
-          {!user || user?.role == "admin" ? null : (
-            <HStack>
-              <BackwardButton url="/settings">Back to Home</BackwardButton>
-              <Button
-                appearance="primary"
-                onClick={() => {
-                  if (inViewMode) {
-                    setInViewMode(false);
-                  } else {
-                    handleSubmit();
-                  }
-                }}
-              >
-                {inViewMode ? "Edit" : "Submit"}
-              </Button>
-              {inViewMode ? (
-                <></>
-              ) : (
+          <HStack>
+            <BackwardButton url="/settings">Back to Home</BackwardButton>
+
+            {!user || user?.role === "admin" ? null : (
+              <>
                 <Button
+                  appearance="primary"
                   onClick={() => {
-                    setInViewMode(true);
-
-                    //reset
-                    if (!user) return;
-                    setFormInput((prevInputs) => ({
-                      ...prevInputs,
-                      role: user.role,
-                    }));
-
-                    if (!user.manager) return;
-                    setManager({
-                      id: user.manager.id,
-                      label: user.manager.name,
-                    });
+                    if (inViewMode) {
+                      setInViewMode(false);
+                    } else {
+                      handleSubmit();
+                    }
                   }}
                 >
-                  Cancel
+                  {inViewMode ? "Edit" : "Submit"}
                 </Button>
-              )}
-            </HStack>
-          )}
+
+                {inViewMode ? (
+                  <></>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      setInViewMode(true);
+                      setErrors(null);
+
+                      // Reset
+                      if (!user) return;
+                      setFormInput((prevInputs) => ({
+                        ...prevInputs,
+                        role: user.role,
+                      }));
+
+                      if (!user.manager) return;
+                      setManager({
+                        id: user.manager.id,
+                        label: user.manager.name,
+                      });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </>
+            )}
+          </HStack>
         </HStack>
 
         <div id="user-edit-form">
