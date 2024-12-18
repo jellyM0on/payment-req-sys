@@ -35,6 +35,7 @@ interface AuthContextType {
   login: (userData: UserLogin) => Promise<LoginResponse>;
   logout: () => void;
   processDone: boolean;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,6 +46,7 @@ interface AuthProviderProps {
 
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setAuthenticated] = useState(true);
   const [loading, setLoading] = useState(false);
   const [processDone, setProcessDone] = useState(false);
 
@@ -108,6 +110,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         setLoading(false);
         sessionStorage.setItem("user", JSON.stringify(result.user));
         setUser(result.user);
+        setAuthenticated(true);
       } else {
         setUser(null);
       }
@@ -132,7 +135,7 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       await response.json();
       if (response.status === 200) {
         setLoading(false);
-        sessionStorage.clear()
+        sessionStorage.clear();
         setUser(null);
       }
     } catch (error) {
@@ -142,7 +145,9 @@ const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, processDone }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, loading, processDone, isAuthenticated }}
+    >
       {children}
     </AuthContext.Provider>
   );

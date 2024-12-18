@@ -84,6 +84,13 @@ function SettingsContainer() {
     getUsers(page, limit, search);
   }, []);
 
+  const navigate = useNavigate()
+
+  const redirectError = () => {
+    navigate('/404')
+  }
+
+
   const getUsers = async (page: number, limit: number, search: string = "") => {
     try {
       const response = await fetch(
@@ -102,9 +109,12 @@ function SettingsContainer() {
       if (response.ok) {
         setUsers(result.users);
         setPageMeta(result.pagination_meta);
+      } else {
+        redirectError(); 
       }
     } catch (error) {
       console.log(error);
+      redirectError(); 
     }
   };
 

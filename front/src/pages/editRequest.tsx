@@ -1,6 +1,6 @@
 import RequestFormContainer from "../components/request/requestForm";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 
 interface Request {
   vendor_name: string | null;
@@ -96,7 +96,7 @@ function EditRequestContainer() {
 
     for (const [key, value] of Object.entries(requestData)) {
       if (key == "new_vendor_attachment") {
-        if (!value[0]) continue; 
+        if (!value[0]) continue;
         formData.append(`request[${key}]`, value[0].file);
       } else if (key == "new_supporting_documents") {
         value.forEach((doc: Attachment) => {
@@ -125,15 +125,24 @@ function EditRequestContainer() {
     }
   };
 
+  const navigate = useNavigate();
+
+  const redirectError = () => {
+    navigate("/404");
+  };
+
   const getRequest = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/requests/edit/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const response = await fetch(
+        `http://localhost:3000/requests/edit/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
       const result = await response.json();
 
@@ -154,9 +163,12 @@ function EditRequestContainer() {
           vendor_attachment: result.request.vendor_attachment,
           supporting_documents: result.request.supporting_documents,
         });
+      } else {
+        redirectError(); 
       }
     } catch (error) {
       console.log(error);
+      redirectError(); 
     }
   };
 

@@ -31,7 +31,7 @@ interface RequestInfoProps {
 
 interface RequestInfoContainerProps {
   request: Request;
-  handleRequestUpdate: (request: Request | EditedRequest) => void;
+  handleRequestUpdate: (request: Request) => void;
 }
 
 interface Request {
@@ -55,24 +55,6 @@ interface Request {
   overall_status: string;
   vendor_attachment: Attachment[] | null;
   supporting_documents: Attachment[] | null;
-}
-
-interface EditedRequest {
-  vendor_name?: string | null;
-  vendor_address?: string | null;
-  vendor_tin?: string | null;
-  vendor_email?: string | null;
-  vendor_contact_num?: string | null;
-  vendor_certificate_of_reg?: string | null;
-  payment_due_date?: string | null;
-  payment_payable_to?: string | null;
-  payment_mode?: string | null;
-  purchase_category?: string | null;
-  purchase_description?: string | null;
-  purchase_amount?: number | null;
-  new_vendor_attachment?: Attachment[] | null;
-  new_supporting_documents?: Attachment[] | null;
-  deleted_supporting_documents?: number[] | null;
 }
 
 interface Attachment {
@@ -116,7 +98,9 @@ function RequestInfo({
           {!attachments
             ? null
             : attachments.map((attachment) => (
-                <InlineLink target="_blank" href={attachment.url}>{attachment.name}</InlineLink>
+                <InlineLink target="_blank" href={attachment.url}>
+                  {attachment.name}
+                </InlineLink>
               ))}
         </VStack>
       ),
@@ -243,7 +227,8 @@ function RequestInfo({
           </SectionTitle>
         </HStack>
 
-        <div id="request-info-table"
+        <div
+          id="request-info-table"
           style={{
             borderBottom: 1,
             borderBottomColor: "#e5e7eb",

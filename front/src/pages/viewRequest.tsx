@@ -1,5 +1,5 @@
 import RequestInfoContainer from "../components/request/requestInfo";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 
 interface ViewRequestProps {
@@ -26,6 +26,14 @@ interface Request {
   created_at: string;
   approvals: Approval[];
   overall_status: string;
+  vendor_attachment: Attachment[] | null;
+  supporting_documents: Attachment[] | null;
+}
+
+interface Attachment {
+  name: string;
+  url: string;
+  file?: File;
 }
 
 interface Approval {
@@ -36,7 +44,6 @@ interface Approval {
 }
 
 function ViewRequest({ request, handleRequestUpdate }: ViewRequestProps) {
-  // edit null, redirect to an error page
   return request ? (
     <RequestInfoContainer
       request={request}
@@ -54,6 +61,12 @@ function ViewRequestContainer() {
     console.log(request);
   }, []);
 
+  const navigate = useNavigate();
+
+  const redirectError = () => {
+    navigate("/404");
+  };
+
   const getRequest = async () => {
     try {
       const response = await fetch(`http://localhost:3000/requests/${id}`, {
@@ -68,8 +81,11 @@ function ViewRequestContainer() {
 
       if (response.ok) {
         setRequest(result.request);
+      } else {
+        redirectError();
       }
     } catch (error) {
+      redirectError();
       console.log(error);
     }
   };

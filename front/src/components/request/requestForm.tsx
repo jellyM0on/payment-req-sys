@@ -154,6 +154,7 @@ const RadioContainer = ({
   disabled,
   formValue,
 }: RadioContainerProps) => {
+  console.log(formValue);
   const [selectedOpt, setSelectedOpt] = useState(
     formValue ? formValue : options[0].value
   );
@@ -543,6 +544,11 @@ function RequestForm({
     setAccordionState([...newAccordionState]);
   }
 
+  function formatRole(dept: string|undefined){
+    if(dept && dept == "HR & Admin") return "hr_admin"
+    if(dept && dept == "Accounting") return "accounting"
+  }
+
   const contents = [
     {
       id: "request-form-requestor",
@@ -572,24 +578,24 @@ function RequestForm({
               }),
               setRadioItem({
                 handleChange: handleChange,
-                formValue: `${user?.department}`,
+                formValue: formatRole(user?.department),
                 disabled: true,
                 label: "Department",
                 id: "department",
                 options: [
                   {
                     name: "department",
-                    label: "Technical",
+                    label: "Technical <keiichiro-soeda@c-fo.com>",
                     value: "technical",
                   },
                   {
                     name: "department",
-                    label: "HR and Admin",
+                    label: "HR and Admin <mendoza-cyrilleangela@c-fo.com>",
                     value: "hr_admin",
                   },
                   {
                     name: "department",
-                    label: "Accounting",
+                    label: "Accounting <julieann-cosme@c-fo.com>",
                     value: "accounting",
                   },
                 ],
@@ -815,10 +821,10 @@ function RequestForm({
                   <Message info>
                     Supporting documents are the documents received from the
                     supplier in relation to the payment amount you are
-                    requesting. 
+                    requesting.
                     <br></br>
-                    Ex. Quotation form from Supplier/Vendor,
-                    Contract/Proposal, Sales Invoice, etc.
+                    Ex. Quotation form from Supplier/Vendor, Contract/Proposal,
+                    Sales Invoice, etc.
                   </Message>
                 ),
               },

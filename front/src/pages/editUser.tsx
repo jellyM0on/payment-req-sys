@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import UserForm from "../components/settings/userForm";
 import { Container } from "@freee_jp/vibes";
 
@@ -34,6 +34,12 @@ function EditUserContainer() {
   const { id } = useParams();
   const [user, setUser] = useState<User | null>(null);
 
+  const navigate = useNavigate()
+
+  const redirectError = () => {
+    navigate('/404')
+  }
+
   useEffect(() => {
     getUser();
   }, []);
@@ -52,9 +58,12 @@ function EditUserContainer() {
 
       if (response.ok) {
         setUser(result);
+      } else {
+        redirectError(); 
       }
     } catch (error) {
       console.log(error);
+      redirectError(); 
     }
   };
   return <EditUser user={user} />;

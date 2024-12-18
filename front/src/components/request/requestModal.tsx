@@ -16,7 +16,7 @@ interface RequestModalProps {
 }
 
 interface RequestApprovalModalContainerProps {
-  handleRequestUpdate: (request: Request | EditedRequest) => void;
+  handleRequestUpdate: (request: Request) => void;
   handleClose: () => void;
   handleChangeEditable: () => void;
   isOpen: boolean;
@@ -36,7 +36,6 @@ interface Request {
   vendor_email: string;
   vendor_contact_num: string;
   vendor_certificate_of_reg: string;
-  vendor_attachment: number;
   payment_due_date: string | null;
   payment_payable_to: string;
   payment_mode: string;
@@ -46,24 +45,8 @@ interface Request {
   created_at: string;
   approvals: Approval[];
   overall_status: string;
-}
-
-interface EditedRequest {
-  vendor_name?: string | null;
-  vendor_address?: string | null;
-  vendor_tin?: string | null;
-  vendor_email?: string | null;
-  vendor_contact_num?: string | null;
-  vendor_certificate_of_reg?: string | null;
-  payment_due_date?: string | null;
-  payment_payable_to?: string | null;
-  payment_mode?: string | null;
-  purchase_category?: string | null;
-  purchase_description?: string | null;
-  purchase_amount?: number | null;
-  new_vendor_attachment?: Attachment[] | null;
-  new_supporting_documents?: Attachment[] | null;
-  deleted_supporting_documents?: number[] | null;
+  vendor_attachment: Attachment[] | null;
+  supporting_documents: Attachment[] | null;
 }
 
 interface Attachment {
