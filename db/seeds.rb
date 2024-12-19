@@ -8,87 +8,87 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-testuser = User.create(
-  name: "employee", 
-  position: "Dev", 
-  role: 0, 
-  department: 0, 
-  email: "test1@mail.com", 
-  password: "password", 
-)
+# testuser = User.create(
+#   name: "employee",
+#   position: "Dev",
+#   role: 0,
+#   department: 0,
+#   email: "test1@mail.com",
+#   password: "password",
+# )
 
-testmanager = User.create(
-  name: "managerdev", 
-  position: "ManagerDev", 
-  role: 1, 
-  department: 0, 
-  email: "test19@mail.com", 
-  password: "password", 
-)
+# testmanager = User.create(
+#   name: "managerdev",
+#   position: "ManagerDev",
+#   role: 1,
+#   department: 0,
+#   email: "test19@mail.com",
+#   password: "password",
+# )
 
 
-testaaccount = User.create(
-  name: "accountant", 
-  position: "AccountantManager", 
-  role: 1, 
-  department: 1, 
-  email: "accountant@mail.com", 
-  password: "password", 
-)
+# testaaccount = User.create(
+#   name: "accountant",
+#   position: "AccountantManager",
+#   role: 1,
+#   department: 1,
+#   email: "accountant@mail.com",
+#   password: "password",
+# )
 
 testadmin = User.create(
-  name: "admin", 
-  position: "Admin", 
-  role: 2, 
-  department: 2, 
-  email: "admin@mail.com", 
-  password: "password", 
+  name: "admin",
+  position: "Admin",
+  role: 2,
+  department: 2,
+  email: "admin@mail.com",
+  password: "password",
 )
 
-ManagerAssignment.create(
-  user_id: User.find(1).id,
-  manager_id: User.find(2).id
-)
+# ManagerAssignment.create(
+#   user_id: User.find(1).id,
+#   manager_id: User.find(2).id
+# )
 
 # testrequest = Request.create(
-#   user_id: User.find(1).id, 
-#   overall_status: 0, 
-#   current_stage: 0, 
-#   vendor_name: "vendor", 
-#   vendor_tin: "123456789", 
+#   user_id: User.find(1).id,
+#   overall_status: 0,
+#   current_stage: 0,
+#   vendor_name: "vendor",
+#   vendor_tin: "123456789",
 #   vendor_email: "vendor@mail.com",
-#   vendor_address: "address", 
+#   vendor_address: "address",
 #   vendor_contact_num: "0912345678",
-#   vendor_certificate_of_reg: 0, 
-#   vendor_attachment: 0, 
-#   payment_due_date: nil, 
-#   payment_payable_to: "test", 
-#   payment_mode: 0, 
-#   purchase_category: 0, 
-#   purchase_description: "test description", 
-#   purchase_amount: 1000, 
+#   vendor_certificate_of_reg: 0,
+#   vendor_attachment: 0,
+#   payment_due_date: nil,
+#   payment_payable_to: "test",
+#   payment_mode: 0,
+#   purchase_category: 0,
+#   purchase_description: "test description",
+#   purchase_amount: 1000,
 # )
 
 # testrequest2 = Request.create(
-#   user_id: User.find(2).id, 
-#   overall_status: 0, 
-#   current_stage: 0, 
-#   vendor_name: "vendor", 
-#   vendor_tin: "123456789", 
+#   user_id: User.find(2).id,
+#   overall_status: 0,
+#   current_stage: 0,
+#   vendor_name: "vendor",
+#   vendor_tin: "123456789",
 #   vendor_email: "vendor@mail.com",
-#   vendor_address: "address", 
+#   vendor_address: "address",
 #   vendor_contact_num: "0912345678",
-#   vendor_certificate_of_reg: 0, 
-#   vendor_attachment: 0, 
-#   payment_due_date: nil, 
-#   payment_payable_to: "test", 
-#   payment_mode: 0, 
-#   purchase_category: 0, 
-#   purchase_description: "test description", 
-#   purchase_amount: 1000, 
+#   vendor_certificate_of_reg: 0,
+#   vendor_attachment: 0,
+#   payment_due_date: nil,
+#   payment_payable_to: "test",
+#   payment_mode: 0,
+#   purchase_category: 0,
+#   purchase_description: "test description",
+#   purchase_amount: 1000,
 # )
- 
- 
+
+
 # testreqstat =  Approval.create(
 #   request_id: Request.find(1).id,
 #   stage: 0,
@@ -104,4 +104,3 @@ ManagerAssignment.create(
 #   status: 0,
 #   decided_at: nil,
 # )
-

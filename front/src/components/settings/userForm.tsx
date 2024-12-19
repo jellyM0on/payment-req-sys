@@ -239,6 +239,12 @@ function UserForm({ user }: UserFormProps) {
       console.log(error);
     }
   };
+
+  function capitalize(val: string | undefined) {
+    if(!val) return
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+  }
+
   return (
     <CardBase paddingSize="small" overflowHidden={false}>
       {errors == null ? (
@@ -319,13 +325,12 @@ function UserForm({ user }: UserFormProps) {
               setListItem({
                 label: "Position",
                 name: "email",
-
                 formValue: `${user?.position}`,
               }),
               setListItem({
                 label: "Department",
                 name: "department",
-                formValue: user?.department,
+                formValue: capitalize(user?.department),
               }),
               {
                 title: (
@@ -334,7 +339,7 @@ function UserForm({ user }: UserFormProps) {
                   </FormControlLabel>
                 ),
                 value: inViewMode ? (
-                  <Text>{user?.role}</Text>
+                  <Text>{capitalize(user?.role)}</Text>
                 ) : (
                   <VStack>
                     <DropdownInput
