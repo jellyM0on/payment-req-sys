@@ -31,7 +31,7 @@ class Users::SessionsController < Devise::SessionsController
   # DELETE /resource/sign_out
   def destroy
     reset_session
-    render json: { signed_out: true }, status: :ok
+    render json: { message: "Signed out successfully." }, status: :ok
   end
 
   # protected
@@ -59,7 +59,6 @@ class Users::SessionsController < Devise::SessionsController
   # end
 
   def respond_to_on_destroy
-    reset_session
-    render json: { message: "Logged out successfully." }, status: :ok
+    render json: { signed_out: true }, status: :ok
   end
 end
