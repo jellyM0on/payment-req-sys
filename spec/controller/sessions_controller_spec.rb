@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "User Sessions", type: :request do
+RSpec.describe "User Sessions Controller", type: :request do
   let (:user) { create(:user, department: "technical") }
 
   describe "GET /users/sign_in" do
@@ -77,7 +77,7 @@ RSpec.describe "User Sessions", type: :request do
     context "when user is signed in" do
       before do
         post "/users/sign_in", params: { email: user.email, password: "password" }
-         delete "/users/sign_out"
+        delete "/users/sign_out"
       end
       it "signs out user then responds with a signed out successfully message" do
         expect(response.status).to eq(200)
@@ -85,6 +85,34 @@ RSpec.describe "User Sessions", type: :request do
 
         parsed_res = JSON.parse(response.body)
         expect(parsed_res["message"]).to eq("Signed out successfully.")
+      end
+    end
+  end
+
+  describe "GET/POST/PUT/DELETE authenticated routes" do
+    let(:routes) do
+      [
+        { method: :get, path: "/users" },
+        { method: :get, path: "/managers" },
+        { method: :post, path: "/users" },
+        { method: :put, path: "/users/1" },
+        { method: :get, path: "/users/1" },
+        { method: :get, path: "/requests" },
+        { method: :get, path: "/requests/edit/1" },
+        { method: :post, path: "/requests" },
+        { method: :put, path: "/requests/1" },
+        { method: :put, path: "/requests/1/approvals/1" }
+      ]
+    end
+    context "when user is not signed in" do
+      it "responds with an unauthorized status" do
+        routes.each do |route|
+          send(route[:method], route[:path])
+          expect(response.status).to eq(401), "Failed: #{route[:path]}"
+
+          parsed_res = JSON.parse(response.body)
+          expect(parsed_res["error"]).to eq("Must sign in or sign up.")
+        end
       end
     end
   end
