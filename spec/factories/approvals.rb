@@ -2,10 +2,10 @@ FactoryBot.define do
   factory :approval do
     stage { "manager" }
     status { "pending" }
-    decided_at { }
+    decided_at { nil }
 
-    request
-    reviewer
+    request { nil }
+    reviewer { nil }
 
     trait :manager_stage do
       stage { "manager" }

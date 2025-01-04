@@ -71,14 +71,7 @@ class RequestsController < ApplicationController
   def show_edit
     request = Request.find(params[:id])
 
-    isReviewer = false
-    request.approvals.each do |approval|
-      if approval.reviewer_id == current_user.id || approval.stage == "accountant" && current_user.department == "accounting"
-        isReviewer = true
-      end
-    end
-
-    if request.user_id == current_user.id || isReviewer
+    if request.user_id == current_user.id
         render json: { request: ActiveModelSerializers::SerializableResource.new(request, serializer: RequestEditSerializer) }
     else
       render json: "Unauthorized", status: :unauthorized
@@ -90,8 +83,6 @@ class RequestsController < ApplicationController
     request.user_id = current_user.id
     request.overall_status = "pending"
     attach_documents(request)
-
-    puts @user_role
 
     case @user_role
     when "employee", "accounting_employee"

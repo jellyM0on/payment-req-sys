@@ -10,7 +10,7 @@ FactoryBot.define do
     vendor_contact_num { "09191111111" }
     vendor_certificate_of_reg { %w[n_applicable applicable].sample  }
 
-    payment_due_date { Faker::Date.future }
+    payment_due_date { Faker::Date.forward }
     payment_payable_to { Faker::Name.name }
     payment_mode { %w[bank_transfer credit_card check].sample }
     purchase_category { %w[company_events office_events trainings others].sample }
@@ -22,12 +22,12 @@ FactoryBot.define do
     # request = FactoryBot.create(:request, user: user)
 
     transient do
-      vendor_attacments_count { 1 }
+      vendor_attachments_count { 1 }
       supporting_documents_count { 10 }
     end
 
-    after(:create) do |request, eval|
-      eval.vendor_attachments_count.times do
+    after(:build) do |request, evaluator|
+      evaluator.vendor_attachments_count.times do
         request.vendor_attachment.attach(
           io: File.open(Rails.root.join("spec", "fixtures", "files", "test.png")),
           filename: "test.png",
@@ -35,15 +35,13 @@ FactoryBot.define do
         )
       end
 
-      eval.supporting_documents_count.times do
-        request.supporting_documents_count.times do
-          request.supporting_documents.attach(
-            io: File.open(Rails.root.join("spec", "fixtures", "files", "test.png")),
-            filename: "test.png",
-            content_type: "image/png"
-          )
+      evaluator.supporting_documents_count.times do
+        request.supporting_documents.attach(
+          io: File.open(Rails.root.join("spec", "fixtures", "files", "test.png")),
+          filename: "test.png",
+          content_type: "image/png"
+        )
       end
-     end
     end
   end
 end
