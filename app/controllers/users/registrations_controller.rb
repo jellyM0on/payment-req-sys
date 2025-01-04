@@ -85,7 +85,6 @@ class Users::RegistrationsController < Devise::RegistrationsController
   private
 
   def check_auth
-    puts current_user.inspect
     unless current_user && current_user.role == "admin"
       render json: { error: "Not authorized" }, status: :unauthorized
     end
