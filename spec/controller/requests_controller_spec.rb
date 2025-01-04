@@ -9,6 +9,16 @@ RSpec.describe "Requests Controller", type: :request do
     end
   end
 
+  def build_approval(request, reviewer, stage, status)
+    create(
+      :approval,
+      request: request,
+      reviewer: reviewer,
+      stage: stage,
+      status: status
+    )
+  end
+
   def build_approvals(request, requestor)
     if requestor.role == "employee"
       create(:approval,
@@ -283,6 +293,10 @@ RSpec.describe "Requests Controller", type: :request do
         parsed_res = JSON.parse(response.body)
         expect(employee_user.requests.any? { |req| req.id == parsed_res["id"] }).to be true
       end
+      it "creates approvals for the request" do
+        employee_user.requests.reload
+        expect(employee_user.requests[0].approvals.count).to eq(3)
+      end
     end
 
     context "when request is invalid" do
@@ -349,6 +363,25 @@ RSpec.describe "Requests Controller", type: :request do
 
   describe "PUT /requests/:id" do
     context "when user is the requestor" do
+      context "when request has a decided approval" do
+        let(:request_params) do
+          {
+          vendor_name: "new_name"
+          }
+        end
+        before do
+          request = create(:request, user: employee_user)
+          build_approval(request, manager_user, "manager", "accepted")
+          build_approval(request, nil, "accountant", "pending")
+          build_approval(request, admin_user, "admin", "pending")
+
+          post "/users/sign_in", params: { email: employee_user.email, password: "password" }
+          put "/requests/#{request.id}", params: { request: request_params }
+        end
+        it "responds with an unauthorized status" do
+          expect(response.status).to eq(401)
+        end
+      end
       context "when request is valid" do
         let(:request_params) do
           {
