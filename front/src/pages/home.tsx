@@ -166,10 +166,9 @@ export default function HomeContainer() {
     filtered: string = "",
     search: string = ""
   ) => {
-    console.log(filtered);
     try {
       const response = await fetch(
-        `http://localhost:3000/requests/?page=${page}&limit=${limit}&filter_by=${filtered}&q[user_name_cont]=${search}`,
+        `http://localhost:3000/requests/?page=${page}&limit=${limit}&filter_by=${filtered}&search_by=${search}`,
         {
           method: "GET",
           headers: {

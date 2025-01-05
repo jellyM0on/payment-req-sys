@@ -33,11 +33,11 @@ class Request < ApplicationRecord
             limit: { min: 1, max: 10, message: "Must upload 1 to 10 files" }
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[]
+    %w[id overall_status current_stage purchase_category]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    %w[user]
+    %w[user approvals]
   end
 
   def format_overall_status

@@ -5,7 +5,28 @@ class UsersController < ApplicationController
 
 
   def index
-    @q = User.includes(:manager).ransack(params[:q])
+    def find_role_enum(input)
+      return if input.empty?
+      statuses = [ "employee role", "manager role", "admin role" ]
+      statuses.find_index { |status| status.include?(input.downcase) }
+    end
+
+    def find_department_enum(input)
+      return if input.empty?
+      statuses = [ "technical department", "accounting department", "hr and admin department" ]
+      statuses.find_index { |status| status.include?(input.downcase) }
+    end
+
+    @q = User.includes(:manager).ransack(
+      {
+        name_or_email_or_position_or_manager_name_cont: params[:search_by],
+        manager_name_blank: params[:search_by].match?(/N(\/|\/A)\z?/) ? true : nil,
+        id_eq: params[:search_by],
+        department_eq: find_department_enum(params[:search_by]),
+        role_eq: find_role_enum(params[:search_by])
+      },
+      { grouping: Ransack::Constants::OR }
+    )
     users = @q.result
             .order(created_at: :desc)
             .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)

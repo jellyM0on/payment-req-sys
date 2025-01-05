@@ -94,7 +94,7 @@ function SettingsContainer() {
   const getUsers = async (page: number, limit: number, search: string = "") => {
     try {
       const response = await fetch(
-        `http://localhost:3000/users/?page=${page}&limit=${limit}&q[name_cont]=${search}`,
+        `http://localhost:3000/users/?page=${page}&limit=${limit}&search_by=${search}`,
         {
           method: "GET",
           headers: {

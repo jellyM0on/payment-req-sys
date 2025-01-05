@@ -39,6 +39,8 @@ gem "kaminari"
 
 gem "ransack"
 
+gem "ransack-enum"
+
 gem "active_model_serializers"
 
 group :development, :test do

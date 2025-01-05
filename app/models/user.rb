@@ -27,8 +27,13 @@ class User < ApplicationRecord
   validates :manager_id, presence: true, if: :is_employee
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[name]
+    %w[ id name department role email position department ]
   end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[ manager ]
+  end
+
 
   def format_role
     role.titleize

@@ -6,6 +6,14 @@ class Approval < ApplicationRecord
   enum :stage, { manager: 0, accountant: 1, admin: 2 }
   enum :status, { pending: 0, accepted: 1, rejected: 2 }
 
+  def self.ransackable_associations(auth_object = nil)
+    %w[reviewer]
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[]
+  end
+
   def format_stage
     stage.titleize
   end

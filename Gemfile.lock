@@ -243,6 +243,7 @@ GEM
       activerecord (>= 6.1.5)
       activesupport (>= 6.1.5)
       i18n
+    ransack-enum (1.0.0)
     rdoc (6.10.0)
       psych (>= 4.0.0)
     regexp_parser (2.10.0)
@@ -349,6 +350,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 8.0.1)
   ransack
+  ransack-enum
   rspec-rails
   rubocop-rails-omakase
   tzinfo-data
