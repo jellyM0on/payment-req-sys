@@ -42,46 +42,51 @@ class RequestsController < ApplicationController
     end
 
     def find_status_enum(input)
-      return if input.empty?
+      return nil if input.empty?
       statuses = [ "pending status", "accepted status", "rejected status" ]
       statuses.find_index { |status| status.include?(input.downcase) }
     end
 
     def find_category_enum(input)
-      return if input.empty?
+      return nil if input.empty?
       statuses = [ "company events and activities", "office_events and activities", "trainings and seminars", "others" ]
       statuses.find_index { |status| status.include?(input.downcase) }
     end
 
     def find_department_enum(input)
-      return if input.empty?
+      return nil if input.empty?
       statuses = [ "technical department", "accounting department", "hr and admin department" ]
       statuses.find_index { |status| status.include?(input.downcase) }
     end
 
     def find_stage_enum(input)
-      return if input.empty?
+      return nil if input.empty?
       statuses = [ "manager stage", "accountant stage", "admin stage" ]
       statuses.find_index { |status| status.include?(input.downcase) }
     end
 
-    if current_user.role == "employee"
+    def match_no_reviewer(input)
+      return nil if input.empty?
+      input.match?(/t(b|ba)\z?/i) ? true : nil
+    end
+
+    if current_user.role == "employee" && params[:search_by]
       @q = requests.ransack(
       {
         approvals_reviewer_name_cont: params[:search_by],
-        approvals_reviewer_name_blank: params[:search_by].match?(/t(b|ba)\z?/) ? true : nil,
+        approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
         overall_status_eq: find_status_enum(params[:search_by]),
         current_stage_eq: find_stage_enum(params[:search_by]),
         purchase_category_eq: find_category_enum(params[:search_by]),
         id_eq: params[:search_by]
       },
       { grouping: Ransack::Constants::OR })
-    else
+    elsif current_user.role != "employee" && params[:search_by]
       @q = requests.ransack(
       {
         user_name_cont: params[:search_by],
         approvals_reviewer_name_cont: params[:search_by],
-        approvals_reviewer_name_blank: params[:search_by].match?(/t(b|ba)\z?/) ? true : nil,
+        approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
         user_department_eq: find_department_enum(params[:search_by]),
         overall_status_eq: find_status_enum(params[:search_by]),
         current_stage_eq: find_stage_enum(params[:search_by]),
@@ -89,10 +94,11 @@ class RequestsController < ApplicationController
         id_eq: params[:search_by]
       },
       { grouping: Ransack::Constants::OR })
+    else
+      @q = requests.ransack()
     end
 
     requests = @q.result(distinct: true)
-
     requests = requests.order(created_at: :desc).page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 5)
 
     render json: { requests: ActiveModelSerializers::SerializableResource.new(requests, each_serializer: RequestSummarySerializer),

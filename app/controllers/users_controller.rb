@@ -17,16 +17,25 @@ class UsersController < ApplicationController
       statuses.find_index { |status| status.include?(input.downcase) }
     end
 
-    @q = User.includes(:manager).ransack(
-      {
-        name_or_email_or_position_or_manager_name_cont: params[:search_by],
-        manager_name_blank: params[:search_by].match?(/N(\/|\/A)\z?/) ? true : nil,
-        id_eq: params[:search_by],
-        department_eq: find_department_enum(params[:search_by]),
-        role_eq: find_role_enum(params[:search_by])
-      },
-      { grouping: Ransack::Constants::OR }
-    )
+    def match_no_manager(input)
+      return nil if input.empty?
+      input.match?(/N(\/|\/A)\z?/i) ? true : nil
+    end
+
+    if params[:search_by]
+      @q = User.includes(:manager).ransack(
+        {
+          id_eq: params[:search_by],
+          name_or_email_or_position_or_manager_name_cont: params[:search_by],
+          manager_name_blank: match_no_manager(params[:search_by]),
+          department_eq: find_department_enum(params[:search_by]),
+          role_eq: find_role_enum(params[:search_by])
+        },
+        { grouping: Ransack::Constants::OR }
+      )
+    else
+      @q = User.includes(:manager).ransack()
+    end
     users = @q.result
             .order(created_at: :desc)
             .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
