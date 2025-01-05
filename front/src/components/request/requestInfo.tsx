@@ -331,7 +331,7 @@ function RequestInfoContainer({
     }
 
     //user is reviewer of request and needs to approve
-    if (
+    else if (
       user &&
       request.current_stage == getUserRole(user.role, user.department) &&
       !isApprovalDecided()
