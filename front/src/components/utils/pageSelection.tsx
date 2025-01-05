@@ -27,6 +27,7 @@ function PageSelection({ pageMeta, handlePageChange }: PageSelectionProps) {
   return (
     <div id="pager">
       <Pager
+        disabled={pageCount > 0 ? false : true}
         currentPage={currentPage}
         pageCount={pageCount}
         onPageChange={(page) => {

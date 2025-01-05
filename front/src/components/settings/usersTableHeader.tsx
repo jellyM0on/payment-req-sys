@@ -29,12 +29,19 @@ function UsersTableHeader({
   return (
     <HStack justifyContent="space-between" mb={1}>
       <HStack>
-        <SearchField value={getCurrentSettingsSearch()} placeholder="Employee" onChange={(e) => handleSearch(e.target.value)}  />
+        <SearchField
+          value={getCurrentSettingsSearch()}
+          placeholder="Employee"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
         <Pagination
+          disabled={pageMeta && pageMeta?.total_count > 0 ? false : true}
           onChange={handleChange}
           currentPage={pageMeta ? pageMeta.current_page : 1}
           rowCount={pageMeta?.total_count}
-          rowsPerPageValue={pageLimit}
+          rowsPerPageValue={
+            pageMeta && pageMeta.total_count > 0 ? pageLimit : 0
+          }
           rowsPerPageOptions={[
             { value: "10", name: "10 items" },
             { value: "20", name: "20 items" },
@@ -53,14 +60,14 @@ interface UsersTableHeaderContainerProps {
   pageMeta: PageMeta | null;
   handlePageLimitChange: (limit: number) => void;
   pageLimit: number;
-  handleSearch: (input: string) => void; 
+  handleSearch: (input: string) => void;
 }
 
 function UsersTableHeaderContainer({
   pageMeta,
   handlePageLimitChange,
   pageLimit,
-  handleSearch
+  handleSearch,
 }: UsersTableHeaderContainerProps) {
   const navigate = useNavigate();
 

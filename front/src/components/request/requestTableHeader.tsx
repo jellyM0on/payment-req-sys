@@ -11,7 +11,10 @@ import { useState } from "react";
 import { useAuthContext } from "../../providers/authProvider";
 
 import { MdOutlinePostAdd } from "react-icons/md";
-import { getCurrentHomePageFilter, getCurrentHomeSearch } from "../../utils/homePageDataUtils";
+import {
+  getCurrentHomePageFilter,
+  getCurrentHomeSearch,
+} from "../../utils/homePageDataUtils";
 
 interface RequestTableHeaderProps {
   handleAddRequest: () => void;
@@ -87,12 +90,19 @@ function RequestsTableHeader({
   return (
     <HStack justifyContent="space-between" mb={1}>
       <HStack>
-        <SearchField value={getCurrentHomeSearch()} placeholder="Requestor" onChange={(e) => handleSearch(e.target.value)} />
+        <SearchField
+          value={getCurrentHomeSearch()}
+          placeholder="Requestor"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
         <Pagination
+          disabled={pageMeta && pageMeta?.total_count > 0 ? false : true}
           onChange={handleChange}
           currentPage={pageMeta ? pageMeta.current_page : 1}
           rowCount={pageMeta?.total_count}
-          rowsPerPageValue={pageLimit}
+          rowsPerPageValue={
+            pageMeta && pageMeta.total_count > 0 ? pageLimit : 0
+          }
           rowsPerPageOptions={[
             { value: "10", name: "10 items" },
             { value: "20", name: "20 items" },
@@ -117,7 +127,7 @@ interface RequestsTableHeaderContainerProps {
   handlePageLimitChange: (limit: number) => void;
   pageLimit: number;
   handleFilter: (mode: string) => void;
-  handleSearch: (input: string) => void; 
+  handleSearch: (input: string) => void;
 }
 
 function RequestsTableHeaderContainer({
@@ -125,7 +135,7 @@ function RequestsTableHeaderContainer({
   handlePageLimitChange,
   pageLimit,
   handleFilter,
-  handleSearch
+  handleSearch,
 }: RequestsTableHeaderContainerProps) {
   const navigate = useNavigate();
 
