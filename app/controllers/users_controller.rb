@@ -1,7 +1,6 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :check_auth
-  before_action :validate_params, only: [ :update ]
 
 
   def index
@@ -54,9 +53,9 @@ class UsersController < ApplicationController
   end
 
   def update
-    user = User.includes(:manager).find(params[:id])
+    @user = User.includes(:manager).find(params[:id])
 
-    user.manager_id = params[:manager_id]
+    @user.manager_id = params[:manager_id]
 
     def update_manager
       if  params[:manager_id].present?
@@ -76,7 +75,7 @@ class UsersController < ApplicationController
     end
 
 
-    if user.role == "employee" && params[:role] != "employee"
+    if @user.role == "employee" && params[:role] != "employee"
       puts(true)
       manager = ManagerAssignment.find_by(
         user_id: params[:id]
@@ -86,7 +85,7 @@ class UsersController < ApplicationController
       end
     end
 
-    if user.role == "manager" && params[:role] != "manager"
+    if @user.role == "manager" && params[:role] != "manager"
       employees = ManagerAssignment.find_by(
         manager_id: params[:id]
       )
@@ -103,10 +102,21 @@ class UsersController < ApplicationController
       end
     end
 
-    if user.update(@validated_params) && update_manager
-      render json: user, serializer: UserSerializer, status: :ok
+    def update_user
+      role = params[:role]
+      if role && [ "employee", "manager" ].include?(role)
+        @user.update(role: params[:role])
+        true
+      elsif role && ![ "employee", "manager" ].include?(role)
+        render json: { error: { role: "Invalid role" } }, status: :bad_request
+        false
+      end
+    end
+
+    if update_user && update_manager
+      render json: @user, serializer: UserSerializer, status: :ok
     else
-      render json: { error: user.errors }, status: :bad_request
+      render json: { error: @user.errors }, status: :bad_request
     end
   end
 
@@ -121,12 +131,6 @@ class UsersController < ApplicationController
   def check_auth
     unless current_user.role == "admin"
       render json: { error: "Not authorized" }, status: :unauthorized
-    end
-  end
-
-  def validate_params
-    if current_user.admin?
-      @validated_params = params.require(:user).permit(:role)
     end
   end
 
