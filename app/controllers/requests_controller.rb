@@ -58,7 +58,7 @@ class RequestsController < ApplicationController
       input.match?(/t(b|ba)\z?/i) ? true : nil
     end
 
-    if current_user.role == "employee" && params[:search_by]
+    if current_user.role == "employee" && current_user.department != "accounting" && params[:search_by]
       @q = requests.ransack(
       {
         approvals_reviewer_name_cont: params[:search_by],
@@ -81,7 +81,7 @@ class RequestsController < ApplicationController
         id_eq: params[:search_by]
       },
       { grouping: Ransack::Constants::OR })
-    elsif current_user.role != "employee" && params[:search_by]
+    elsif params[:search_by]
       @q = requests.ransack(
       {
         user_name_cont: params[:search_by],

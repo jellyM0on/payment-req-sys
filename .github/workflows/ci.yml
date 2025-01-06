@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main, temp-yml, temp-fix ]
+    branches: [ main, temp-yml ]
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   scan_ruby:

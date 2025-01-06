@@ -368,6 +368,7 @@ function RequestInfoContainer({
       const approval = request.approvals.find(
         (approval) => stage == approval.stage
       );
+      setStatus(approval ? approval.status : null)
       setApproval(approval ? approval : null);
     }
   }, [request]);
@@ -425,6 +426,9 @@ function RequestInfoContainer({
 
   function getStatus() {
     if (!user) return null;
+    if(request.user_id == user.id){
+      return request.overall_status
+    }
     const stage = getUserRole(user.role, user.department);
     const approval = request.approvals.filter(
       (approval) => stage == approval.stage
