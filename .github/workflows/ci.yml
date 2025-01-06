@@ -64,10 +64,12 @@ jobs:
           sudo apt-get update 
           sudo apt-get install -y mysql-server
           sudo service mysql start
+          sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
+          sudo mysql -u root -e "FLUSH PRIVILEGES;"
+          sudo service mysql stop
+          sudo service mysql start
           sudo mkdir -p /tmp 
           sudo ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
-          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';"
-          sudo mysql -e "FLUSH PRIVILEGES;"
       
       - name: Run database 
         run: |
