@@ -68,16 +68,10 @@ jobs:
           sudo ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
       
       - name: Run database 
-        env: 
-          MYSQL_HOST: localhost
-          MYSQL_USER: root
         run: |
           bundle install
           bundle exec rake db:create
           bundle exec rake db:migrate
 
       - name: Run RSpec tests
-        env: 
-          MYSQL_HOST: localhost
-          MYSQL_USER: root
         run: bundle exec rspec
