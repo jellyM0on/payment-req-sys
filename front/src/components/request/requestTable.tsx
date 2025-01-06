@@ -51,7 +51,7 @@ function RequestTable({ rows }: RequestTablePropsInterface) {
     { value: "Participants" },
   ]
 
-  return <ListTable headers={user && user.role == "Employee" ? employeeHeaderArr : nonEmployeeHeaderArr} rows={rows} />;
+  return <ListTable headers={user && user.role == "Employee" && user.department != "Accounting" ? employeeHeaderArr : nonEmployeeHeaderArr} rows={rows} />;
 }
 
 function RequestTableContainer({
@@ -126,7 +126,7 @@ function RequestTableContainer({
         const cRequest = requests[i];
         rows.push({
           url: `/requests/${cRequest.id}`,
-          cells: user && user.role == "Employee" ? employeeCells(cRequest) : nonEmployeeCells(cRequest)
+          cells: user && user.role == "Employee" && user.department != "Accounting" ? employeeCells(cRequest) : nonEmployeeCells(cRequest)
         });
         setRows(rows);
       }

@@ -12,7 +12,7 @@ class ApprovalsController < ApplicationController
     )
 
     if (@user_role == "manager" && approval.reviewer_id != current_user.id) ||
-      approval.stage != @user_role ||
+      (approval.stage != @user_role && (current_user.department != "accounting" && current_user.role != "manager")) ||
       (approval.request.user == current_user && current_user.role != "admin")||
       approval.status != "pending" ||
       (previous_approval && previous_approval.status == "pending")

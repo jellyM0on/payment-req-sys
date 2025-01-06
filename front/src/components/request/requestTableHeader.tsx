@@ -109,7 +109,7 @@ function RequestsTableHeader({
             { value: "50", name: "50 items" },
           ]}
         />
-        {user && user.role == "Employee" ? (
+        {user && user.role == "Employee" && user.department != "Accounting"? (
           <></>
         ) : (
           <FilterToggleInput handleFilter={handleFilter} />

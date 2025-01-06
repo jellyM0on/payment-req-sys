@@ -69,6 +69,7 @@ interface Approval {
   stage: string;
   status: string;
   decided_at: string;
+  reviewer: { id: number };
 }
 
 function RequestInfo({
@@ -331,11 +332,7 @@ function RequestInfoContainer({
     }
 
     //user is reviewer of request and needs to approve
-    else if (
-      user &&
-      request.current_stage == getUserRole(user.role, user.department) &&
-      !isApprovalDecided()
-    ) {
+    else if (user && isReviewer() && !isApprovalDecided()) {
       setIsEditable("approval-mode");
     }
 
@@ -343,19 +340,40 @@ function RequestInfoContainer({
     if (isApprovalDecided()) {
       setIsEditable("false-with-status");
     }
+
+    function isReviewer() {
+      const stage = request.current_stage;
+      console.log(stage);
+      const approval = request.approvals.find(
+        (approval) => stage == approval.stage
+      );
+      console.log(approval);
+      if (
+        (approval && approval.reviewer && approval.reviewer.id == user?.id) ||
+        (approval &&
+          stage == "Accountant" &&
+          user &&
+          stage == getUserRole(user.role, user.department))
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }, [user]);
 
   useEffect(() => {
     if (request) {
+      const stage = request.current_stage;
       const approval = request.approvals.find(
-        (approval) =>
-          user && approval.stage == getUserRole(user.role, user.department)
+        (approval) => stage == approval.stage
       );
       setApproval(approval ? approval : null);
     }
   }, [request]);
 
   const getUserRole = (role: string, department: string) => {
+    console.log(request.user_id);
     if (department == "Accounting") {
       return "Accountant";
     } else {
@@ -405,6 +423,22 @@ function RequestInfoContainer({
 
   console.log(isModalOpen);
 
+  function getStatus() {
+    if (!user) return null;
+    const stage = getUserRole(user.role, user.department);
+    const approval = request.approvals.filter(
+      (approval) => stage == approval.stage
+    );
+    if (
+      user.role == "Manager" &&
+      user.department == "Accounting" &&
+      approval.length > 1 &&
+      approval[1].status == "Pending"
+    ) {
+      return null;
+    }
+    return approval[0] ? approval[0].status : null;
+  }
   return (
     <>
       <RequestInfo
@@ -412,7 +446,7 @@ function RequestInfoContainer({
         isEditable={isEditable}
         handleApprovalBtn={handleApprovalBtn}
         handleRejectBtn={handleRejectBtn}
-        status={approval ? approval.status : null}
+        status={getStatus()}
       />
 
       <RequestModalContainer

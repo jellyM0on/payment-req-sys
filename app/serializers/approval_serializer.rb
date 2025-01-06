@@ -1,5 +1,11 @@
 class ApprovalSerializer < ActiveModel::Serializer
-  attributes :id, :stage, :status, :decided_at
+  attributes :id, :stage, :status, :decided_at, :reviewer
+
+  def reviewer
+    if object.reviewer
+      { id: object.reviewer.id }
+    end
+  end
 
   def stage
     object.format_stage

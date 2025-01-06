@@ -100,6 +100,7 @@ function SignupForm() {
       ...prevInputs,
       role: selectedItem!.toLowerCase(),
     }));
+    setManager(undefined)
     console.log(formInput);
   };
 

@@ -41,6 +41,7 @@ interface Approval {
   stage: string;
   status: string;
   decided_at: string;
+  reviewer: { id: number };
 }
 
 function ViewRequest({ request, handleRequestUpdate }: ViewRequestProps) {

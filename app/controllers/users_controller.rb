@@ -18,17 +18,20 @@ class UsersController < ApplicationController
       @q = User.includes(:manager).ransack(
         {
           id_eq: params[:search_by],
-          name_or_email_or_position_or_manager_name_cont: params[:search_by],
+          name_cont: params[:search_by],
+          email_cont: params[:search_by],
+          position_cont: params[:search_by],
+          manager_name_cont: params[:search_by],
           manager_name_blank: match_no_manager(params[:search_by]),
           department_eq:
             find_enum(
               params[:search_by],
-              [ "employee role", "manager role", "admin role" ]
+              [ "technical department", "accounting department", "hr and admin department" ]
             ),
           role_eq:
             find_enum(
               params[:search_by],
-              [ "technical department", "accounting department", "hr and admin department" ]
+              [ "employee role", "manager role", "admin role" ]
             )
         },
         { grouping: Ransack::Constants::OR }

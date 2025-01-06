@@ -25,9 +25,16 @@ class RequestsController < ApplicationController
       requests = requests.joins(:approvals).where(approvals: { reviewer: current_user.id }).or(Request.where(user: current_user.id)).distinct
     end
 
-    if filter_param == "own_approvals" && @user_role != "admin"
+    if filter_param == "own_approvals" && @user_role != "admin" && @user_role != "accounting_manager"
       requests = requests.joins(:approvals)
       .where(current_stage: @user_unspec_role, approvals: { status: "pending", stage: @user_unspec_role })
+      .where.not(user_id: current_user.id)
+    end
+
+    if filter_param == "own_approvals" && @user_role == "accounting_manager"
+      requests = requests.joins(:approvals)
+      .where(current_stage: "accountant", approvals: { status: "pending", stage: "accountant" })
+      .or(Request.where(current_stage: "manager", approvals: { status: "pending", stage: "manager" }))
       .where.not(user_id: current_user.id)
     end
 

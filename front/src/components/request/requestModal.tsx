@@ -61,6 +61,7 @@ interface Approval {
   stage: string;
   status: string;
   decided_at: string;
+  reviewer: { id: number }; 
 }
 
 interface RequestMsgProps {
