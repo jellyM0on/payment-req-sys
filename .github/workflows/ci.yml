@@ -66,14 +66,20 @@ jobs:
           sudo service mysql start 
           sudo mkdir -p /tmp 
           sudo ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
-          sudo mysql -u root 
-          select user, host, authentication_string from mysql.user;
       
-      # - name: Run database 
-      #   run: |
-      #     bundle install
-      #     bundle exec rake db:create
-      #     bundle exec rake db:migrate
+      - name: Run database 
+        env: 
+          MYSQL_HOST: localhost
+          MYSQL_ROOT_PASSWORD: 
+          MYSQL_USER: root
+        run: |
+          bundle install
+          bundle exec rake db:create
+          bundle exec rake db:migrate
 
-      # - name: Run RSpec tests
-      #   run: bundle exec rspec
+      - name: Run RSpec tests
+        env: 
+          MYSQL_HOST: localhost
+          MYSQL_ROOT_PASSWORD: 
+          MYSQL_USER: root
+        run: bundle exec rspec
