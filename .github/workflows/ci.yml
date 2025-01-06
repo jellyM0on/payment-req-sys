@@ -63,7 +63,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
         with: 
           image: mysql:latest
-          args: 
+          args: |
             - MYSQL_DATABASE=test_db
             - MYSQL_ROOT_PASSWORD=test_password
             - MYSQL_USER=test_user
