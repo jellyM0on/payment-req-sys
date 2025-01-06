@@ -69,7 +69,7 @@ jobs:
       
       - name: Run database 
         env: 
-          MYSQL_HOST: localhost
+          MYSQL_HOST: 127.0.0.1
           MYSQL_ROOT_PASSWORD: ''
           MYSQL_PASSWORD: ''
           MYSQL_USER: root
@@ -80,7 +80,7 @@ jobs:
 
       - name: Run RSpec tests
         env: 
-          MYSQL_HOST: localhost
+          MYSQL_HOST: 127.0.0.1
           MYSQL_ROOT_PASSWORD: ''
           MYSQL_PASSWORD: ''
           MYSQL_USER: root
