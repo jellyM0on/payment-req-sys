@@ -70,10 +70,6 @@ jobs:
       - name: Install dependencies
         run: bundle install
 
-      - name: Set up MySQL configuration for test
-        run: |
-          cp config/database.yml.github-actions config/database.yml
-
       - name: Wait for MySQL to be ready
         run: |
           docker exec mysql mysqladmin --user=root --password=ping --host=127.0.0.1 --port=3306 --silent
