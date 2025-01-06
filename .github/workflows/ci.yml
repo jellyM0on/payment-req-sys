@@ -71,6 +71,7 @@ jobs:
         env: 
           MYSQL_HOST: localhost
           MYSQL_ROOT_PASSWORD: 
+          MYSQL_PASSWORD: 
           MYSQL_USER: root
         run: |
           bundle install
@@ -81,5 +82,6 @@ jobs:
         env: 
           MYSQL_HOST: localhost
           MYSQL_ROOT_PASSWORD: 
+          MYSQL_PASSWORD: 
           MYSQL_USER: root
         run: bundle exec rspec
