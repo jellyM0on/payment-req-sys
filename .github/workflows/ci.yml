@@ -73,7 +73,5 @@ jobs:
         env:
           RAILS_ENV: test
           MYSQL_HOST: localhost
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: test_user
-          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: api_development
         run: bundle exec rspec
