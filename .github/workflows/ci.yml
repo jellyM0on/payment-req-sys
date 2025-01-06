@@ -45,6 +45,7 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: ''
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
         ports: 
           - 3306:3306
         options: >-
@@ -65,6 +66,9 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+      
+      - name: Install dependencies
+        run: bundle install
 
       - name: Set up MySQL configuration for test
         run: |
