@@ -79,7 +79,6 @@ jobs:
 
       - name: Run RSpec tests
         env: 
-           env: 
           MYSQL_HOST: localhost
           MYSQL_USER: root
           MYSQL_PASSWORD: 
