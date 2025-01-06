@@ -143,7 +143,6 @@ function UserForm({ user }: UserFormProps) {
     if (!user) return;
     setFormInput((prevInputs) => ({
       ...prevInputs,
-      id: user.id,
       role: user.role,
     }));
 

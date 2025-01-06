@@ -125,7 +125,7 @@ class UsersController < ApplicationController
   end
 
   def validate_params
-    @validated_params = params.require(:user).permit(:id, :role)
+    @validated_params = params.require(:user).permit(:role)
   end
 
   def pagination_meta(users) {
