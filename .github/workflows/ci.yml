@@ -66,7 +66,6 @@ jobs:
           sudo service mysql start 
           sudo mkdir -p /tmp 
           sudo ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
-          sudo mysql -u root -p
       
       - name: Run database 
         env: 
