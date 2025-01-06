@@ -64,6 +64,9 @@ jobs:
           sudo apt-get update 
           sudo apt-get install -y mysql-server
           sudo service mysql start
+          sudo mkdir -p /tmp 
+          sudo ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
+          
       
       - name: Run database 
         run: |
@@ -72,8 +75,4 @@ jobs:
           bundle exec rake db:migrate
 
       - name: Run RSpec tests
-        env:
-          RAILS_ENV: test
-          MYSQL_HOST: localhost
-          MYSQL_DATABASE: api_development
         run: bundle exec rspec
