@@ -39,8 +39,15 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-
-    # services:
+  
+    services: 
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: ''
+        ports: 
+          - 3306:3306
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
     #  redis:
     #    image: redis
     #    ports:
@@ -66,22 +73,39 @@ jobs:
           sudo service mysql start 
           sudo mkdir -p /tmp 
           sudo ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
-      
-      - name: Run database 
-        env: 
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_ROOT_PASSWORD: ''
-          MYSQL_PASSWORD: ''
-          MYSQL_USER: root
+
+      - name: Set up MySQL configuration for test
         run: |
-          bundle install
+          cp config/database.yml.github-actions config/database.yml
+
+      - name: Wait for MySQL to be ready
+        run: |
+          docker exec mysql mysqladmin --user=root --password=ping --host=127.0.0.1 --port=3306 --silent
+
+      - name: Prepare database
+        run: |
           bundle exec rake db:create
           bundle exec rake db:migrate
+          bundle exec rake db:seed
 
       - name: Run RSpec tests
-        env: 
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_ROOT_PASSWORD: ''
-          MYSQL_PASSWORD: ''
-          MYSQL_USER: root
         run: bundle exec rspec
+      
+      # - name: Run database 
+      #   env: 
+      #     MYSQL_HOST: 127.0.0.1
+      #     MYSQL_ROOT_PASSWORD: ''
+      #     MYSQL_PASSWORD: ''
+      #     MYSQL_USER: root
+      #   run: |
+      #     bundle install
+      #     bundle exec rake db:create
+      #     bundle exec rake db:migrate
+
+      # - name: Run RSpec tests
+      #   env: 
+      #     MYSQL_HOST: 127.0.0.1
+      #     MYSQL_ROOT_PASSWORD: ''
+      #     MYSQL_PASSWORD: ''
+      #     MYSQL_USER: root
+      #   run: bundle exec rspec
