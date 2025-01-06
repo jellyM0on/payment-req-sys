@@ -71,7 +71,7 @@ jobs:
         env: 
           MYSQL_HOST: localhost
           MYSQL_USER: root
-          MYSQL_PASSWORD: 
+          MYSQL_PASSWORD: password
         run: |
           bundle install
           bundle exec rake db:create
@@ -81,5 +81,5 @@ jobs:
         env: 
           MYSQL_HOST: localhost
           MYSQL_USER: root
-          MYSQL_PASSWORD: 
+          MYSQL_PASSWORD: password
         run: bundle exec rspec
