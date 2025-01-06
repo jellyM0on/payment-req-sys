@@ -95,7 +95,6 @@ RSpec.describe "User Registration Controller", type: :request do
           expect(parsed_res).to include(a_hash_including("error"))
         end
       end
-
     end
   end
 end

@@ -48,7 +48,7 @@ jobs:
     #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips sqlite3
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,16 +59,24 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Set up MySQL Database
+        uses: docker/setup-buildx-action@v2
+        with: 
+          image: mysql:latest
+          args: 
+            MYSQL_ROOT_PASSWORD: test_password
+            MYSQL_DATABASE: test_db
+            MYSQL_USER: test_user
+            MYSQL_PASSWORD: test_password
+
+      - name: Run database 
+        run: bundle exec rake db:create db:migrate
+
       - name: Run RSpec tests
         env:
           RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
+          MYSQL_HOST: localhost
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
         run: bundle exec rspec
-
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
