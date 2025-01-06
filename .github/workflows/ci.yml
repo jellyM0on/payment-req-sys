@@ -64,9 +64,10 @@ jobs:
         with: 
           image: mysql:latest
           args: 
-            MYSQL_DATABASE: test_db
-            MYSQL_USER: test_user
-            MYSQL_PASSWORD: test_password
+            - MYSQL_DATABASE=test_db
+            - MYSQL_ROOT_PASSWORD=test_password
+            - MYSQL_USER=test_user
+            - MYSQL_PASSWORD=test_password
 
       - name: Run database 
         run: bundle exec rake db:create db:migrate
