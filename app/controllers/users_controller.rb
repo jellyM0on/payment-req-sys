@@ -5,16 +5,9 @@ class UsersController < ApplicationController
 
 
   def index
-    def find_role_enum(input)
-      return if input.empty?
-      statuses = [ "employee role", "manager role", "admin role" ]
-      statuses.find_index { |status| status.include?(input.downcase) }
-    end
-
-    def find_department_enum(input)
-      return if input.empty?
-      statuses = [ "technical department", "accounting department", "hr and admin department" ]
-      statuses.find_index { |status| status.include?(input.downcase) }
+    def find_enum(input, statuses)
+      return nil if input.empty?
+      statuses.find_index {  |status| status.include?(input.downcase) }
     end
 
     def match_no_manager(input)
@@ -28,8 +21,16 @@ class UsersController < ApplicationController
           id_eq: params[:search_by],
           name_or_email_or_position_or_manager_name_cont: params[:search_by],
           manager_name_blank: match_no_manager(params[:search_by]),
-          department_eq: find_department_enum(params[:search_by]),
-          role_eq: find_role_enum(params[:search_by])
+          department_eq:
+            find_enum(
+              params[:search_by],
+              [ "employee role", "manager role", "admin role" ]
+            ),
+          role_eq:
+            find_enum(
+              params[:search_by],
+              [ "technical department", "accounting department", "hr and admin department" ]
+            )
         },
         { grouping: Ransack::Constants::OR }
       )

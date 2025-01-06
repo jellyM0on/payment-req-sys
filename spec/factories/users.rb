@@ -11,26 +11,6 @@ FactoryBot.define do
       role { "employee" }
     end
 
-    trait :manager_role do
-      role { "manager" }
-    end
-
-    trait :admin_role do
-      role { "admin" }
-    end
-
-    trait :technical_department do
-      department { "technical" }
-    end
-
-    trait :accounting_department do
-      department { "accounting" }
-    end
-
-    trait :hr_admin_department do
-      department { "hr_admin" }
-    end
-
     after(:build) do |user|
       if user.role == "employee"
         manager = create(:user, role: "manager", department: user.department)

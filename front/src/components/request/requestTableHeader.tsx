@@ -92,7 +92,7 @@ function RequestsTableHeader({
       <HStack>
         <SearchField
           value={getCurrentHomeSearch()}
-          placeholder="Requestor"
+          placeholder="Request"
           onChange={(e) => handleSearch(e.target.value)}
         />
         <Pagination
