@@ -72,7 +72,12 @@ jobs:
 
       - name: Wait for MySQL to be ready
         run: |
-          docker exec mysql mysqladmin --user=root --password=ping --host=127.0.0.1 --port=3306 --silent
+          # Wait for MySQL to be available
+          until mysqladmin --host=127.0.0.1 --port=3306 --user=root --password=ping ping --silent; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 2
+          done
+          echo "MySQL is ready!"
 
       - name: Prepare database
         run: |
