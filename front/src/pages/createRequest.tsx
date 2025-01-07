@@ -85,7 +85,7 @@ function CreateRequestContainer() {
         value.forEach((doc: Attachment) => {
           if (doc.file) formData.append(`request[${key}][]`, doc.file);
         });
-      } else if(value) {
+      } else if (value) {
         formData.append(`request[${key}]`, value);
         console.log(formData);
       }

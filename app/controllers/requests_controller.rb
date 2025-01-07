@@ -123,7 +123,7 @@ class RequestsController < ApplicationController
   end
 
   def show
-    request = Request.find(params[:id])
+    request = Request.includes(:approvals).find(params[:id])
 
     isReviewer = false
     request.approvals.each do |approval|
@@ -140,9 +140,15 @@ class RequestsController < ApplicationController
   end
 
   def show_edit
-    request = Request.find(params[:id])
+    request = Request.includes(:approvals).find(params[:id])
+    isEditable = true
+    request.approvals.each do |approval|
+      if approval.status != "pending"
+        isEditable = false
+      end
+    end
 
-    if request.user_id == current_user.id
+    if request.user_id == current_user.id && isEditable
         render json: { request: ActiveModelSerializers::SerializableResource.new(request, serializer: RequestEditSerializer) }
     else
       render json: "Unauthorized", status: :unauthorized
