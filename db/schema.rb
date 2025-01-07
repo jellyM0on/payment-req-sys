@@ -75,7 +75,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_14_125348) do
     t.integer "payment_mode", null: false
     t.integer "purchase_category", null: false
     t.text "purchase_description", null: false
-    t.decimal "purchase_amount", precision: 10, null: false
+    t.decimal "purchase_amount", precision: 20, scale: 5, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_requests_on_user_id"

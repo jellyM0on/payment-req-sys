@@ -157,6 +157,7 @@ class RequestsController < ApplicationController
 
   def create
     request = Request.new(@validated_params)
+    puts request.purchase_amount.to_json
     request.user_id = current_user.id
     request.overall_status = "pending"
     attach_documents(request)

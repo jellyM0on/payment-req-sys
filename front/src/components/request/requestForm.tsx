@@ -65,6 +65,8 @@ interface RequestErrors {
 
 interface RequestFormProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChangeTin: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChangeAmount: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChangeDate: (date: string) => void;
   handleChangeDropdown: (category: string) => void;
   handleChangeVendorAttachment: (
@@ -520,6 +522,8 @@ const setAttachmentInput = ({
 
 function RequestForm({
   handleChange,
+  handleChangeAmount,
+  handleChangeTin,
   handleChangeDate,
   handleChangeDropdown,
   handleChangeVendorAttachment,
@@ -638,7 +642,7 @@ function RequestForm({
                 formValue: formInput?.vendor_tin,
                 message:
                   "Input the 1st 9-digits of TIN; for example: 010358084",
-                handleChange: handleChange,
+                handleChange: handleChangeTin,
               }),
               setListItem({
                 label: "Address",
@@ -809,11 +813,11 @@ function RequestForm({
               setListItem({
                 label: "Amount",
                 name: "purchase_amount",
-                type: "number",
+                type: "text",
                 formValue: formInput?.purchase_amount?.toString(),
                 errors: errors?.purchase_amount,
-                message: "Values are in Php by default. Format: 20000.00",
-                handleChange: handleChange,
+                message: "Values are in Php by default. Format: 20000000.00000",
+                handleChange: handleChangeAmount,
               }),
               {
                 title: "Supporting Documents",
@@ -942,6 +946,24 @@ function RequestFormContainer({
       }));
     }
   };
+
+  const handleChangeTin = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if(e.target.value.match(/^\d*$/)){
+      setFormInput((prevInputs) => ({
+        ...prevInputs,
+        [e.target.name]: e.target.value,
+      }));
+    }
+  }
+
+  const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if(e.target.value.match(/^\d*\.?\d*$/)){
+      setFormInput((prevInputs) => ({
+        ...prevInputs,
+        [e.target.name]: e.target.value,
+      }));
+    }
+  }
 
   const handleChangeDate = (date: string | undefined) => {
     if (date) {
@@ -1082,6 +1104,8 @@ function RequestFormContainer({
         formInput={formInput}
         existingRequest={existingRequest}
         handleChange={handleChange}
+        handleChangeTin={handleChangeTin}
+        handleChangeAmount={handleChangeAmount}
         handleChangeDate={handleChangeDate}
         handleChangeDropdown={handleChangeDropdown}
         handleChangeVendorAttachment={handleChangeVendorAttachment}
