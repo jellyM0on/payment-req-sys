@@ -14,7 +14,7 @@ class CreateRequests < ActiveRecord::Migration[7.2]
       t.integer :vendor_certificate_of_reg, null: false
 
       # payment
-      t.timestamp :payment_due_date
+      t.timestamp :payment_due_date, null: false
       t.string :payment_payable_to, null: false
       t.integer :payment_mode, null: false
       t.integer :purchase_category, null: false

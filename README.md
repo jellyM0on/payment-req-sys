@@ -12,6 +12,7 @@ Prerequisites:
 2. Set up database 
     - "rails db:create"
     - "rails db:migrate" 
+    - "rails db:seed" to seed admin user 
 3. Run api
     - "rails s" 
 4. Install frontend dependencies: 
@@ -19,5 +20,3 @@ Prerequisites:
     - "npm install" 
 5. Run frontend 
     - "npm run dev" 
-
-## Specifications 

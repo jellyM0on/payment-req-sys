@@ -16,8 +16,9 @@ class Request < ApplicationRecord
   validates :vendor_tin, presence: true, length: { is: 9 }
   validates :vendor_address, presence: true, length: { in: 1..250 }
   validates :vendor_email, presence: true, length: { in: 1..100 }
-  validates :vendor_contact_num, presence: true, length: { in: 1..250 }
+  validates :vendor_contact_num, presence: true, length: { in: 1..50 }
   validates :vendor_certificate_of_reg, presence: true
+  validates :payment_due_date, presence: true
   validates :payment_payable_to, presence: true, length: { in: 1..100 }
   validates :payment_mode, presence: true
   validates :purchase_description, presence: true, length: { in: 1..500 }

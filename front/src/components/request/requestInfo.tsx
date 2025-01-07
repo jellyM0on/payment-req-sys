@@ -326,6 +326,7 @@ function RequestInfoContainer({
   const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("rerender");
     //user's own request
     if (user && request.user_id == user.id && !hasDecidedApproval()) {
       setIsEditable("plain-mode");
@@ -338,6 +339,7 @@ function RequestInfoContainer({
 
     //user is reviewer of request and has already decided
     if (isApprovalDecided()) {
+      console.log("approval decided");
       setIsEditable("false-with-status");
     }
 
@@ -368,7 +370,6 @@ function RequestInfoContainer({
       const approval = request.approvals.find(
         (approval) => stage == approval.stage
       );
-      setStatus(approval ? approval.status : null)
       setApproval(approval ? approval : null);
     }
   }, [request]);
@@ -419,15 +420,24 @@ function RequestInfoContainer({
   };
 
   const handleChangeEditable = () => {
-    setIsEditable("false-with-status");
+    if (
+      request.current_stage == "Manager" &&
+      approval?.reviewer.id == user?.id &&
+      user?.department == "Accounting" &&
+      status == "Accepted"
+    ){
+      setIsEditable("approval-mode")
+    } else {
+      setIsEditable("false-with-status");
+    }
   };
 
   console.log(isModalOpen);
 
   function getStatus() {
     if (!user) return null;
-    if(request.user_id == user.id){
-      return request.overall_status
+    if (request.user_id == user.id) {
+      return request.overall_status;
     }
     const stage = getUserRole(user.role, user.department);
     const approval = request.approvals.filter(
