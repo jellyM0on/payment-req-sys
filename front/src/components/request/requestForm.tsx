@@ -692,7 +692,7 @@ function RequestForm({
                 limit: 1,
                 handleFormUpdate: handleChangeVendorAttachment,
                 message:
-                  "You can upload 1 PDF, PNG, and JPG file of up to 10MB.",
+                  "You can upload 1 PDF, PNG, and JPG/JPEG file of up to 10MB.",
                 errors: errors?.vendor_attachment,
                 formValue: formInput?.vendor_attachment
                   ? formInput.vendor_attachment
@@ -954,6 +954,15 @@ function RequestFormContainer({
         [e.target.name]: e.target.value,
       }));
     }
+
+    if (existingRequest) {
+      if(e.target.value.match(/^\d*$/)){
+        setEditedInput((prevInputs) => ({
+          ...prevInputs,
+          [e.target.name]: e.target.value,
+        }));
+      }
+    }
   }
 
   const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -962,6 +971,14 @@ function RequestFormContainer({
         ...prevInputs,
         [e.target.name]: e.target.value,
       }));
+    }
+    if (existingRequest) {
+      if(e.target.value.match(/^\d*\.?\d*$/)){
+        setEditedInput((prevInputs) => ({
+          ...prevInputs,
+          [e.target.name]: e.target.value,
+        }));
+      }
     }
   }
 

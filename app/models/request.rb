@@ -25,11 +25,11 @@ class Request < ApplicationRecord
   validates :purchase_amount, presence: true, comparison: { less_than: 10000000000000000000 }
   validates :purchase_category, presence: true
 
-  validates :vendor_attachment, attached: true, content_type: [ "image/png", "image/jpg", "application/pdf" ],
+  validates :vendor_attachment, attached: true, content_type: [ "image/png", "image/jpeg", "application/pdf" ],
             size: { less_than: 10.megabytes, message: "File size is too large" }
 
   validates :supporting_documents,
-            content_type: [ "image/png", "image/jpg", "application/pdf" ],
+            content_type: [ "image/png", "image/jpeg", "application/pdf" ],
             size: { less_than: 10.megabytes,  message: "File size is too large" },
             limit: { min: 1, max: 10, message: "Must upload 1 to 10 files" }
 
