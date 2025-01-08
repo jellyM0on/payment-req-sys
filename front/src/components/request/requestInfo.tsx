@@ -331,7 +331,6 @@ function RequestInfoContainer({
     if (user && request.user_id == user.id && !hasDecidedApproval()) {
       setIsEditable("plain-mode");
     }
-
     //user is reviewer of request and needs to approve
     else if (user && isReviewer() && !isApprovalDecided()) {
       setIsEditable("approval-mode");
@@ -339,23 +338,28 @@ function RequestInfoContainer({
 
     //user is reviewer of request and has already decided
     if (isApprovalDecided()) {
-      console.log("approval decided");
+      setIsEditable("false-with-status");
+    }
+
+    if (user && request.user_id != user.id && user.role == "Admin") {
       setIsEditable("false-with-status");
     }
 
     function isReviewer() {
+      if (!user) return;
       const stage = request.current_stage;
       console.log(stage);
       const approval = request.approvals.find(
         (approval) => stage == approval.stage
       );
-      console.log(approval);
+
       if (
-        (approval && approval.reviewer && approval.reviewer.id == user?.id) ||
+        (approval && approval.reviewer && approval.reviewer.id == user.id) ||
         (approval &&
           stage == "Accountant" &&
           user &&
-          stage == getUserRole(user.role, user.department))
+          stage == getUserRole(user.role, user.department) &&
+          request.user_id != user.id)
       ) {
         return true;
       } else {
@@ -394,6 +398,23 @@ function RequestInfoContainer({
   };
 
   const isApprovalDecided = () => {
+    if (!user) return;
+    if (
+      request.user_id == user.id &&
+      user.role == "Manager" &&
+      user.department == "Accounting"
+    ) {
+      const approval = request.approvals.find(
+        (approval) =>
+          user && approval.stage == user.role
+      );
+      if (approval && approval.status != "Pending") {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
     const approval = request.approvals.find(
       (approval) =>
         user && approval.stage == getUserRole(user.role, user.department)
@@ -425,8 +446,8 @@ function RequestInfoContainer({
       approval?.reviewer.id == user?.id &&
       user?.department == "Accounting" &&
       status == "Accepted"
-    ){
-      setIsEditable("approval-mode")
+    ) {
+      setIsEditable("approval-mode");
     } else {
       setIsEditable("false-with-status");
     }
@@ -436,10 +457,15 @@ function RequestInfoContainer({
 
   function getStatus() {
     if (!user) return null;
-    if (request.user_id == user.id) {
-      return request.overall_status;
+
+    let stage = getUserRole(user.role, user.department);
+    if (
+      request.user_id == user.id &&
+      user.role == "Manager" &&
+      user.department == "Accounting"
+    ) {
+      stage = user.role
     }
-    const stage = getUserRole(user.role, user.department);
     const approval = request.approvals.filter(
       (approval) => stage == approval.stage
     );
