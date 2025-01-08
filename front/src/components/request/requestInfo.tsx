@@ -334,14 +334,13 @@ function RequestInfoContainer({
     //user is reviewer of request and needs to approve
     else if (user && isReviewer() && !isApprovalDecided()) {
       setIsEditable("approval-mode");
-    }
-
-    //user is reviewer of request and has already decided
-    if (isApprovalDecided()) {
+    } else {
       setIsEditable("false-with-status");
     }
 
-    if (user && request.user_id != user.id && user.role == "Admin") {
+    //user is reviewer of request and has already decided
+
+    if (user && request.user_id != user.id && user.role == "Admin" && !isApprovalDecided) {
       setIsEditable("false-with-status");
     }
 
@@ -405,8 +404,7 @@ function RequestInfoContainer({
       user.department == "Accounting"
     ) {
       const approval = request.approvals.find(
-        (approval) =>
-          user && approval.stage == user.role
+        (approval) => user && approval.stage == user.role
       );
       if (approval && approval.status != "Pending") {
         return true;
@@ -464,7 +462,7 @@ function RequestInfoContainer({
       user.role == "Manager" &&
       user.department == "Accounting"
     ) {
-      stage = user.role
+      stage = user.role;
     }
     const approval = request.approvals.filter(
       (approval) => stage == approval.stage
