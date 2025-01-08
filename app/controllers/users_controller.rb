@@ -124,8 +124,10 @@ class UsersController < ApplicationController
   end
 
   def index_managers
-    managers = User.where(role: "manager")
+    q = User.where(role: "manager")
               .page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 10)
+              .ransack(params[:q])
+    managers = q.result
     render json: { managers: ActiveModelSerializers::SerializableResource.new(managers, each_serializer: ManagerSerializer), pagination_meta: pagination_meta(managers) }
   end
 

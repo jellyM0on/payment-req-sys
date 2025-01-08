@@ -71,12 +71,12 @@ interface RequestFormProps {
   handleChangeDropdown: (category: string) => void;
   handleChangeVendorAttachment: (
     attachment: Attachment[],
-    editedAttachment: Attachment[]
+    editedAttachment: Attachment[],
+    ids: number[]
   ) => void;
   handleChangeDocumentsAttachment: (
     attachment: Attachment[],
     editedAttachment: Attachment[],
-    deleted: boolean,
     ids: number[]
   ) => void;
   handleSubmit: () => void;
@@ -343,7 +343,6 @@ interface AttachmentInputProps {
   handleFormUpdate: (
     attachment: Attachment[],
     editedAttachment: Attachment[],
-    deleted: boolean,
     ids: number[]
   ) => void;
 }
@@ -373,12 +372,12 @@ const AttachmentInput = ({
   }, [editMode]);
 
   useEffect(() => {
-    const deleted = deletedAttachments.length > 0 ? true : false;
-    if (attachments.length >= 1) {
+    console.log(deletedAttachments);
+
+    if (attachments.length >= 1 || editMode) {
       handleFormUpdate(
         attachments,
         editedAttachments,
-        deleted,
         deletedAttachments
       );
     }
@@ -401,10 +400,15 @@ const AttachmentInput = ({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleFileDeletion = (index: number, id: number | null = null) => {
-    setAttachments((prevInputs) => prevInputs.filter((_, i) => i !== index));
+  const handleFileDeletion = (currentAttachment: Attachment, id: number | null = null) => {
     if (editMode && id) {
+      console.log("enter");
       setDeletedAttachments([...deletedAttachments, id]);
+      console.log(deletedAttachments);
+    }
+    setAttachments((prevInputs) => prevInputs.filter((attachment) => attachment != currentAttachment));
+    if(editMode){
+      setEditedAttachments((prevInputs) => prevInputs.filter((attachment) => attachment != currentAttachment));
     }
   };
 
@@ -414,7 +418,7 @@ const AttachmentInput = ({
         <></>
       ) : (
         <VStack>
-          {attachments.map((attachment, i) => (
+          {attachments.map((attachment) => (
             <HStack>
               <InlineLink href={attachment.url} target="_blank">
                 {attachment.name}
@@ -423,7 +427,7 @@ const AttachmentInput = ({
                 appearance="tertiary"
                 danger
                 small
-                onClick={() => handleFileDeletion(i, attachment.id)}
+                onClick={() => handleFileDeletion(attachment, attachment.id)}
               >
                 x
               </Button>
@@ -437,6 +441,7 @@ const AttachmentInput = ({
             ref={fileInputRef}
             id={id}
             type="file"
+            accept=".png,.pdf,.jpg.,.jpeg"
             hidden
             onChange={handleFileChange}
             multiple={limit > 1 ? true : false}
@@ -462,7 +467,6 @@ interface AttachmentInput {
   handleFormUpdate: (
     attachment: Attachment[],
     editedAttachment: Attachment[],
-    deleted: boolean,
     ids: number[]
   ) => void;
   errors?: Array<string>;
@@ -548,9 +552,9 @@ function RequestForm({
     setAccordionState([...newAccordionState]);
   }
 
-  function formatRole(dept: string|undefined){
-    if(dept && dept == "HR & Admin") return "hr_admin"
-    if(dept && dept == "Accounting") return "accounting"
+  function formatRole(dept: string | undefined) {
+    if (dept && dept == "HR & Admin") return "hr_admin";
+    if (dept && dept == "Accounting") return "accounting";
   }
 
   const contents = [
@@ -948,7 +952,7 @@ function RequestFormContainer({
   };
 
   const handleChangeTin = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if(e.target.value.match(/^\d*$/)){
+    if (e.target.value.match(/^\d*$/)) {
       setFormInput((prevInputs) => ({
         ...prevInputs,
         [e.target.name]: e.target.value,
@@ -956,31 +960,31 @@ function RequestFormContainer({
     }
 
     if (existingRequest) {
-      if(e.target.value.match(/^\d*$/)){
+      if (e.target.value.match(/^\d*$/)) {
         setEditedInput((prevInputs) => ({
           ...prevInputs,
           [e.target.name]: e.target.value,
         }));
       }
     }
-  }
+  };
 
   const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if(e.target.value.match(/^\d*\.?\d*$/)){
+    if (e.target.value.match(/^\d*\.?\d*$/)) {
       setFormInput((prevInputs) => ({
         ...prevInputs,
         [e.target.name]: e.target.value,
       }));
     }
     if (existingRequest) {
-      if(e.target.value.match(/^\d*\.?\d*$/)){
+      if (e.target.value.match(/^\d*\.?\d*$/)) {
         setEditedInput((prevInputs) => ({
           ...prevInputs,
           [e.target.name]: e.target.value,
         }));
       }
     }
-  }
+  };
 
   const handleChangeDate = (date: string | undefined) => {
     if (date) {
@@ -1014,7 +1018,8 @@ function RequestFormContainer({
 
   const handleChangeVendorAttachment = (
     attachment: Attachment[],
-    newAttachment: Attachment[]
+    newAttachment: Attachment[], 
+    ids: number[]
   ) => {
     setFormInput((prevInputs) => ({
       ...prevInputs,
@@ -1024,7 +1029,8 @@ function RequestFormContainer({
     if (existingRequest) {
       setEditedInput((prevInputs) => ({
         ...prevInputs,
-        new_vendor_attachment: newAttachment,
+        new_vendor_attachment: newAttachment ? newAttachment : null,
+        deleted_vendor_attachment: ids,
       }));
     }
   };
@@ -1032,7 +1038,6 @@ function RequestFormContainer({
   const handleChangeDocumentsAttachment = (
     attachments: Attachment[],
     newAttachments: Attachment[],
-    deleted: boolean = false,
     ids: number[]
   ) => {
     setFormInput((prevInputs) => ({
@@ -1041,20 +1046,13 @@ function RequestFormContainer({
     }));
 
     if (existingRequest) {
-      if (!deleted) {
-        setEditedInput((prevInputs) => ({
-          ...prevInputs,
-          new_supporting_documents: newAttachments,
-        }));
-      }
-
-      if (deleted) {
-        setEditedInput((prevInputs) => ({
-          ...prevInputs,
-          deleted_supporting_documents: ids,
-        }));
-      }
+      setEditedInput((prevInputs) => ({
+        ...prevInputs,
+        new_supporting_documents: newAttachments,
+        deleted_supporting_documents: ids,
+      }));
     }
+    console.log(formInput);
   };
 
   const handleSubmit = async () => {

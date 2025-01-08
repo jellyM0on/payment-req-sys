@@ -97,18 +97,27 @@ function EditRequestContainer() {
     for (const [key, value] of Object.entries(requestData)) {
       if (key == "new_vendor_attachment") {
         if (!value[0]) continue;
-        formData.append(`request[${key}]`, value[0].file);
+        formData.append(`request[${key}]`, value[0].file)
       } else if (key == "new_supporting_documents") {
         value.forEach((doc: Attachment) => {
           if (doc.file) formData.append(`request[${key}][]`, doc.file);
         });
-      } else if (key == "deleted_supporting_documents") {
-        formData.append(`request[${key}][]`, value);
+      } else if (key == "deleted_supporting_documents" || key == "deleted_vendor_attachment" ) {
+        console.log(value)
+        // formData.append(`request[${key}][]`, value);
+        value.forEach((id: string) => {
+             formData.append(`request[${key}][]`, id);
+        });
       } else {
         formData.append(`request[${key}]`, value);
         console.log(formData);
       }
     }
+
+    for (const [key, value] of Object.entries(requestData)) {
+      console.log(key + ":" + value)
+    }
+
 
     try {
       const response = await fetch(`http://localhost:3000/requests/${id}`, {
@@ -164,11 +173,11 @@ function EditRequestContainer() {
           supporting_documents: result.request.supporting_documents,
         });
       } else {
-        redirectError(); 
+        redirectError();
       }
     } catch (error) {
       console.log(error);
-      redirectError(); 
+      redirectError();
     }
   };
 

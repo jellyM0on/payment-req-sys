@@ -2,7 +2,7 @@
 
 class Users::SessionsController < Devise::SessionsController
   # before_action :configure_sign_in_params, only: [:create]
-  before_action :set_current_user
+  before_action :set_current_user, only: [ :new, :destroy ]
   #
   respond_to :json
 
@@ -45,6 +45,7 @@ class Users::SessionsController < Devise::SessionsController
   private
 
   def set_current_user
+    puts session[:user_id]
     if session[:user_id]
       @current_user = User.find(session[:user_id])
     end

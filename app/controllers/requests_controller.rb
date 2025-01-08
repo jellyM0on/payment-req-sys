@@ -198,9 +198,11 @@ class RequestsController < ApplicationController
       return
     end
 
+    request.update(@validated_params_update)
     update_documents(request)
+    puts(request.errors.to_json)
 
-    if request.update(@validated_params_update)
+    if request.errors.empty?
       render json: request, serializer: RequestSerializer, status: :ok
     else
       render json: { errors: request.errors },  status: :bad_request
@@ -264,6 +266,7 @@ class RequestsController < ApplicationController
 
     @custom_params = params.require(:request).permit(
       :new_vendor_attachment,
+      deleted_vendor_attachment: [],
       new_supporting_documents: [],
       deleted_supporting_documents: []
     )
@@ -282,27 +285,53 @@ class RequestsController < ApplicationController
   end
 
   def update_documents(request)
-    new_vendor_attachment = @custom_params[:new_vendor_attachment]
-    if new_vendor_attachment.present?
-      request.vendor_attachment.purge
-      request.vendor_attachment.attach(new_vendor_attachment)
+    @new_vendor_attachment = @custom_params[:new_vendor_attachment]
+    @deleted_vendor_attachment = @custom_params[:deleted_vendor_attachment]
+
+    def vendor_attachment_is_invalid(request)
+      return true if !@new_vendor_attachment.present? && @deleted_vendor_attachment.present?
+      false
     end
 
-    deleted_supporting_documents = @custom_params[:deleted_supporting_documents]
-    if deleted_supporting_documents.present?
-      deleted_supporting_documents.each do | document_id |
+    if @deleted_vendor_attachment.present? && vendor_attachment_is_invalid(request)
+      request.errors.add(:vendor_attachment, :blank)
+    end
+
+    if @new_vendor_attachment.present? && !vendor_attachment_is_invalid(request)
+      request.vendor_attachment.purge
+      request.vendor_attachment.attach(@new_vendor_attachment)
+    end
+
+    @deleted_supporting_documents = @custom_params[:deleted_supporting_documents]
+    @new_supporting_documents = @custom_params[:new_supporting_documents]
+
+    def supporting_documents_is_invalid(request)
+      # puts (@deleted_supporting_documents.present?)
+      # puts (@deleted_supporting_documents.length >= request.supporting_documents.length)
+      # puts (!@new_supporting_documents.present?)
+      return true if @new_supporting_documents && @new_supporting_documents.length > 10
+      return true if @deleted_supporting_documents.present? &&
+        @deleted_supporting_documents.length >= request.supporting_documents.length &&
+        !@new_supporting_documents.present?
+
+      false
+    end
+
+    if (@new_supporting_documents.present? || @deleted_supporting_documents.present?) && supporting_documents_is_invalid(request)
+      request.errors.add(:supporting_documents, :limit, message: "Must upload 1 to 10 files")
+    end
+
+    if @deleted_supporting_documents.present? && !supporting_documents_is_invalid(request)
+      @deleted_supporting_documents.each do | document_id |
         file = request.supporting_documents.find_by(id: document_id)
-        puts file.to_json
-        puts file.inspect
         if file
           file.purge
         end
       end
     end
 
-    new_supporting_documents = @custom_params[:new_supporting_documents]
-    if new_supporting_documents.present?
-      request.supporting_documents.attach(new_supporting_documents)
+    if @new_supporting_documents.present? && !supporting_documents_is_invalid(request)
+      request.supporting_documents.attach(@new_supporting_documents)
     end
   end
 
