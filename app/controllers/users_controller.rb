@@ -59,6 +59,15 @@ class UsersController < ApplicationController
     @user = User.includes(:manager).find(params[:id])
 
     @user.manager_id = params[:manager_id]
+    if @user.role == "employee" && params[:role] != "employee"
+      manager = ManagerAssignment.find_by(
+        user_id: params[:id]
+      )
+      puts(manager.to_json)
+      if manager
+        ManagerAssignment.destroy(manager.id)
+      end
+    end
 
     def update_manager
       manager_user = User.find_by_id(params[:manager_id])
@@ -67,10 +76,10 @@ class UsersController < ApplicationController
       end
 
       if params[:role] == "employee" && !params[:manager_id]
-        return false
+        false
       end
 
-      if  params[:manager_id].present?
+      if  params[:manager_id].present? && params[:role] != "manager"
         manager = ManagerAssignment.find_by(
           user_id: params[:id]
         )
@@ -86,16 +95,6 @@ class UsersController < ApplicationController
       end
     end
 
-
-    if @user.role == "employee" && params[:role] != "employee"
-      manager = ManagerAssignment.find_by(
-        user_id: params[:id]
-      )
-
-      if manager
-        ManagerAssignment.destroy(manager.id)
-      end
-    end
 
     if @user.role == "manager" && params[:role] != "manager"
       employees = ManagerAssignment.find_by(
