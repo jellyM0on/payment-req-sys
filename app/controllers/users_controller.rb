@@ -84,7 +84,6 @@ class UsersController < ApplicationController
 
 
     if @user.role == "employee" && params[:role] != "employee"
-      puts(true)
       manager = ManagerAssignment.find_by(
         user_id: params[:id]
       )

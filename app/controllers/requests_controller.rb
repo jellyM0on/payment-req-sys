@@ -157,7 +157,6 @@ class RequestsController < ApplicationController
 
   def create
     request = Request.new(@validated_params)
-    puts request.purchase_amount.to_json
     request.user_id = current_user.id
     request.overall_status = "pending"
     attach_documents(request)
@@ -200,7 +199,6 @@ class RequestsController < ApplicationController
 
     request.update(@validated_params_update)
     update_documents(request)
-    puts(request.errors.to_json)
 
     if request.errors.empty?
       render json: request, serializer: RequestSerializer, status: :ok
