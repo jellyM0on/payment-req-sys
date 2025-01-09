@@ -441,7 +441,7 @@ const AttachmentInput = ({
             ref={fileInputRef}
             id={id}
             type="file"
-            accept=".png,.pdf,.jpg.,.jpeg"
+            accept=".png,.pdf,.jpg,.jpeg"
             hidden
             onChange={handleFileChange}
             multiple={limit > 1 ? true : false}
@@ -842,7 +842,7 @@ function RequestForm({
                 limit: 10,
                 handleFormUpdate: handleChangeDocumentsAttachment,
                 message:
-                  "You can upload up to 10 PDF, PNG, and JPG file of maximum 10MB each.",
+                  "You can upload up to 10 PDF, PNG, and JPG/JPEG file of maximum 10MB each.",
                 errors: errors?.supporting_documents,
                 formValue: formInput?.supporting_documents
                   ? formInput.supporting_documents
