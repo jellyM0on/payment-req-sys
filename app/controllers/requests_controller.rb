@@ -34,7 +34,7 @@ class RequestsController < ApplicationController
     if filter_param == "own_approvals" && @user_role == "accounting_manager"
       requests = requests.joins(:approvals)
       .where(current_stage: "accountant", approvals: { status: "pending", stage: "accountant" })
-      .or(Request.where(current_stage: "manager", approvals: { status: "pending", stage: "manager" }))
+      .or(Request.where(current_stage: "manager", approvals: { status: "pending", stage: "manager", reviewer_id: current_user.id }))
       .where.not(user_id: current_user.id)
     end
 
