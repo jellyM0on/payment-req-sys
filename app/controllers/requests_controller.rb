@@ -306,9 +306,6 @@ class RequestsController < ApplicationController
     @new_supporting_documents = @custom_params[:new_supporting_documents]
 
     def supporting_documents_is_invalid(request)
-      # puts (@deleted_supporting_documents.present?)
-      # puts (@deleted_supporting_documents.length >= request.supporting_documents.length)
-      # puts (!@new_supporting_documents.present?)
       return true if @new_supporting_documents && @new_supporting_documents.length > 10
       return true if @deleted_supporting_documents.present? &&
         @deleted_supporting_documents.length >= request.supporting_documents.length &&

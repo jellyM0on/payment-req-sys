@@ -25,15 +25,16 @@ class User < ApplicationRecord
   attr_accessor :manager_id
 
   validates :manager_id, presence: true, if: :is_employee
+  validate :manager_is_same_department
 
-  validate :manager_department_matches_user_department, if: :is_employee
-
-  def manager_department_matches_user_department
-    if manager && manager.department != self.department
-      errors.add(:manager, "department must match your department")
+  def manager_is_same_department
+    if manager_id
+      manager = User.find(manager_id)
+      if manager.department != department
+        errors.add(:manager_id, "Must be the same department")
+      end
     end
   end
-
 
   def self.ransackable_attributes(auth_object = nil)
     %w[ id name department role email position department ]

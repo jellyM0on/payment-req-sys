@@ -61,6 +61,11 @@ class UsersController < ApplicationController
     @user.manager_id = params[:manager_id]
 
     def update_manager
+      manager_user = User.find(params[:manager_id])
+      if manager_user.department != @user.department
+        return false
+      end
+
       if  params[:manager_id].present?
         manager = ManagerAssignment.find_by(
           user_id: params[:id]
@@ -83,6 +88,7 @@ class UsersController < ApplicationController
       manager = ManagerAssignment.find_by(
         user_id: params[:id]
       )
+
       if manager
         ManagerAssignment.destroy(manager.id)
       end
