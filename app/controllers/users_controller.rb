@@ -61,8 +61,12 @@ class UsersController < ApplicationController
     @user.manager_id = params[:manager_id]
 
     def update_manager
-      manager_user = User.find(params[:manager_id])
-      if manager_user.department != @user.department
+      manager_user = User.find_by_id(params[:manager_id])
+      if (!manager_user || manager_user.department != @user.department) && params[:manager_id]
+        return false
+      end
+
+      if params[:role] == "employee" && !params[:manager_id]
         return false
       end
 

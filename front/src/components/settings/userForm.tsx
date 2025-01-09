@@ -144,6 +144,7 @@ function UserForm({ user }: UserFormProps) {
     setFormInput((prevInputs) => ({
       ...prevInputs,
       role: user.role,
+      manager_id: user.manager?.id
     }));
 
     if (!user.manager) return;
@@ -216,6 +217,7 @@ function UserForm({ user }: UserFormProps) {
 
   const updateUser = async () => {
     if (!user) return;
+    console.log(formInput)
     try {
       const response = await fetch(`http://localhost:3000/users/${user.id}`, {
         method: "PUT",
