@@ -55,14 +55,17 @@ class RequestsController < ApplicationController
 
     def match_no_reviewer(input)
       return nil if input.empty?
-      input.match?(/t(b|ba)\z?/i) ? true : nil
+      input.match?(/t(b|ba)\z?$/i) ? true : nil
     end
 
     if current_user.role == "employee" && current_user.department != "accounting" && params[:search_by]
       @q = requests.ransack(
       {
         approvals_reviewer_name_cont: params[:search_by],
-        approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
+        g: [ {
+          approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
+          current_stage_not_eq:  match_no_reviewer(params[:search_by]) ? "admin" : nil
+        } ],
         overall_status_eq:
           find_enum(
             params[:search_by],
@@ -86,7 +89,10 @@ class RequestsController < ApplicationController
       {
         user_name_cont: params[:search_by],
         approvals_reviewer_name_cont: params[:search_by],
-        approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
+        g: [ {
+          approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
+          current_stage_not_eq:  match_no_reviewer(params[:search_by]) ? "admin" : nil
+        } ],
         user_department_eq:
           find_enum(
             params[:search_by],
