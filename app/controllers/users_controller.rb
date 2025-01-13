@@ -76,7 +76,7 @@ class UsersController < ApplicationController
       end
 
       if params[:role] == "employee" && !params[:manager_id]
-        false
+        return false
       end
 
       if  params[:manager_id].present? && params[:role] != "manager"

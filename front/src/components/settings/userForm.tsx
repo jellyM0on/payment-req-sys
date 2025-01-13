@@ -124,6 +124,10 @@ function UserForm({ user }: UserFormProps) {
     }));
 
     if (role == "manager") {
+      setFormInput((prevInputs) => ({
+        ...prevInputs, 
+        manager_id: undefined
+      }))
       setManager(undefined);
     }
 
