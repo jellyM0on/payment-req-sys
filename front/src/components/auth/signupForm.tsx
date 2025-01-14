@@ -100,6 +100,12 @@ function SignupForm() {
       ...prevInputs,
       role: selectedItem!.toLowerCase(),
     }));
+    if(selectedItem == "Manager"){
+      setFormInput((prevInputs) => ({
+        ...prevInputs,
+        manager_id: null
+      }));
+    }
     setManager(undefined)
     console.log(formInput);
   };
