@@ -224,9 +224,10 @@ const setRadioItem = ({
 interface DateFormInputProps {
   handleChange: (date: string) => void;
   formValue: string | null | undefined;
+  errors? : Array<string>
 }
 
-const DateFormInput = ({ handleChange, formValue }: DateFormInputProps) => {
+const DateFormInput = ({ handleChange, formValue, errors }: DateFormInputProps) => {
   const [date, setDate] = useState(new Date().toString());
 
   useEffect(() => {
@@ -243,6 +244,7 @@ const DateFormInput = ({ handleChange, formValue }: DateFormInputProps) => {
         handleChange(new Date(date).toString());
       }}
       value={date}
+      error={errors ? true : false}
     />
   );
 };
@@ -252,9 +254,10 @@ interface DateFormInput {
   id: string;
   label: string;
   formValue?: string | null;
+  errors?: Array<string>;
 }
 
-const setDateItem = ({ handleChange, id, label, formValue }: DateFormInput) => {
+const setDateItem = ({ handleChange, id, label, formValue, errors }: DateFormInput) => {
   return {
     title: (
       <FormControlLabel id={id}>
@@ -262,7 +265,20 @@ const setDateItem = ({ handleChange, id, label, formValue }: DateFormInput) => {
         <RequiredIcon ml={0.5} />
       </FormControlLabel>
     ),
-    value: <DateFormInput handleChange={handleChange} formValue={formValue} />,
+    value: (
+      <Stack>
+      <DateFormInput handleChange={handleChange} formValue={formValue} errors={errors} />
+        {errors ? (
+        errors.map((msg) => (
+          <Message error>
+            <Text size={0.75}>{msg}</Text>
+          </Message>
+        ))
+      ) : (
+        <></>
+      )}
+    </Stack>
+    )
   };
 };
 
@@ -728,6 +744,7 @@ function RequestForm({
                 label: "Payment Due Date",
                 handleChange: handleChangeDate,
                 formValue: formInput?.payment_due_date,
+                errors: errors?.payment_due_date,
               }),
               setListItem({
                 label: "Make Payable To",
