@@ -146,7 +146,8 @@ class User < ApplicationRecord
   def update_manager(params)
     manager_user = User.find_by_id(params[:manager_id])
     if ((!manager_user || manager_user.department != department) && params[:manager_id]) ||
-      (params[:role] == "employee" && !params[:manager_id] && manager_user.role != "manager")
+      (params[:role] == "employee" && !params[:manager_id]) ||
+      (params[:manager_id] && manager_user.role != "manager")
       return false
     end
 
