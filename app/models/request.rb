@@ -22,7 +22,7 @@ class Request < ApplicationRecord
   validates :payment_payable_to, presence: true, length: { in: 1..100 }
   validates :payment_mode, presence: true
   validates :purchase_description, presence: true, length: { in: 1..500 }
-  validates :purchase_amount, presence: true, comparison: { less_than: 10000000000000000000 }
+  validates :purchase_amount, presence: true, comparison: { less_than: 1000000000000000000 }
   validates :purchase_category, presence: true
 
   validates :vendor_attachment, attached: true, content_type: [ "image/png", "image/jpeg", "application/pdf" ],

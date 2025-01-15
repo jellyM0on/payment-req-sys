@@ -837,7 +837,7 @@ function RequestForm({
                 type: "text",
                 formValue: formInput?.purchase_amount?.toString(),
                 errors: errors?.purchase_amount,
-                message: "Values are in Php by default. Format: 20000000.00000",
+                message: "Values are in Php by default. Format: 20000000.00",
                 handleChange: handleChangeAmount,
               }),
               {

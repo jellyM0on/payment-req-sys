@@ -19,7 +19,7 @@ class CreateRequests < ActiveRecord::Migration[7.2]
       t.integer :payment_mode, null: false
       t.integer :purchase_category, null: false
       t.text :purchase_description, null: false
-      t.decimal :purchase_amount, null: false, precision: 20, scale: 5
+      t.decimal :purchase_amount, null: false, precision: 20, scale: 2
 
       t.timestamps
     end
