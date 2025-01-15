@@ -19,25 +19,25 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user = User.includes(:manager).find(params[:id])
+    user = User.includes(:manager).find(params[:id])
 
-    @user.manager_id = params[:manager_id]
-    if @user.role == "employee" && params[:role] != "employee"
-      @user.destory_manager_assignment(params[:id])
+    user.manager_id = params[:manager_id]
+    if user.role == "employee" && params[:role] != "employee"
+      user.destory_manager_assignment(params[:id])
     end
 
-    if @user.role == "manager" && params[:role] != "manager"
-      if !@user.is_manager_update_valid(params[:id])
+    if user.role == "manager" && params[:role] != "manager"
+      if !user.is_manager_update_valid(params[:id])
         render json: { error: { role: "Manager has assigned employees and/or pending approvals" } }, status: :bad_request
         return
       end
     end
 
-    if @user.update_role(params) && @user.update_manager(params)
-      @user.reload
-      render json: @user, serializer: UserSerializer, status: :ok
+    if user.update_role(params) && user.update_manager(params)
+      user.reload
+      render json: user, serializer: UserSerializer, status: :ok
     else
-      render json: { error: @user.errors }, status: :bad_request
+      render json: { error: user.errors }, status: :bad_request
     end
   end
 

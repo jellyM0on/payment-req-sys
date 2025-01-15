@@ -22,9 +22,9 @@ class ApprovalsController < ApplicationController
     end
 
     if approval.update(@validated_params.merge({ decided_at: Time.current.to_s, reviewer_id: current_user.id })) &&
-    updateCurrentStage(approval) &&
-    updatePendingApprovals(approval) &&
-    updateOverallStatus(approval)
+    approval.update_current_stage(approval) &&
+    approval.update_pending_approvals(approval) &&
+    approval.update_overall_status(approval)
 
       approval.request.reload
 
@@ -46,51 +46,5 @@ class ApprovalsController < ApplicationController
 
   def validate_params
     @validated_params = params.require(:approval).permit(:status)
-  end
-
-  def updatePendingApprovals(current_approval)
-    if current_approval.status == "rejected"
-      pending_approvals = Approval.where(
-        request_id: current_approval.request_id,
-        status: "pending"
-      )
-
-      pending_approvals.each do |p_approval|
-        # p_approval.update(status: "rejected", decided_at: Time.current.to_s)
-        p_approval.update(status: "rejected")
-      end
-    else
-      true
-    end
-  end
-
-  def updateOverallStatus(current_approval)
-    if current_approval.stage == "admin"
-      request = Request.find(current_approval.request_id)
-      if request.update(overall_status: current_approval.status)
-        true
-      end
-
-    elsif current_approval.status == "rejected"
-      request = Request.find(current_approval.request_id)
-      if request.update(overall_status: "rejected")
-        true
-      end
-
-    else
-      true
-    end
-  end
-
-  def updateCurrentStage(current_approval)
-    if current_approval.stage == "admin"
-      return true
-    end
-
-    request = Request.find(current_approval.request_id)
-
-    if request.update(current_stage: current_approval.stage_before_type_cast + 1)
-      true
-    end
   end
 end
