@@ -2,126 +2,11 @@ class RequestsController < ApplicationController
   include Rails.application.routes.url_helpers
 
   before_action :authenticate_user!
-  before_action :check_role
-  before_action :check_unspec_role, only: [ :index ]
   before_action :validate_params, only: [ :create ]
   before_action :validate_params_update, only: [ :update ]
 
   def index
-    filter_param = params[:filter_by]
-
-    requests = Request.includes(:user, approvals: :reviewer)
-
-    case @user_role
-    when "admin", "accounting_employee", "accounting_manager"
-      requests = requests.all
-
-    when "employee"
-      requests = requests.where(
-        user_id: current_user.id
-      )
-
-    when "manager"
-      requests = requests.joins(:approvals).where(approvals: { reviewer: current_user.id }).or(Request.where(user: current_user.id)).distinct
-    end
-
-    if filter_param == "own_approvals" && @user_role != "admin" && @user_role != "accounting_manager"
-      requests = requests.joins(:approvals)
-      .where(current_stage: @user_unspec_role, approvals: { status: "pending", stage: @user_unspec_role })
-      .where.not(user_id: current_user.id)
-    end
-
-    if filter_param == "own_approvals" && @user_role == "accounting_manager"
-      requests = requests.joins(:approvals)
-      .where(current_stage: "accountant", approvals: { status: "pending", stage: "accountant" })
-      .or(Request.where(current_stage: "manager", approvals: { status: "pending", stage: "manager", reviewer_id: current_user.id }))
-      .where.not(user_id: current_user.id)
-    end
-
-    if filter_param == "own_approvals" && @user_role == "admin"
-      requests = requests.joins(:approvals)
-      .where(current_stage: @user_unspec_role, approvals: { status: "pending", stage: @user_unspec_role })
-    end
-
-    if requests.nil?
-      render json: { requests: nil, pagination_meta: nil }, status: :ok
-      return
-    end
-
-    def find_enum(input, statuses)
-      return nil if input.empty?
-      statuses.find_index {  |status| status.include?(input.downcase) }
-    end
-
-    def match_no_reviewer(input)
-      return nil if input.empty?
-      input.match?(/t(b|ba)\z?$/i) ? true : nil
-    end
-
-    if current_user.role == "employee" && current_user.department != "accounting" && params[:search_by]
-      @q = requests.ransack(
-      {
-        approvals_reviewer_name_cont: params[:search_by],
-        g: [ {
-          approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
-          current_stage_not_eq:  match_no_reviewer(params[:search_by]) ? "admin" : nil
-        } ],
-        overall_status_eq:
-          find_enum(
-            params[:search_by],
-            [ "pending status", "accepted status", "rejected status" ]
-          ),
-        current_stage_eq:
-          find_enum(
-            params[:search_by],
-            [ "manager stage", "accountant stage", "admin stage" ]
-          ),
-        purchase_category_eq:
-        find_enum(
-          params[:search_by],
-          [ "company events and activities", "office_events and activities", "trainings and seminars", "others" ]
-          ),
-        id_eq: params[:search_by]
-      },
-      { grouping: Ransack::Constants::OR })
-    elsif params[:search_by]
-      @q = requests.ransack(
-      {
-        user_name_cont: params[:search_by],
-        approvals_reviewer_name_cont: params[:search_by],
-        g: [ {
-          approvals_reviewer_name_blank: match_no_reviewer(params[:search_by]),
-          current_stage_not_eq:  match_no_reviewer(params[:search_by]) ? "admin" : nil
-        } ],
-        user_department_eq:
-          find_enum(
-            params[:search_by],
-            [ "technical department", "accounting department", "hr and admin department" ]
-          ),
-        overall_status_eq:
-          find_enum(
-            params[:search_by],
-            [ "pending status", "accepted status", "rejected status" ]
-          ),
-        current_stage_eq:
-          find_enum(
-            params[:search_by],
-            [ "manager stage", "accountant stage", "admin stage" ]
-          ),
-        purchase_category_eq:
-          find_enum(
-            params[:search_by],
-            [ "company events and activities", "office_events and activities", "trainings and seminars", "others" ]
-          ),
-        id_eq: params[:search_by]
-      },
-      { grouping: Ransack::Constants::OR })
-    else
-      @q = requests.ransack()
-    end
-
-    requests = @q.result(distinct: true)
-    requests = requests.order(created_at: :desc).page(params[:page] ? params[:page].to_i: 1).per(params[:limit] || 5)
+    requests = Request.get_all(params, current_user)
 
     render json: { requests: ActiveModelSerializers::SerializableResource.new(requests, each_serializer: RequestSummarySerializer),
                     pagination_meta: pagination_meta(requests)
@@ -131,14 +16,7 @@ class RequestsController < ApplicationController
   def show
     request = Request.includes(:approvals).find(params[:id])
 
-    isReviewer = false
-    request.approvals.each do |approval|
-      if approval.reviewer_id == current_user.id || approval.stage == "accountant" && current_user.department == "accounting"
-        isReviewer = true
-      end
-    end
-
-    if request.user_id == current_user.id || isReviewer
+    if request.user_id == current_user.id || request.is_user_reviewer(current_user)
         render json: { request: ActiveModelSerializers::SerializableResource.new(request, serializer: RequestSerializer) }
     else
       render json: "Unauthorized", status: :unauthorized
@@ -147,14 +25,8 @@ class RequestsController < ApplicationController
 
   def show_edit
     request = Request.includes(:approvals).find(params[:id])
-    isEditable = true
-    request.approvals.each do |approval|
-      if approval.status != "pending"
-        isEditable = false
-      end
-    end
 
-    if request.user_id == current_user.id && isEditable
+    if request.user_id == current_user.id && request.is_editable
         render json: { request: ActiveModelSerializers::SerializableResource.new(request, serializer: RequestEditSerializer) }
     else
       render json: "Unauthorized", status: :unauthorized
@@ -165,9 +37,9 @@ class RequestsController < ApplicationController
     request = Request.new(@validated_params)
     request.user_id = current_user.id
     request.overall_status = "pending"
-    attach_documents(request)
+    request.attach_documents(params)
 
-    case @user_role
+    case current_user.check_role
     when "employee", "accounting_employee"
       request.current_stage = "manager"
 
@@ -178,7 +50,7 @@ class RequestsController < ApplicationController
       request.current_stage = "accountant"
     end
 
-    buildApprovals(request, @user_role)
+    request.build_approvals(current_user)
 
     if request.save
       render json: request, serializer: RequestSerializer, status: :ok
@@ -189,22 +61,14 @@ class RequestsController < ApplicationController
 
   def update
     request = Request.find(params[:id])
-    hasDecidedApproval = false
 
-    request.approvals.each do |approval|
-      if approval.status == "accepted" || approval.status == "rejected"
-        hasDecidedApproval = true
-        break
-      end
-    end
-
-    if request.user_id != current_user.id || hasDecidedApproval
+    if request.user_id != current_user.id || request.has_decided_approval
       render json: "Unauthorized", status: :unauthorized
       return
     end
 
     request.update(@validated_params_update)
-    update_documents(request)
+    request.update_documents(@custom_params)
 
     if request.errors.empty?
       render json: request, serializer: RequestSerializer, status: :ok
@@ -214,24 +78,6 @@ class RequestsController < ApplicationController
   end
 
   private
-
-  def check_role
-    if current_user.department == "accounting" && current_user.role == "employee"
-      @user_role = "accounting_employee"
-    elsif current_user.department == "accounting" && current_user.role == "manager"
-      @user_role = "accounting_manager"
-    else
-      @user_role = current_user.role
-    end
-  end
-
-  def check_unspec_role
-    if current_user.department == "accounting"
-      @user_unspec_role = "accountant"
-    else
-      @user_unspec_role = current_user.role
-    end
-  end
 
   def validate_params
     @validated_params = params.require(:request).permit(
@@ -265,7 +111,7 @@ class RequestsController < ApplicationController
       :payment_mode,
       :purchase_category,
       :purchase_description,
-      :purchase_amount,
+      :purchase_amount
     )
 
     @custom_params = params.require(:request).permit(
@@ -274,97 +120,6 @@ class RequestsController < ApplicationController
       new_supporting_documents: [],
       deleted_supporting_documents: []
     )
-  end
-
-  def attach_documents(request)
-    if params[:vendor_attachment].present?
-      request.vendor_attachment.purge if request.vendor_attachment.attached?
-      request.vendor_attachment.attach(params[:vendor_attachment])
-    end
-
-    if params[:supporting_documents].present?
-      request.supporting_documents.purge if request.supporting_documents.attached?
-      request.supporting_documents.attach(params[:supporting_documents])
-    end
-  end
-
-  def update_documents(request)
-    @new_vendor_attachment = @custom_params[:new_vendor_attachment]
-    @deleted_vendor_attachment = @custom_params[:deleted_vendor_attachment]
-
-    def vendor_attachment_is_invalid(request)
-      return true if !@new_vendor_attachment.present? && @deleted_vendor_attachment.present?
-      false
-    end
-
-    if @deleted_vendor_attachment.present? && vendor_attachment_is_invalid(request)
-      request.errors.add(:vendor_attachment, :blank)
-    end
-
-    if @new_vendor_attachment.present? && !vendor_attachment_is_invalid(request)
-      request.vendor_attachment.purge
-      request.vendor_attachment.attach(@new_vendor_attachment)
-    end
-
-    @deleted_supporting_documents = @custom_params[:deleted_supporting_documents]
-    @new_supporting_documents = @custom_params[:new_supporting_documents]
-
-    def supporting_documents_is_invalid(request)
-      return true if @new_supporting_documents && @new_supporting_documents.length > 10
-      return true if @deleted_supporting_documents.present? &&
-        @deleted_supporting_documents.length >= request.supporting_documents.length &&
-        !@new_supporting_documents.present?
-
-      false
-    end
-
-    if (@new_supporting_documents.present? || @deleted_supporting_documents.present?) && supporting_documents_is_invalid(request)
-      request.errors.add(:supporting_documents, :limit, message: "Must upload 1 to 10 files")
-    end
-
-    if @deleted_supporting_documents.present? && !supporting_documents_is_invalid(request)
-      @deleted_supporting_documents.each do | document_id |
-        file = request.supporting_documents.find_by(id: document_id)
-        if file
-          file.purge
-        end
-      end
-    end
-
-    if @new_supporting_documents.present? && !supporting_documents_is_invalid(request)
-      request.supporting_documents.attach(@new_supporting_documents)
-    end
-  end
-
-  def build_request_with_documents(request)
-    request.as_json.merge(
-        vendor_attachment: [ { id: request.vendor_attachment.id, name: request.vendor_attachment.filename.to_s, url: url_for(request.vendor_attachment) } ],
-        supporting_documents: request.supporting_documents.map { |document| { id: document.id, name: document.filename.to_s, url: url_for(document) } }
-    )
-  end
-
-  def buildApprovals(request, user_role)
-    buildManagerApproval(request, user_role)
-    buildAccountantApproval(request)
-    buildAdminApproval(request)
-  end
-
-  def buildManagerApproval(request, user_role)
-    if user_role == "manager" || user_role == "accounting_manager"
-      request.approvals.build(stage: "manager", reviewer_id: current_user.id, status: "accepted", decided_at: Time.current.to_s)
-    elsif user_role == "admin"
-      request.approvals.build(stage: "manager", reviewer_id: nil, status: "accepted", decided_at: Time.current.to_s)
-    else
-      request.approvals.build(stage: "manager", reviewer_id: current_user.manager.id, status: "pending")
-    end
-  end
-
-  def buildAccountantApproval(request)
-    request.approvals.build(stage: "accountant", reviewer_id: nil, status: "pending")
-  end
-
-  def buildAdminApproval(request)
-    request.approvals.build(stage: "admin", reviewer_id: User.find_by(role: "admin").id, status: "pending")
   end
 
   def pagination_meta(requests) {

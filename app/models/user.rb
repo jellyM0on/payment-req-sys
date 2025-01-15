@@ -176,4 +176,22 @@ class User < ApplicationRecord
       false
     end
   end
+
+  def check_role
+    if department == "accounting" && role == "employee"
+      "accounting_employee"
+    elsif department == "accounting" && role == "manager"
+      "accounting_manager"
+    else
+      role
+    end
+  end
+
+  def check_unspec_role
+    if department == "accounting"
+      "accountant"
+    else
+      role
+    end
+  end
 end
