@@ -67,10 +67,17 @@ class RequestsController < ApplicationController
       return
     end
 
-    request.update(@validated_params_update)
-    request.update_documents(@custom_params)
+    request.assign_attributes(@validated_params_update.slice(
+      :vendor_name, :vendor_tin, :vendor_address, :vendor_email, :vendor_contact_num,
+      :vendor_certificate_of_reg, :payment_due_date, :payment_payable_to,
+      :payment_mode, :purchase_category, :purchase_description, :purchase_amount
+    ))
 
-    if request.errors.empty?
+    request.update_documents(@validated_params_update.slice(
+      :new_vendor_attachment, :deleted_vendor_attachment, :new_supporting_documents, :deleted_supporting_documents
+    ))
+
+    if request.errors.empty? && request.save
       render json: request, serializer: RequestSerializer, status: :ok
     else
       render json: { errors: request.errors },  status: :bad_request
@@ -111,10 +118,7 @@ class RequestsController < ApplicationController
       :payment_mode,
       :purchase_category,
       :purchase_description,
-      :purchase_amount
-    )
-
-    @custom_params = params.require(:request).permit(
+      :purchase_amount,
       :new_vendor_attachment,
       deleted_vendor_attachment: [],
       new_supporting_documents: [],
