@@ -67,7 +67,7 @@ class RequestsController < ApplicationController
       return
     end
 
-    request.assign_attributes(@validated_params_update.slice(
+    request.update(@validated_params_update.slice(
       :vendor_name, :vendor_tin, :vendor_address, :vendor_email, :vendor_contact_num,
       :vendor_certificate_of_reg, :payment_due_date, :payment_payable_to,
       :payment_mode, :purchase_category, :purchase_description, :purchase_amount
@@ -77,7 +77,7 @@ class RequestsController < ApplicationController
       :new_vendor_attachment, :deleted_vendor_attachment, :new_supporting_documents, :deleted_supporting_documents
     ))
 
-    if request.errors.empty? && request.save
+    if request.errors.empty?
       render json: request, serializer: RequestSerializer, status: :ok
     else
       render json: { errors: request.errors },  status: :bad_request
