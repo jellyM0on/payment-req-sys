@@ -4,7 +4,7 @@ source "https://rubygems.org"
 gem "rails", "~> 8.0.1"
 # Use mysql2 as the database for Active Record
 gem "mysql2", "~> 0.5"
-gem "activestorage", "~> 8.0.1"
+gem "activestorage", "~> 8.0.2"
 gem "active_storage_validations"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
