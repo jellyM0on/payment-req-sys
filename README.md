@@ -27,7 +27,7 @@ It is a multi-role request approval system with a configurable 3-step approval w
   - Accountants can approve manager approved requests
   - Admins can approve accountant approved requests 
   - Requests made by managers are auto-approved at the manager stage 
-  - Requests made by accountant managers can be approved by any other accountant manager
+  - Requests made by accountant managers can be approved by any other accountant (employee or manager) in the accounting stage
   - Requests made by admins are auto-approved at the manager stage and requires self-approval at the admin stage
 - User Management 
   - Admins can create user accounts and edit existing accounts' assigned role and manager
@@ -59,14 +59,44 @@ https://github.com/user-attachments/assets/57dd0b52-ba21-45b7-9108-c64c26a24377
 https://github.com/user-attachments/assets/145ef038-198b-463c-a513-8a58882cfe98
 
 - Approval Flow of an employee made request
+
+https://github.com/user-attachments/assets/eac4bd69-419c-48b2-a124-34e3f3bc5de6
+
+https://github.com/user-attachments/assets/745fd353-1abf-40de-bda2-5069b0ce21e1
+
 - Approval Flow of an accountant-employee made request
+
+https://github.com/user-attachments/assets/23b38908-cbb7-4ce8-a869-f54e97232823
+
+https://github.com/user-attachments/assets/0f752029-40f6-4869-b561-3e1483c1976a
+
 - Approval Flow of a manager made request 
+
+https://github.com/user-attachments/assets/ffbc359f-6959-49ae-a2d9-41cfa20c6073
+
+https://github.com/user-attachments/assets/f2b69226-ceba-46ea-a4cf-ed4138808045
+
 - Approval Flow of an account-manager made request
+
+https://github.com/user-attachments/assets/2a427d43-d008-457d-bfef-02e9ed62255b
+
+https://github.com/user-attachments/assets/c0fae68e-51ec-4fdd-8daf-1cf5f9db2930
+
 - Approval Flow of an admin-made request
+
+https://github.com/user-attachments/assets/cf2d0f12-13d1-4520-b750-11afef56d9d8
+
+https://github.com/user-attachments/assets/a64ff1f5-1d08-4888-a497-3d5d2a59020a
+
 - User Creation and Editing
+https://github.com/user-attachments/assets/a3ed390e-502d-466c-b023-ba0c4c875b1d
+
+https://github.com/user-attachments/assets/e0ae94a2-c136-455c-ac65-1fbd8d70e488
+
 
 ## Stack 
 - React TypeScript
+  - Vibes by freee for CSS
 - Ruby on Rails
   - Kaminari gem for pagination
   - Ransack gem for search 
